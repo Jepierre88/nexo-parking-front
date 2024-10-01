@@ -15,7 +15,7 @@ module.exports = {
       },
     },
   },
-  darkMode: "class",
+  darkMode: "class", // Asegúrate de tener esto bien configurado
   plugins: [nextui({
     themes:{
       light:{
@@ -31,9 +31,30 @@ module.exports = {
           nonary: '#673AB7',
           tentary: '#3F51B5',
         },
+        tabs: {
+          color: '#fff', // Color de las tabs no seleccionadas en modo oscuro
+          activeColor: '#90CAF9', // Color del texto de la tab seleccionada en modo oscuro
+        },
+      },
+      dark: {
+        colors: {
+          primary: '#4CAF50',   // Un color más claro para texto en botones
+          secondary: '#81C784',
+          tertiary: '#EF9A9A',
+          quaternary: '#FFB74D',
+          quinary: '#4DB6AC',
+          senary: '#DCE775',
+          septenary: '#F06292',
+          octonary: '#BA68C8',
+          nonary: '#9575CD',
+          tentary: '#7986CB',
+        },
+        tabs: {
+          color: '#fff', // Color de las tabs no seleccionadas en modo oscuro
+          activeColor: '#90CAF9', // Color del texto de la tab seleccionada en modo oscuro
+        },
       }
     }
   }  
-    )
-],
+  )],
 }

@@ -11,7 +11,7 @@ import { UseAuthContext } from "@/app/context/AuthContext";
 
 export default function Login() {
 	const { router } = UseNavigateContext();
-	const { setToken, setIsAuthenticated } = UseAuthContext();
+	const { setToken, setIsAuthenticated, setUser } = UseAuthContext();
 	interface UserLogin {
 		email: string;
 		password: string;
@@ -28,7 +28,13 @@ export default function Login() {
 			localStorage.setItem("token", response.data.token);
 			if (response.data.token) {
 				setToken(response.data.token);
+				setUser({
+					name: response.data.name,
+					lastName: response.data.lastName,
+					realm: response.data.realm,
+				});
 				setIsAuthenticated(true);
+
 				router.push("/parking-payment");
 			}
 		} catch (error) {
@@ -57,14 +63,14 @@ export default function Login() {
 								label={"Correo electronico"}
 								type="email"
 								size="lg"
-								variant="bordered"
+								variant="faded"
 								{...register("email", { required: true })}
 							/>
 							<Input
 								label={"Contraseña"}
 								type="password"
 								size="lg"
-								variant="bordered"
+								variant="faded"
 								{...register("password", { required: true })}
 							/>
 							<Button
@@ -72,7 +78,7 @@ export default function Login() {
 								color="primary"
 								type="submit"
 								size="lg"
-								variant="shadow"
+								variant="ghost"
 							>
 								Continuar
 							</Button>

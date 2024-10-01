@@ -9,8 +9,10 @@
 		"lint": "eslint . --ext .ts,.tsx -c .eslintrc.json --fix"
 	},
 	"dependencies": {
+		"@internationalized/date": "^3.5.5",
 		"@nextui-org/button": "2.0.38",
 		"@nextui-org/card": "^2.0.34",
+		"@nextui-org/checkbox": "^2.1.5",
 		"@nextui-org/code": "2.0.33",
 		"@nextui-org/date-input": "^2.1.4",
 		"@nextui-org/dropdown": "^2.1.31",
