@@ -10,9 +10,12 @@ import { UseAuthContext } from "../context/AuthContext";
 import { validateCredentials } from "../utils/functions";
 import { Checkbox } from "@nextui-org/checkbox";
 import { Button } from "@nextui-org/button";
+import { Select, SelectItem } from "@nextui-org/select";
+import UseListsPaymentMethods from "./hooks/UseListsPaymentMethods";
 
 export default function ParkingPayment() {
 	const { user } = UseAuthContext();
+	const { namePaymentType } = UseListsPaymentMethods("namePaymentType");
 
 	const [userData, setUserData] = useState<UserData>({
 		IVAPercentage: 0,
@@ -47,7 +50,7 @@ export default function ParkingPayment() {
 
 	return (
 		<main className="flex flex-col md:flex-row gap-3 justify-center items-center">
-			<Card className="md:w-1/2 w-full py-6">
+			<Card className="md:w-[500px] w-full py-6">
 				<Tabs className="mx-auto" color="primary">
 					<Tab title={"Visitante QR"}>
 						<VisitanteQr userData={userData} setUserData={setUserData} />
@@ -60,7 +63,7 @@ export default function ParkingPayment() {
 					</Tab>
 				</Tabs>
 			</Card>
-			<Card className="md:w-1/2 w-full py-6">
+			<Card className="md:w-[600] w-full py-6">
 				<article>
 					<h2 className="font-bold text-xl text-center my-3">Datos de cobro</h2>
 				</article>
@@ -96,8 +99,42 @@ export default function ParkingPayment() {
 						<strong>Valor parqueadero: </strong>
 						{userData?.total && `$${userData.total}`}
 					</div>
+			
+				<article>
+					<h2 className="font-bold text-xl text-center my-3">Datos de pago</h2>
+				</article>
+				<form className="flex flex-col justify-between items-between">
+				<Checkbox color="primary">Facturación electrónica</Checkbox>
+				<Checkbox color="primary">Preguntar antes de imprimir</Checkbox>
+					<div>
+						<strong>Total </strong>
+						{userData?.total && `$${userData.total}`}
+					</div>
+					<div className="flex gap-4 justify-between px-4">
+					<label className="text-xl font-bold text-nowrap my-auto">
+						Medio de pago
+					</label>
+					<Select className="w-[200px]" size="sm" label="Seleccionar">
+						{namePaymentType &&
+							namePaymentType.map((item, index) => {
+								return (
+									<SelectItem key={index} value={item.id}>
+										{item.namePaymentType}
+									</SelectItem>
+								);
+							})}
+					</Select>
+				</div>
+					<div>
+						<strong>RECIBIDO </strong>
+						{userData?.total && `$${userData.total}`}
+					</div>
 					<hr className="border-t w-3/4 my-2" />
-					<Checkbox color="primary">Imprimir factura</Checkbox>
+					<div>
+						<strong>DEVOLUCIÓN </strong>
+						{userData?.total && `$${userData.total}`}
+					</div>
+
 					<Button
 						color="primary"
 						className="text-white font-bold my-5"
@@ -105,6 +142,7 @@ export default function ParkingPayment() {
 					>
 						Realizar pago
 					</Button>
+					</form>
 				</form>
 			</Card>
 		</main>
