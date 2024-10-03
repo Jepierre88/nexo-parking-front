@@ -53,7 +53,7 @@ export default function VisitanteQr({
 							services.map((item, index) => {
 								return (
 									<SelectItem key={index} value={item.id}>
-										{item.serviceType}
+										{item.name}
 									</SelectItem>
 								);
 							})}

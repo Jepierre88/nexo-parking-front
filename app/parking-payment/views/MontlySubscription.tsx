@@ -62,6 +62,14 @@ export default function Mensualidad() {
 					</label>
 					<DateInput variant="underlined" className="w-1/2" />
 				</div>
+				<h2 className="font-bold text-4xl text-center">Última mensualidad</h2>
+				<div className="flex gap-4 justify-between px-4">
+					<label className="text-xl font-bold text-nowrap my-auto">Tipo</label>
+				</div>
+				<div className="flex gap-4 justify-between px-4">
+					<label className="text-xl font-bold text-nowrap my-auto">Valido hasta</label>
+				</div>
+	
 			</form>
 		</article>
 	);

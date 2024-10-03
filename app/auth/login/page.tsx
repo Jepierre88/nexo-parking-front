@@ -20,7 +20,7 @@ export default function Login() {
 	const { register, handleSubmit } = useForm();
 	const onSubmit: SubmitHandler<any> = async (data: UserLogin) => {
 		try {
-			console.log(process.env.NEXT_PUBLIC_LOCAL_APIURL)
+			console.log()
 			const response = await axios.post(
 				`${process.env.NEXT_PUBLIC_LOCAL_APIURL}/users/login`,
 				data
