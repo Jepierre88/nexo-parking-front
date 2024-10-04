@@ -10,6 +10,8 @@ import { UserData } from "@/types";
 import UseUsers from "@/app/parking-payment/hooks/UseUsers";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import { createTheme, ThemeProvider } from '@mui/material/styles';
+import { ModalContent, useDisclosure } from "@nextui-org/modal";
+import { Modal } from "@mui/material";
 
 const handleClick = () => {
   console.log('Click');
@@ -23,6 +25,7 @@ export default function Users({
   setUserData: (userdata: UserData) => void;
 }) {
   const { users } = UseUsers();
+  const {isOpen, onOpen, onOpenChange} = useDisclosure();
 
 
   const [paginationModel, setPaginationModel] = useState({
@@ -57,7 +60,10 @@ export default function Users({
 
   return (
     <section>
+      <div className="flex justify-between">
       <h1 className={title()}>Usuarios</h1>
+      <Button className="flex justify items-center " onPress={onOpen}>Open Modal</Button>
+      </div>
       <div style={{ height: 400, width: '100%', marginTop: "20px" }}>
         <DataGrid
         sx={{backgroundColor: "white"}}
@@ -76,6 +82,7 @@ export default function Users({
           }}
         />
       </div>
+
     </section>
   );
 }
