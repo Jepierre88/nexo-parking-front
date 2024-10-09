@@ -7,6 +7,7 @@ import { Button } from "@nextui-org/button";
 import { useEffect, useState } from "react";
 import { UserData } from "@/types";
 import { CalendarDate } from "@internationalized/date";
+import { Checkbox } from "@nextui-org/checkbox";
 
 export default function VisitanteQr({
 	userData,
@@ -38,6 +39,7 @@ export default function VisitanteQr({
 		}
 	};
 
+
 	return (
 		<article className="flex flex-col gap-4">
 			<h2 className="font-bold text-3xl text-center">
@@ -59,7 +61,7 @@ export default function VisitanteQr({
 							})}
 					</Select>
 				</div>
-				<div className="flex gap-4 justify-between px-4">
+				<div className="flex gap-4 justify-between px-12">
 					<label className="text-xl font-bold text-nowrap my-auto">QR</label>
 					<Input
 						variant="underlined"
@@ -69,39 +71,44 @@ export default function VisitanteQr({
 						}}
 					/>
 				</div>
-				<div className="flex gap-4 justify-between px-4">
+				<div className="flex gap-4 justify-between px-12">
 					<label className="text-xl font-bold text-nowrap my-auto">Placa</label>
 					<Input
 						variant="underlined"
-						className="w-1/2"
+						className="w-1/5"
 						value={userData.plate}
 						onChange={(e) =>
 							setUserData({ ...userData, plate: e.target.value.toUpperCase() })
 						}
 					/>
+					<Button
+						color="primary"
+						className="text-white font-bold text-xl my-0.5 px-0.5"
+						size="lg"
+					>
+						Validar día pago
+					</Button>
+				</div>
+				<div className="flex flex-col place-items-end mb-1 my-2">
+				
+				<Checkbox color="primary">
+					<p className="text-gray-600 my-1 px-4">
+						Pagar día completo
+					</p>
+				</Checkbox>
 				</div>
 				<div className="flex gap-4 justify-between px-4">
-					<label className="text-xl font-bold text-nowrap my-auto">
-						Cédula
-					</label>
+					<label className="text-xl font-bold text-nowrap my-auto">Código de descuento</label>
 					<Input
 						variant="underlined"
 						className="w-1/2"
-						value={userData.identificationCode}
-						onChange={(e) =>
-							setUserData({
-								...userData,
-								identificationCode: e.target.value.toUpperCase(),
-							})
-						}
 					/>
-					<Button
-						color="primary"
-						className="text-white font-bold "
-						onClick={() => searchDataValidate()}
-					>
-						Buscar
-					</Button>
+				</div>
+				<div className="flex gap-4 justify-between px-4">
+					<label className="text-xl font-bold text-nowrap my-auto px-6">Fecha de entrada</label>
+				</div>
+				<div className="flex gap-4 justify-between px-4">
+					<label className="text-xl font-bold text-nowrap my-auto px-9">Pago hasta</label>
 				</div>
 			</form>
 		</article>

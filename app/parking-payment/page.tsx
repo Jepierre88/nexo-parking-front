@@ -48,6 +48,7 @@ export default function ParkingPayment() {
 		},
 		vehicleKind: "",
 	});
+		const [isVisible, setIsVisible] = useState(false);
 
 	return (
 		<section className="flex flex-col md:flex-row gap-3 justify-center items-center">
@@ -64,57 +65,89 @@ export default function ParkingPayment() {
 					</Tab>
 				</Tabs>
 			</Card>
-			<Card className="md:w-[600] w-full py-6">
+			<Card className="md:w-[500] w-full py-2">
 				<article>
-					<h2 className="font-bold text-xl text-center my-3">Datos de cobro</h2>
+					<h1 className="font-bold text-3xl text-center my-3">Datos de cobro</h1>
+					<h1 className="font-bold text-xl  text-center my-3">Visitante (QR)</h1>
 				</article>
-				<form className="flex flex-col justify-center items-center">
-					<div>
+				<form className="flex flex-col ">
+					<div className="items-start m-4 ">
+					<div className="mb-1 flex gap-4 justify-between px-4">
+						<strong>Punto de pago </strong>
+						/*aca me falta el punto de pago */
+						{userData?.validationDetail
+							? userData.validationDetail.incomeDatetime.split(" ")[0]
+							: ""}
+					</div>
+					<div className="mb-1 flex gap-4 justify-between px-4">
+						<strong>Cajero: </strong>
+						{user.name} -{user.lastName}
+					</div>
+					<div className="mb-1 flex gap-4 justify-between px-4">
 						<strong>Placa: </strong>
 						{userData?.plate}
 					</div>
-					<div>
-						<strong>Cajero: </strong>
-						{user.name} {user.lastName}
-					</div>
-					<div>
+					<div className="mb-1 flex gap-4 justify-between px-4">
 						<strong>Tipo de vehículo: </strong>
 						{userData?.vehicleKind}
 					</div>
-					<div>
+					<div className="mb-1 flex gap-4 justify-between px-4">
 						<strong>Fecha de entrada: </strong>
 						{userData?.validationDetail
 							? userData.validationDetail.incomeDatetime.split(" ")[0]
 							: ""}
 					</div>
-					<div>
+					<div className="mb-1 flex gap-4 justify-between px-4">
 						<strong>Fecha de salida: </strong>
 						{new Date().toISOString().split("T")[0]}
 					</div>
-					<div>
+					<div className="mb-1 flex gap-4 justify-between px-4">
 						<strong>Tiempo parqueado: </strong>
 						{userData?.validationDetail &&
 							userData.validationDetail.incomeDatetime.split(" ")[0]}
 					</div>
-					<div>
-						<strong>Valor parqueadero: </strong>
+					<div className="mb-1 flex gap-4 justify-between px-4">
+						<strong>Valor a pagar </strong>
 						{userData?.total && `$${userData.total}`}
 					</div>
-			
+					<div className="mb-1 flex gap-4 justify-between px-4">
+						<strong>IVA: </strong>
+						{user.name} {user.lastName}
+					</div>
+					</div>
 				<article>
-					<h2 className="font-bold text-xl text-center my-3">Datos de pago</h2>
+					<h2 className="font-bold text-xl text-center my-1">Datos de pago</h2>
 				</article>
-				<form className="flex flex-col justify-between items-between">
-				<Checkbox color="primary">Facturación electrónica</Checkbox>
-				<Checkbox color="primary">Preguntar antes de imprimir</Checkbox>
-					<div>
-						<strong>Total </strong>
+				<form>
+				<div className="flex flex-col place-items-end mb-1 my-2">
+					<Checkbox color="primary">
+					<p className="text-gray-600 my-1 px-4">
+						Preguntar antes de imprimir
+					</p>
+					</Checkbox>
+					<Checkbox color="primary" onChange={(e) => setIsVisible(prev => !prev)}>
+					<p className="text-gray-600 my-2 px-4">
+						Facturación electrónica
+					</p>
+					</Checkbox>
+					{isVisible && (
+					<div className="flex gap-4 justify-between px-4">
+						<label className="text-xl font-bold text-nowrap my-auto">Número De Factura Eléctronica</label>
+						<Input
+							variant="underlined"
+							className="w-1/1"
+							onChange={(e) => {
+								setUserData({ ...userData, identificationCode: e.target.value });
+							}}
+						/>
+					</div>
+						)}
+					<div className="mb-1 px-4">
+						<strong>TOTAL </strong>
 						{userData?.total && `$${userData.total}`}
 					</div>
 					<div className="flex gap-4 justify-between px-4">
-					<label className="text-xl font-bold text-nowrap my-auto">
-						Medio de pago
-					</label>
+					<label className="text-xl font-bold text-nowrap my-auto">Medio de pago</label>
 					<Select className="w-[200px]" size="sm" label="Seleccionar">
 						{namePaymentType &&
 							namePaymentType.map((item, index) => {
@@ -123,27 +156,38 @@ export default function ParkingPayment() {
 										{item.namePaymentType}
 									</SelectItem>
 								);
-							})}
+					})}
 					</Select>
 				</div>
 				<div className="flex gap-4 justify-between px-4">
 					<label className="text-xl font-bold text-nowrap my-auto">Recibido</label>
 					<Input
 						variant="underlined"
-						className="w-1/2"
+						className="w-1/1"
 						onChange={(e) => {
 							setUserData({ ...userData, identificationCode: e.target.value });
 						}}
 					/>
 				</div>
+					<div className="flex gap-4 justify-between px-4">
+					<label className="text-xl font-bold text-nowrap my-auto">Devolución</label>
+					/*aca me falta la devolucion */
+						{userData?.validationDetail
+							? userData.validationDetail.incomeDatetime.split(" ")[0]
+							: ""}
+					</div>
+				</div>
+				
+				<div className="flex justify-center items-center ">
 					<Button
 						color="primary"
-						className="text-white font-bold my-5"
+						className="text-white font-bold text-xl my-2 px-2"
 						size="lg"
 					>
 						Realizar pago
 					</Button>
-					</form>
+				</div>
+				</form>
 				</form>
 			</Card>
 		</section>

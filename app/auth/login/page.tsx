@@ -4,10 +4,12 @@ import { Card, CardBody, CardHeader } from "@nextui-org/card";
 import { Input } from "@nextui-org/input";
 import Image from "next/image";
 import OPERATIONLOGO from "@/app/assets/img/LOGO.png";
+import ICONOWHATSAPP from "@/public/iconoWhatsapp.png";
 import { SubmitHandler, useForm } from "react-hook-form";
 import axios from "axios";
 import { UseNavigateContext } from "@/app/context/NavigateContext";
 import { UseAuthContext } from "@/app/context/AuthContext";
+import { useDisclosure } from "@nextui-org/modal";
 
 export default function Login() {
 	const { router } = UseNavigateContext();
@@ -16,7 +18,7 @@ export default function Login() {
 		email: string;
 		password: string;
 	}
-
+	const {isOpen, onOpen, onOpenChange, onClose} = useDisclosure();
 	const { register, handleSubmit } = useForm();
 	const onSubmit: SubmitHandler<any> = async (data: UserLogin) => {
 		try {
@@ -86,6 +88,13 @@ export default function Login() {
 						</form>
 					</CardBody>
 				</Card>
+				<div className="flex justify-between w-full mt-4">
+			<h3>Todos los derechos reservados</h3>
+			<Button  onPress={onOpen}>
+				<Image src={ICONOWHATSAPP} alt="IconoWhatsapp" width={20} />
+			</Button>
+			<h6>©2024, HECHO POR COINS</h6>
+			</div>
 			</section>
 		</main>
 	);

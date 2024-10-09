@@ -56,11 +56,11 @@ export const Navbar = () => {
 						</DropdownMenu>
 					</Dropdown>
 				</ul>
-
 				<ul className="hidden lg:flex gap-4 justify-start ml-2">
 					<Dropdown>
 						<NavbarItem>
 							<DropdownTrigger>
+								
 								<Button
 									disableRipple
 									className="p-0 bg-transparent data-[hover=true]:bg-transparent"
@@ -73,12 +73,30 @@ export const Navbar = () => {
 							</DropdownTrigger>
 						</NavbarItem>
 						<DropdownMenu aria-label="Operaciones" className="w-[340px]">
-							<DropdownItem key="delete">
-								<Link href={"/parking-payment"}>Pago</Link>
+							<DropdownItem key="users">
+								<Link href={"/parking-payment/operations/inputs"}>
+								<button className="w-full text-left" >Ingresos</button></Link>
+							</DropdownItem>
+							<DropdownItem key="users">
+								<Link href={"/parking-payment/operations/outputs"}>
+								<button className="w-full text-left" >Salidas</button></Link>
+							</DropdownItem>
+							<DropdownItem key="users">
+								<Link href={"/parking-payment"}>
+								<button className="w-full text-left" >Procesos de pago</button></Link>
+							</DropdownItem>
+							<DropdownItem key="users">
+								<Link href={"/parking-payment/operations/transaction"}>
+								<button className="w-full text-left" >Transacciones</button></Link>
+							</DropdownItem>
+							<DropdownItem key="users">
+								<Link href={"/parking-payment/operations/parkingClosure"}>
+								<button className="w-full text-left" >Realizar cierre</button></Link>
 							</DropdownItem>
 						</DropdownMenu>
 					</Dropdown>
 				</ul>
+
 
 				<ul className="hidden lg:flex gap-4 justify-start ml-2">
 					<Dropdown>

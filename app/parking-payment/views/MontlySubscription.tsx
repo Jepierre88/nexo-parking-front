@@ -9,7 +9,7 @@ export default function Mensualidad() {
 			<form className="flex flex-col gap-3">
 				<div className="flex gap-4 justify-between px-4">
 					<label className="text-xl font-bold my-auto md:text-nowrap">
-						Tipo de mensualidad
+						Tipo de transacción
 					</label>
 					<Select
 						className="w-1/2"
@@ -24,7 +24,7 @@ export default function Mensualidad() {
 					<label className="text-xl font-bold my-auto md:text-nowrap">
 						Cantidad de mensualidad a pagar
 					</label>
-					<Input variant="underlined" type="number" className="my-auto" />
+					<Input variant="underlined" type="number" className="my-auto"/>
 				</div>
 				<div className="flex gap-4 justify-between px-4">
 					<label className="text-xl font-bold text-nowrap my-auto">
@@ -34,26 +34,28 @@ export default function Mensualidad() {
 				</div>
 				<div className="flex gap-4 justify-between px-4">
 					<label className="text-xl font-bold text-nowrap my-auto">
-						Primer nombre
+						1° Nombre
 					</label>
 					<Input variant="underlined" className="w-1/2" />
 					<label className="text-xl font-bold text-nowrap my-auto">
-						Segundo nombre
+						2° Nombre
 					</label>
 					<Input variant="underlined" className="w-1/2" />
 				</div>
 				<div className="flex gap-4 justify-between px-4">
 					<label className="text-xl font-bold text-nowrap my-auto">
-						Primer apellido
+						1° Apellido
 					</label>
 					<Input variant="underlined" className="w-1/2" />
 					<label className="text-xl font-bold text-nowrap my-auto">
-						Segundo apellido
+						2° Apellido
 					</label>
 					<Input variant="underlined" className="w-1/2" />
 				</div>
 				<div className="flex gap-4 justify-between px-4">
-					<label className="text-xl font-bold text-nowrap my-auto">Placa</label>
+					<label className="text-xl font-bold text-nowrap my-auto">
+						Placa
+					</label>
 					<Input variant="underlined" className="w-1/2 uppercase" />
 				</div>
 				<div className="flex gap-4 justify-between px-4">

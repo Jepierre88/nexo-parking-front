@@ -1,0 +1,46 @@
+import axios from "axios"; 
+import { useEffect, useState } from "react";
+import moment from 'moment'; 
+
+export default function UseIncomes() {
+	const [incomes, setIncomes] = useState<any[]>([]); 
+
+	const getIncomes = async (startDateTime?: Date, endDateTime?: Date) => {
+		try {
+			const response = await axios.get(`${process.env.NEXT_PUBLIC_LOCAL_APIURL}/incomes/pp`, {
+				params: {
+					startDateTime:startDateTime?.toISOString(),
+					endDateTime:endDateTime?.toISOString()},
+			});
+			
+			console.log(response.data);
+			const arrayfilter: any[] = response.data;
+			setIncomes(arrayfilter.filter(item => item.realm !== "Consultorio" && item.realm !== "consultorio"));
+
+		} catch (error) {
+			setIncomes([]);
+			console.error(error);
+		}
+	};
+	const updateIncomes = async (id:string) => {
+		try {
+				const response = await axios.get(`${process.env.NEXT_PUBLIC_LOCAL_APIURL}/incomes/pp`, {
+				params: {id},
+			});
+			console.log(response.data);
+			const arrayfilter: any[] = response.data;
+			setIncomes(arrayfilter.filter(item => item.realm !== "Consultorio" && item.realm !== "consultorio"));
+
+		} catch (error) {
+			setIncomes([]);
+			console.error(error);
+		}
+	};
+
+
+	useEffect(() => {
+		getIncomes();
+	}, []);
+
+	return { incomes, getIncomes, updateIncomes}; 
+}
