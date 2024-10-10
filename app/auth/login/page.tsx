@@ -78,10 +78,10 @@ export default function Login() {
 							/>
 							<Button
 								className="mx-auto w-full"
-								color="primary"
+								color="danger"
 								type="submit"
 								size="lg"
-								variant="ghost"
+								variant="faded"
 							>
 								Continuar
 							</Button>

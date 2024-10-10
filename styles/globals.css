@@ -1,3 +1,18 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+/* styles.css */
+html {
+    --bg-color: white; /* Color de fondo claro */
+    --text-color: black; /* Color de texto claro */
+}
+
+html.dark {
+    --bg-color: black; /* Color de fondo oscuro */
+    --text-color: white; /* Color de texto oscuro */
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+}

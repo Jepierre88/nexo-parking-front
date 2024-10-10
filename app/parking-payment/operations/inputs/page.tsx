@@ -96,7 +96,7 @@ export default function Incomes({ userData, setUserData }: { userData: UserData;
   const [endTime, setEndTime] = useState(new Date().toISOString().split("T")[1].split(".")[0]);
   return (
     <section>
-      <div className="flex justify-between">
+      <div className="flex justify-between ">
         <h1 className={title()}>Entradas</h1>
 
         <div className="flex flex-col w-45">

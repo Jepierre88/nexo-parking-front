@@ -30,11 +30,14 @@ module.exports = {
           octonary: '#9C27B0',
           nonary: '#673AB7',
           tentary: '#3F51B5',
+          danger: '#09f'
         },
         tabs: {
           color: '#fff', // Color de las tabs no seleccionadas en modo oscuro
           activeColor: '#90CAF9', // Color del texto de la tab seleccionada en modo oscuro
         },
+        extend:{
+        }
       },
       dark: {
         colors: {
@@ -54,7 +57,7 @@ module.exports = {
           activeColor: '#90CAF9', // Color del texto de la tab seleccionada en modo oscuro
         },
       }
-    }
+    },
   }  
   )],
 }

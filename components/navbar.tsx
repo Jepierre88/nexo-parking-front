@@ -27,11 +27,11 @@ export const Navbar = () => {
 	};
 
 	return (
-		<NextUINavbar maxWidth="xl" position="sticky" className="py-4">
+		<NextUINavbar maxWidth="xl" position="sticky" className="py-4 /*bg-white*/">
 			<NavbarContent className="basis-1/5 sm:basis-full" justify="start">
-				<NavbarBrand as="li" className="gap-3 max-w-fit">
+				{/* <NavbarBrand as="li" className="gap-3 max-w-fit">
 					<Image src={LOGO} alt="..." width={250} />
-				</NavbarBrand>
+				</NavbarBrand> */}
 				<ul className="hidden lg:flex gap-4 justify-start ml-2">
 					<Dropdown>
 						<NavbarItem>
