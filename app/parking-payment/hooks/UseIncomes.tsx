@@ -5,6 +5,7 @@ import { patch } from "@mui/material";
 
 export default function UseIncomes() {
 	const [incomes, setIncomes] = useState<any[]>([]); 
+
 	const getIncomes = async (startDateTime?: Date, endDateTime?: Date) => {
 		try {
 			const response = await axios.get(`${process.env.NEXT_PUBLIC_LOCAL_APIURL}/incomes/pp`, {
@@ -18,8 +19,9 @@ export default function UseIncomes() {
 			setIncomes(arrayfilter.filter(item => item.realm !== "Consultorio" && item.realm !== "consultorio"));
 
 		} catch (error) {
+			console.error("error al obtener ingresos: ", error);
 			setIncomes([]);
-			console.error(error);
+			
 		}
 	};
 	
@@ -40,5 +42,5 @@ export default function UseIncomes() {
 		getIncomes();
 	}, []);
 
-	return { incomes, getIncomes, updatePlate}; 
+	return { incomes, getIncomes, updatePlate, setIncomes}; 
 }

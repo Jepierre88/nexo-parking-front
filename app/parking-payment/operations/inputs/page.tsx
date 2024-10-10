@@ -16,8 +16,9 @@ const handleClick = () => {
 };
 
 export default function Incomes({ userData, setUserData }: { userData: UserData; setUserData: (userdata: UserData) => void; }) {
-  const { incomes, getIncomes, updatePlate } = UseIncomes();
+  const { incomes, getIncomes, updatePlate, setIncomes} = UseIncomes();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+ 
   
   const [paginationModel, setPaginationModel] = useState({
     pageSize: 5,
@@ -27,7 +28,12 @@ export default function Incomes({ userData, setUserData }: { userData: UserData;
   const handleFilter = () => {
     const startDateTime = new Date(`${startDate}T${startTime}`)
     const endDateTime = new Date(`${endDate}T${endTime}`);
-    console.log(startDateTime.toISOString())
+    if (isNaN(startDateTime.getTime()) || isNaN(endDateTime.getTime())) {
+      console.error("Fechas no válidas");
+      setIncomes([]); // Establecer incomes como vacío
+      return; // Salir de la función si las fechas no son válidas
+  }
+    console.log(startDateTime.toISOString(), endDateTime.toISOString())
    getIncomes(startDateTime, endDateTime)
   }
 
