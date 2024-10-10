@@ -74,7 +74,6 @@ export default function ParkingPayment() {
 					<div className="items-start m-4 ">
 					<div className="mb-1 flex gap-4 justify-between px-4">
 						<strong>Punto de pago </strong>
-						/*aca me falta el punto de pago */
 						{userData?.validationDetail
 							? userData.validationDetail.incomeDatetime.split(" ")[0]
 							: ""}

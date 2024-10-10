@@ -1,10 +1,10 @@
 import axios from "axios"; 
 import { useEffect, useState } from "react";
 import moment from 'moment'; 
+import { patch } from "@mui/material";
 
 export default function UseIncomes() {
 	const [incomes, setIncomes] = useState<any[]>([]); 
-
 	const getIncomes = async (startDateTime?: Date, endDateTime?: Date) => {
 		try {
 			const response = await axios.get(`${process.env.NEXT_PUBLIC_LOCAL_APIURL}/incomes/pp`, {
@@ -22,18 +22,16 @@ export default function UseIncomes() {
 			console.error(error);
 		}
 	};
-	const updateIncomes = async (id:string) => {
+	
+	const updatePlate = async (id: string, plate: string) => {
 		try {
-				const response = await axios.get(`${process.env.NEXT_PUBLIC_LOCAL_APIURL}/incomes/pp`, {
-				params: {id},
+			const response = await axios.patch(`${process.env.NEXT_PUBLIC_LOCAL_APIURL}/incomes/${id}`, 
+				{
+				plate: plate,
 			});
-			console.log(response.data);
-			const arrayfilter: any[] = response.data;
-			setIncomes(arrayfilter.filter(item => item.realm !== "Consultorio" && item.realm !== "consultorio"));
-
+			console.log('Placa actualizada:', response.data);
 		} catch (error) {
-			setIncomes([]);
-			console.error(error);
+			console.error('Error actualizando la placa: ',error);
 		}
 	};
 
@@ -42,5 +40,5 @@ export default function UseIncomes() {
 		getIncomes();
 	}, []);
 
-	return { incomes, getIncomes, updateIncomes}; 
+	return { incomes, getIncomes, updatePlate}; 
 }

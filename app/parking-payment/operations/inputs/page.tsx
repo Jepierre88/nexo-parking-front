@@ -16,9 +16,9 @@ const handleClick = () => {
 };
 
 export default function Incomes({ userData, setUserData }: { userData: UserData; setUserData: (userdata: UserData) => void; }) {
-  const { incomes, getIncomes } = UseIncomes();
+  const { incomes, getIncomes, updatePlate } = UseIncomes();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-
+  
   const [paginationModel, setPaginationModel] = useState({
     pageSize: 5,
     page: 0,
@@ -31,10 +31,32 @@ export default function Incomes({ userData, setUserData }: { userData: UserData;
    getIncomes(startDateTime, endDateTime)
   }
 
-  const editPlate = () => {
+  const [plate, setPlateValue] = useState('');
+  const [id, setVehicleId] = useState<string | null>(null);
 
-   /* updateIncomes(id)*/
+  const handleButtonClick = (id: string, currentPlate: string) => {
+    console.log(id);
+    setVehicleId(id); 
+    setPlateValue(currentPlate); 
+    onOpen(); 
+  };
+
+  const editPlate = async () => {
+    if (id && plate) {
+      try {
+          await updatePlate(id, plate);
+          setPlateValue(''); 
+          setVehicleId(null); 
+          onClose(); 
+          await getIncomes();
+      } catch (error) {
+          console.error('Error editando la placa:', error);
+      }
+  } else {
+      console.error('ID o placa no válidos');
   }
+  }
+
 
   const columns: GridColDef[] = [
     { field: 'id', headerName: 'Id', flex: 1, headerAlign: 'center', align: "center" },
@@ -50,7 +72,7 @@ export default function Incomes({ userData, setUserData }: { userData: UserData;
       minWidth: 200,
       renderCell: (params) => (
         <div className="flex justify-center items-center">
-          <Button onPress={onOpen}>
+          <Button onPress={() => handleButtonClick(params.row.id, params.row.currentPlate)}>
             <Image src={ICONOLAPIZ} alt="IconoLapiz" width={20} />
           </Button>
           <Button onClick={handleClick}>
@@ -141,11 +163,14 @@ export default function Incomes({ userData, setUserData }: { userData: UserData;
                       placeholder=" "
                       className="ml-4 w-2/3"
                       type="text"
+                      value={plate}
+                      onChange={(e) => setPlateValue(e.target.value)} // Manejo del input
+
                     />
                   </div>
                   <div className="flex justify-center w-full mt-4">
                     <Button onClick={onClose}>Cancelar</Button>
-                    <Button onClick={() => console.log('Guardar datos')} onPress={editPlate}>Guardar</Button>
+                    <Button onClick={editPlate}>Guardar</Button>
                   </div>
                 </div>
               </ModalBody>
