@@ -41,28 +41,28 @@ export default function VisitanteQr({
 
 
 	return (
-		<article className="flex flex-col gap-4">
-			<h2 className="font-bold text-3xl text-center">
+		<article className="flex flex-col gap-2">
+			<h2 className="font-bold text-2xl text-center ">
 				Datos de visitante (QR)
 			</h2>
-			<form className="flex flex-col gap-3">
-				<div className="flex gap-4 justify-between px-4">
-					<label className="text-xl font-bold text-nowrap my-auto">
+			<form className="flex flex-col gap-2 px-4">
+				<div className="flex gap-4 justify-between">
+					<label className="text-base font-bold text-nowrap my-auto">
 						Tipo de visitante (QR)
 					</label>
-					<Select className="w-1/2" size="sm" label="Seleccionar">
+					<Select className="w-52" size="sm" label="Seleccionar">
 						{services &&
 							services.map((item, index) => {
 								return (
-									<SelectItem key={index} value={item.id}>
+									<SelectItem  color="primary" key={index} value={item.id}>
 										{item.name}
 									</SelectItem>
 								);
 							})}
 					</Select>
 				</div>
-				<div className="flex gap-4 justify-between px-12">
-					<label className="text-xl font-bold text-nowrap my-auto">QR</label>
+				<div className="flex gap-4 justify-between">
+					<label className="text-base font-bold text-nowrap my-auto">QR</label>
 					<Input
 						variant="underlined"
 						className="w-1/2"
@@ -71,44 +71,38 @@ export default function VisitanteQr({
 						}}
 					/>
 				</div>
-				<div className="flex gap-4 justify-between px-12">
-					<label className="text-xl font-bold text-nowrap my-auto">Placa</label>
+				<div className="flex gap-4 justify-between">
+					<label className="text-base  font-bold text-nowrap my-auto ">Placa</label>
 					<Input
 						variant="underlined"
-						className="w-1/5"
+						className="w-1"
 						value={userData.plate}
 						onChange={(e) =>
 							setUserData({ ...userData, plate: e.target.value.toUpperCase() })
 						}
 					/>
-					<Button
-						color="primary"
-						className="text-white font-bold text-xl my-0.5 px-0.5"
-						size="lg"
-					>
-						Validar día pago
-					</Button>
+		
 				</div>
 				<div className="flex flex-col place-items-end mb-1 my-2">
 				
 				<Checkbox color="primary">
-					<p className="text-gray-600 my-1 px-4">
+					<p className="text-gray-600  text-base my-1 mr-2">
 						Pagar día completo
 					</p>
 				</Checkbox>
 				</div>
-				<div className="flex gap-4 justify-between px-4">
-					<label className="text-xl font-bold text-nowrap my-auto">Código de descuento</label>
+				<div className="flex gap-4 justify-between ">
+					<label className="text-base font-bold text-nowrap my-auto">Código de descuento</label>
 					<Input
 						variant="underlined"
 						className="w-1/2"
 					/>
 				</div>
-				<div className="flex gap-4 justify-between px-4">
-					<label className="text-xl font-bold text-nowrap my-auto px-6">Fecha de entrada</label>
+				<div className="flex gap-4 justify-between">
+					<label className="text-base font-bold text-nowrap my-auto px-6">Fecha de entrada</label>
 				</div>
-				<div className="flex gap-4 justify-between px-4">
-					<label className="text-xl font-bold text-nowrap my-auto px-9">Pago hasta</label>
+				<div className="flex gap-4 justify-between">
+					<label className="text-base font-bold text-nowrap my-auto px-9">Pago hasta</label>
 				</div>
 			</form>
 		</article>

@@ -18,9 +18,13 @@ module.exports = {
   darkMode: "class", // Asegúrate de tener esto bien configurado
   plugins: [nextui({
     themes:{
+  
       light:{
         colors: {
-          primary: '#4CAF50',
+          primary: {DEFAULT:'#2196F3', foreground:"#FFF"},
+          primaryText: '#FFF',
+          primaryHover: '#FFF',
+          primaryActive: '#0D47A1',
           secondary: '#4CAF50',
           tertiary: '#F44336',
           quaternary: '#FF9800',
@@ -41,7 +45,10 @@ module.exports = {
       },
       dark: {
         colors: {
-          primary: '#4CAF50',   // Un color más claro para texto en botones
+          primary: '#2196F3',
+          primaryHover: '#1976D2',
+          primaryActive: '#0D47A1', 
+          primaryText: '#FFF', // Un color más claro para texto en botones
           secondary: '#81C784',
           tertiary: '#EF9A9A',
           quaternary: '#FFB74D',
@@ -57,6 +64,7 @@ module.exports = {
           activeColor: '#90CAF9', // Color del texto de la tab seleccionada en modo oscuro
         },
       }
+      
     },
   }  
   )],

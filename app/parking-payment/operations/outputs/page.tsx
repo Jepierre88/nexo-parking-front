@@ -52,41 +52,43 @@ export default function Incomes({ userData, setUserData }: { userData: UserData;
       <div className="flex justify-between">
         <h1 className={title()}>Salidas</h1>
 
-        <div className="flex flex-col w-45">
-          <label className="text-xl font-bold text-nowrap mb-2">DESDE</label>
-          <div className="flex space-x-2">
-            <input
-              type="date"
-              value={startDate} 
-              className="text-xl font-bold mr-2 border border-gray-300 rounded p-1"
-              onChange={(e) => setStartDate(e.target.value)}
-            />
-            <input
-              type="time"
-              value={startTime}
-              className="text-xl font-bold border border-gray-300 rounded p-1"
-              onChange={(e) => setStartTime(e.target.value)} 
-            />
-          </div>
-          <div className="flex flex-col w-45">
-            <label className="text-xl font-bold text-nowrap mb-2">HASTA</label>
+        <div className="flex flex-col w-45 ml-72 ">
+          <div className="flex flex-col w-45 ml-64 mr-1">
+            <label className="text-base font-bold text-nowrap mb-2 mr-2">DESDE</label>
             <div className="flex space-x-2">
               <input
                 type="date"
-                value={endDate}
-                className="text-xl font-bold border border-gray-300 rounded p-1"
-                onChange={(e) => setEndDate(e.target.value)} // Manejo de la fecha "Hasta"
+                value={startDate} 
+                className="text-sm font-bold mr-2 border border-gray-300 rounded p-1"
+                onChange={(e) => setStartDate(e.target.value)}
               />
               <input
                 type="time"
-                value={endTime}
-                className="text-xl font-bold border border-gray-300 rounded p-1"
-                onChange={(e) => setEndTime(e.target.value)} // Manejo de la hora "Hasta"
+                value={startTime}
+                className="text-sm font-bold border border-gray-300 rounded p-1"
+                onChange={(e) => setStartTime(e.target.value)} 
               />
             </div>
-          </div>
-        </div>
-        <Button onClick={handleFilter} onPress={handleFilter}>Filtrar</Button>
+            <div className="flex flex-col w-45">
+              <label className="text-base font-bold text-nowrap mr-2 mb-2">HASTA</label>
+              <div className="flex space-x-2">
+                <input
+                  type="date"
+                  value={endDate}
+                  className="text-sm font-bold border border-gray-300 rounded p-1"
+                  onChange={(e) => setEndDate(e.target.value)} // Manejo de la fecha "Hasta"
+                />
+                <input
+                  type="time"
+                  value={endTime}
+                  className="text-sm font-bold border border-gray-300 rounded p-1"
+                  onChange={(e) => setEndTime(e.target.value)} // Manejo de la hora "Hasta"
+                />
+                </div>
+              </div>
+            </div>
+           </div>
+        <Button className="bg-primary text-white mr-72 mt-14 ml-5" onClick={handleFilter} onPress={handleFilter}>Filtrar</Button>
       </div>
       <div style={{ height: 400, width: '100%', marginTop: "20px" }}>
         <DataGrid

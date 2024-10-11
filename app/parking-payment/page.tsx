@@ -1,5 +1,5 @@
 "use client";
-import { Card } from "@nextui-org/card";
+import { Card, CardHeader } from "@nextui-org/card";
 import { Tab, Tabs } from "@nextui-org/tabs";
 import VisitanteQr from "./views/QrVisitor";
 import Mensualidad from "./views/MontlySubscription";
@@ -51,8 +51,13 @@ export default function ParkingPayment() {
 		const [isVisible, setIsVisible] = useState(false);
 
 	return (
-		<section className="flex flex-col md:flex-row gap-3 justify-center items-center">
-			<Card className="md:w-[500px] w-full py-6">
+		<section className="flex flex-col md:flex-row gap-1 justify-center items-center">
+			<Card className="md:w-[600px] w-full h-[550] py-2">
+				<CardHeader className="flex flex-col gap-1">
+					<h1 className="font-bold text-3xl text-center my-3">
+						Procesos
+					</h1>
+				</CardHeader>
 				<Tabs className="mx-auto" color="primary">
 					<Tab title={"Visitante QR"}>
 						<VisitanteQr userData={userData} setUserData={setUserData} />
@@ -65,73 +70,79 @@ export default function ParkingPayment() {
 					</Tab>
 				</Tabs>
 			</Card>
-			<Card className="md:w-[500] w-full py-2">
-				<article>
-					<h1 className="font-bold text-3xl text-center my-3">Datos de cobro</h1>
-					<h1 className="font-bold text-xl  text-center my-3">Visitante (QR)</h1>
-				</article>
-				<form className="flex flex-col ">
+			<Card className="md:w-[500] w-full py-2 ">
+				<CardHeader className="flex flex-col gap-2 ">
+					<h1 className="font-bold text-3xl text-center ">Datos de cobro</h1>
+					<h1 className="font-bold text-xl  text-center ">Visitante (QR)</h1>
+				</CardHeader>
+				<form className="flex flex-col gap-2">
 					<div className="items-start m-4 ">
-					<div className="mb-1 flex gap-4 justify-between px-4">
+					<div className="text-base  mb-1 flex gap-4 justify-between">
 						<strong>Punto de pago </strong>
 						{userData?.validationDetail
 							? userData.validationDetail.incomeDatetime.split(" ")[0]
 							: ""}
 					</div>
-					<div className="mb-1 flex gap-4 justify-between px-4">
+					<div className="text-base mb-1 flex gap-4 justify-between  ">
 						<strong>Cajero: </strong>
 						{user.name} -{user.lastName}
 					</div>
-					<div className="mb-1 flex gap-4 justify-between px-4">
+					<div className="text-base mb-1 flex gap-4 justify-between ">
 						<strong>Placa: </strong>
 						{userData?.plate}
 					</div>
-					<div className="mb-1 flex gap-4 justify-between px-4">
+					<div className="text-base mb-1 flex gap-4 justify-between">
 						<strong>Tipo de vehículo: </strong>
 						{userData?.vehicleKind}
 					</div>
-					<div className="mb-1 flex gap-4 justify-between px-4">
+					<div className="text-base mb-1 flex gap-4 justify-between">
 						<strong>Fecha de entrada: </strong>
 						{userData?.validationDetail
 							? userData.validationDetail.incomeDatetime.split(" ")[0]
 							: ""}
 					</div>
-					<div className="mb-1 flex gap-4 justify-between px-4">
+					<div className="text-base mb-1 flex gap-4 justify-between">
 						<strong>Fecha de salida: </strong>
 						{new Date().toISOString().split("T")[0]}
 					</div>
-					<div className="mb-1 flex gap-4 justify-between px-4">
+					<div className="text-base mb-1 flex gap-4 justify-between">
 						<strong>Tiempo parqueado: </strong>
 						{userData?.validationDetail &&
 							userData.validationDetail.incomeDatetime.split(" ")[0]}
 					</div>
-					<div className="mb-1 flex gap-4 justify-between px-4">
+					<div className="text-base mb-1 flex gap-4 justify-between">
 						<strong>Valor a pagar </strong>
 						{userData?.total && `$${userData.total}`}
 					</div>
-					<div className="mb-1 flex gap-4 justify-between px-4">
+					<div className="text-base mb-1 flex gap-4 justify-between">
 						<strong>IVA: </strong>
-						{user.name} {user.lastName}
+						{/* {userData?.iva && $'${user}'} */}
 					</div>
 					</div>
-				<article>
-					<h2 className="font-bold text-xl text-center my-1">Datos de pago</h2>
-				</article>
+					</form>
+			</Card>
+			<Card className="md:w-[500] w-full py-2 ">
+				<CardHeader className="flex flex-col gap-2">
+					<h1 className="font-bold text-3xl text-center ">Datos de pago</h1>
+					<h1 className="font-bold text-xl  text-center ">Visitante (QR)</h1>
+				</CardHeader>
+				<form className="flex flex-col ">
+
 				<form>
-				<div className="flex flex-col place-items-end mb-1 my-2">
-					<Checkbox color="primary">
-					<p className="text-gray-600 my-1 px-4">
+				<div className="flex flex-col place-items-end mb-1 my-2 gap-2">
+					<Checkbox className="-mt-5" color="primary">
+					<p className="text-gray-600 my-1 px-4 mb-2  ">
 						Preguntar antes de imprimir
 					</p>
 					</Checkbox>
-					<Checkbox color="primary" onChange={(e) => setIsVisible(prev => !prev)}>
-					<p className="text-gray-600 my-2 px-4">
+					<Checkbox className="-mt-5" color="primary" onChange={(e) => setIsVisible(prev => !prev)}>
+					<p className="text-gray-600 my-2 px-4  mb-2">
 						Facturación electrónica
 					</p>
 					</Checkbox>
 					{isVisible && (
-					<div className="flex gap-4 justify-between px-4">
-						<label className="text-xl font-bold text-nowrap my-auto">Número De Factura Eléctronica</label>
+					<div className="flex gap-4 justify-between px-4 ">
+						<label className="text-lg font-bold text-nowrap my-auto">Número De Factura Eléctronica</label>
 						<Input
 							variant="underlined"
 							className="w-1/1"
@@ -141,17 +152,20 @@ export default function ParkingPayment() {
 						/>
 					</div>
 						)}
-					<div className="mb-1 px-4">
+					<div className="text-base mb-1 mt-2 flex gap-4 justify-between px-4">
 						<strong>TOTAL </strong>
 						{userData?.total && `$${userData.total}`}
 					</div>
-					<div className="flex gap-4 justify-between px-4">
-					<label className="text-xl font-bold text-nowrap my-auto">Medio de pago</label>
-					<Select className="w-[200px]" size="sm" label="Seleccionar">
+		
+					<div className="flex gap-4 justify-between px-4 ">
+					<label className="text-lg font-bold text-nowrap my-auto">
+						Medio de pago
+					</label>
+					<Select className="w-52"  size="sm" label="Seleccionar">
 						{namePaymentType &&
 							namePaymentType.map((item, index) => {
 								return (
-									<SelectItem key={index} value={item.id}>
+									<SelectItem color="primary" key={index} value={item.id}>
 										{item.namePaymentType}
 									</SelectItem>
 								);
@@ -159,7 +173,7 @@ export default function ParkingPayment() {
 					</Select>
 				</div>
 				<div className="flex gap-4 justify-between px-4">
-					<label className="text-xl font-bold text-nowrap my-auto">Recibido</label>
+					<label className="text-lg font-bold text-nowrap my-auto">Recibido</label>
 					<Input
 						variant="underlined"
 						className="w-1/1"
@@ -169,8 +183,8 @@ export default function ParkingPayment() {
 					/>
 				</div>
 					<div className="flex gap-4 justify-between px-4">
-					<label className="text-xl font-bold text-nowrap my-auto">Devolución</label>
-					/*aca me falta la devolucion */
+					<label className="text-lg font-bold text-nowrap my-auto">Devolución</label>
+					
 						{userData?.validationDetail
 							? userData.validationDetail.incomeDatetime.split(" ")[0]
 							: ""}
@@ -180,7 +194,7 @@ export default function ParkingPayment() {
 				<div className="flex justify-center items-center ">
 					<Button
 						color="primary"
-						className="text-white font-bold text-xl my-2 px-2"
+						className="text-white  text-base my-2 px-2"
 						size="lg"
 					>
 						Realizar pago
@@ -189,6 +203,7 @@ export default function ParkingPayment() {
 				</form>
 				</form>
 			</Card>
+		
 		</section>
 	);
 }
