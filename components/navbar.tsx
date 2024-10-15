@@ -25,6 +25,11 @@ export const Navbar = () => {
   const icons = {
     chevron: <ChevronDown fill="currentColor" size={16} />,
   };
+  const cerrarSesion = () => {
+    localStorage.removeItem("token");
+
+    window.location.href = "/auth/login";
+  };
 
   return (
     <NextUINavbar maxWidth="xl" position="sticky" className="py-4 /*bg-white*/">
@@ -130,33 +135,25 @@ export const Navbar = () => {
               color="primary"
             >
               <DropdownItem key="delete">
-                <Link href={"/parking-payment"}>Pago</Link>
+                <Link href={"/parking-payment/contingency"}>
+                  Ingreso Manuel De Placa
+                </Link>
               </DropdownItem>
             </DropdownMenu>
           </Dropdown>
         </ul>
 
         <ul className="hidden lg:flex gap-4 justify-start ml-2">
-          <Dropdown>
-            <NavbarItem>
-              <DropdownTrigger>
-                <Button
-                  disableRipple
-                  className="p-0 bg-transparent data-[hover=true]:bg-transparent"
-                  endContent={icons.chevron} // No pasar íconos como objetos
-                  radius="sm"
-                  variant="light"
-                >
-                  CERRAR SESIÓN
-                </Button>
-              </DropdownTrigger>
-            </NavbarItem>
-            <DropdownMenu aria-label="Operaciones" className="w-[340px]">
-              <DropdownItem key="delete">
-                <Link href={"/parking-payment"}>Pago</Link>
-              </DropdownItem>
-            </DropdownMenu>
-          </Dropdown>
+          <Button
+            disableRipple
+            className="p-0 bg-transparent data-[hover=true]:bg-transparent"
+            endContent={icons.chevron}
+            radius="sm"
+            variant="light"
+            onClick={cerrarSesion}
+          >
+            CERRAR SESIÓN
+          </Button>
         </ul>
       </NavbarContent>
       <NavbarContent>
@@ -164,7 +161,7 @@ export const Navbar = () => {
           <Image
             src={COINSLOGO}
             alt="..."
-            className=" mr-8 my-auto"
+            className="mr-8 my-auto"
             width={100}
           />
         </NavbarBrand>

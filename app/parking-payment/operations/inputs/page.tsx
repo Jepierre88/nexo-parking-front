@@ -8,6 +8,7 @@ import Image from "next/image";
 import { UserData } from "@/types";
 import UseIncomes from "@/app/parking-payment/hooks/UseIncomes";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { printInvoice } from "@/app/libs/utils";
 import {
   ModalContent,
   useDisclosure,
@@ -46,6 +47,14 @@ export default function Incomes({
     }
     console.log(startDateTime.toISOString(), endDateTime.toISOString());
     getIncomes(startDateTime, endDateTime);
+  };
+
+  const handleClickPrint = async () => {
+    try {
+      printInvoice();
+    } catch (error) {
+      console.error(error);
+    }
   };
 
   const [plate, setPlateValue] = useState("");
@@ -138,7 +147,7 @@ export default function Incomes({
           >
             <Image src={ICONOLAPIZ} alt="IconoLapiz" width={20} />
           </Button>
-          <Button color="primary" onClick={handleClick}>
+          <Button color="primary" onClick={handleClickPrint}>
             <Image src={ICONOIMPRESORA} alt="IconoImpresora" width={20} />
           </Button>
         </div>
