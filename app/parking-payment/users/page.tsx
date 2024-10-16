@@ -24,12 +24,13 @@ const Users = ({
   userData: UserData;
   setUserData: (userdata: UserData) => void;
 }) => {
-  const { users } = UseUsers();
-  const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const { users, updateUser, getUsers } = UseUsers();
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const {
     isOpen: isOpenEdit,
     onOpen: onOpenEdit,
     onOpenChange: onOpenChangeEdit,
+    onClose: onCloseEdit,
   } = useDisclosure();
 
   const [paginationModel, setPaginationModel] = useState({
@@ -55,19 +56,35 @@ const Users = ({
   });
 
   const editUser = async () => {
-    // if (id && plate) {
-    //   try {
-    //     await updatePlate(id, plate);
-    //     setPlateValue("");
-    //     setVehicleId(null);
-    //     onClose();
-    //     await getIncomes();
-    //   } catch (error) {
-    //     console.error("Error editando la placa:", error);
-    //   }
-    // } else {
-    //   console.error("ID o placa no válidos");
-    // }
+    if (userEdit && userEdit.id) {
+      try {
+        const response = await updateUser(userEdit);
+        console.log("Usuario actualizado:", response);
+
+        setUserEdit({
+          cellPhoneNumber: "",
+          departmentName: "",
+          email: "",
+          emailVerified: false,
+          generalEntityId: 0,
+          id: "",
+          lastName: "",
+          name: "",
+          privacyAuthorization: false,
+          realm: "",
+          resetKey: "",
+          username: "",
+          verificationToken: "",
+          zoneId: 0,
+        });
+        onCloseEdit();
+        await getUsers();
+      } catch (error) {
+        console.error("Error editando el usuario:", error);
+      }
+    } else {
+      console.error("Usuario no válido");
+    }
   };
 
   const [isView, setIsView] = useState(false);
@@ -332,9 +349,9 @@ const Users = ({
                       Usuario
                     </label>
                     <Input
-                      placeholder="Inserta aquí tu email"
+                      placeholder="Inserta aquí tu usuario"
                       className="ml-4 w-2/3"
-                      type="email"
+                      type="text"
                       value={userEdit.username}
                       onChange={(e) =>
                         setUserEdit({ ...userEdit, username: e.target.value })
@@ -347,10 +364,10 @@ const Users = ({
                       Email
                     </label>
                     <Input
-                      placeholder="Inserta aquí tu nombre"
+                      placeholder="Inserta aquí tu email"
                       className="ml-4 w-2/3"
-                      type="text"
-                      value={userEdit.username}
+                      type="email"
+                      value={userEdit.email}
                       onChange={(e) =>
                         setUserEdit({ ...userEdit, email: e.target.value })
                       }
@@ -361,6 +378,12 @@ const Users = ({
                     <label className="text-xl font-bold text-nowrap w-1/3">
                       Perfil
                     </label>
+                    <select className="ml-4 w-2/3 border rounded p-2">
+                      <option value=""> </option>
+                      <option value="admin">Admin</option>
+                      <option value="user">Usuario</option>
+                      <option value="guest">Invitado</option>
+                    </select>
                     <Input
                       placeholder="Inserta aquí tu apellido"
                       className="ml-4 w-2/3"

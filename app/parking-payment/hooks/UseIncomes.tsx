@@ -1,46 +1,59 @@
-import axios from "axios"; 
+import axios from "axios";
 import { useEffect, useState } from "react";
-import moment from 'moment'; 
-import { patch } from "@mui/material";
+import { User } from "@/types";
+
+interface Income {
+  id: string;
+  realm: string;
+  plate: string;
+  // Añade otras propiedades relevantes aquí
+}
 
 export default function UseIncomes() {
-	const [incomes, setIncomes] = useState<any[]>([]); 
+  const [incomes, setIncomes] = useState<Income[]>([]);
 
-	const getIncomes = async (startDateTime?: Date, endDateTime?: Date) => {
-		try {
-			const response = await axios.get(`${process.env.NEXT_PUBLIC_LOCAL_APIURL}/incomes/pp`, {
-				params: {
-					startDateTime:startDateTime?.toISOString(),
-					endDateTime:endDateTime?.toISOString()},
-			});
-			
-			console.log(response.data);
-			const arrayfilter: any[] = response.data;
-			setIncomes(arrayfilter.filter(item => item.realm !== "Consultorio" && item.realm !== "consultorio"));
+  const getIncomes = async (startDateTime?: Date, endDateTime?: Date) => {
+    try {
+      const response = await axios.get(
+        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/incomes/pp`,
+        {
+          params: {
+            startDateTime: startDateTime?.toISOString(),
+            endDateTime: endDateTime?.toISOString(),
+          },
+        }
+      );
 
-		} catch (error) {
-			console.error("error al obtener ingresos: ", error);
-			setIncomes([]);
-			
-		}
-	};
-	
-	const updatePlate = async (id: string, plate: string) => {
-		try {
-			const response = await axios.patch(`${process.env.NEXT_PUBLIC_LOCAL_APIURL}/incomes/${id}`, 
-				{
-				plate: plate,
-			});
-			console.log('Placa actualizada:', response.data);
-		} catch (error) {
-			console.error('Error actualizando la placa: ',error);
-		}
-	};
+      console.log(response.data);
+      const arrayfilter: Income[] = response.data;
+      setIncomes(
+        arrayfilter.filter(
+          (item) => item.realm !== "Consultorio" && item.realm !== "consultorio"
+        )
+      );
+    } catch (error) {
+      console.error("Error al obtener ingresos: ", error);
+      setIncomes([]);
+    }
+  };
 
+  const updatePlate = async (id: string, plate: string) => {
+    try {
+      const response = await axios.patch(
+        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/incomes/${id}`,
+        {
+          plate,
+        }
+      );
+      console.log("Placa actualizada:", response.data);
+    } catch (error) {
+      console.error("Error actualizando la placa: ", error);
+    }
+  };
 
-	useEffect(() => {
-		getIncomes();
-	}, []);
+  useEffect(() => {
+    getIncomes();
+  }, []);
 
-	return { incomes, getIncomes, updatePlate, setIncomes}; 
+  return { incomes, getIncomes, updatePlate, setIncomes };
 }
