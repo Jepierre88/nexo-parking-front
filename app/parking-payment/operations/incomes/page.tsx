@@ -258,9 +258,10 @@ export default function Incomes({
                 <div className="flex flex-col items-center w-full">
                   <div className="flex flex-col items-center w-98">
                     <Input
-                      placeholder=" "
+                      placeholder="Placa"
                       className="ml-4 w-2/3"
                       type="text"
+                      variant="faded"
                       value={plate}
                       onChange={(e) => setPlateValue(e.target.value)} // Manejo del input
                     />

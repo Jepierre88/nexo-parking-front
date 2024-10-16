@@ -37,7 +37,7 @@ export const Navbar = () => {
         {/* <NavbarBrand as="li" className="gap-3 max-w-fit">
 					<Image src={LOGO} alt="..." width={250} />
 				</NavbarBrand> */}
-        <ul className="hidden lg:flex gap-4 justify-start ml-2">
+        <ul className="flex lg:flex gap-4 justify-start ml-2">
           <Dropdown>
             <NavbarItem>
               <DropdownTrigger>
@@ -65,7 +65,7 @@ export const Navbar = () => {
             </DropdownMenu>
           </Dropdown>
         </ul>
-        <ul className="hidden lg:flex gap-4 justify-start ml-2">
+        <ul className="flex gap-4 justify-start ml-2">
           <Dropdown>
             <NavbarItem>
               <DropdownTrigger>
@@ -86,12 +86,12 @@ export const Navbar = () => {
               color="primary"
             >
               <DropdownItem key="users">
-                <Link href={"/parking-payment/operations/inputs"}>
+                <Link href={"/parking-payment/operations/incomes"}>
                   <button className="w-full text-left">Ingresos</button>
                 </Link>
               </DropdownItem>
               <DropdownItem key="users">
-                <Link href={"/parking-payment/operations/outputs"}>
+                <Link href={"/parking-payment/operations/outcomes"}>
                   <button className="w-full text-left">Salidas</button>
                 </Link>
               </DropdownItem>
@@ -114,7 +114,7 @@ export const Navbar = () => {
           </Dropdown>
         </ul>
 
-        <ul className="hidden lg:flex gap-4 justify-start ml-2">
+        <ul className="flex gap-4 justify-start ml-2">
           <Dropdown>
             <NavbarItem>
               <DropdownTrigger>
@@ -143,7 +143,7 @@ export const Navbar = () => {
           </Dropdown>
         </ul>
 
-        <ul className="hidden lg:flex gap-4 justify-start ml-2">
+        <ul className="flex gap-4 justify-start ml-2">
           <Button
             disableRipple
             className="p-0 bg-transparent data-[hover=true]:bg-transparent"
@@ -156,7 +156,7 @@ export const Navbar = () => {
           </Button>
         </ul>
       </NavbarContent>
-      <NavbarContent>
+      <NavbarContent className="">
         <NavbarBrand as="li" className="gap-3 my-auto self-end max-w-md flex">
           <Image
             src={COINSLOGO}

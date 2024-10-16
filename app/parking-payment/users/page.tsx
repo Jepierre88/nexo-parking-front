@@ -5,7 +5,7 @@ import { Button } from "@nextui-org/button";
 import ICONOLAPIZ from "@/public/iconoLapiz.png";
 import ICONOOJO from "@/public/IconoOjo.png";
 import Image from "next/image";
-import { UserData } from "@/types";
+import { User, UserData } from "@/types";
 import UseUsers from "@/app/parking-payment/hooks/UseUsers";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import {
@@ -26,11 +26,56 @@ const Users = ({
 }) => {
   const { users } = UseUsers();
   const { isOpen, onOpen, onOpenChange } = useDisclosure();
+  const {
+    isOpen: isOpenEdit,
+    onOpen: onOpenEdit,
+    onOpenChange: onOpenChangeEdit,
+  } = useDisclosure();
 
   const [paginationModel, setPaginationModel] = useState({
     pageSize: 5,
     page: 0,
   });
+
+  const [userEdit, setUserEdit] = useState<User>({
+    cellPhoneNumber: "",
+    departmentName: "",
+    email: "",
+    emailVerified: false,
+    generalEntityId: 0,
+    id: "",
+    lastName: "",
+    name: "",
+    privacyAuthorization: false,
+    realm: "",
+    resetKey: "",
+    username: "",
+    verificationToken: "",
+    zoneId: 0,
+  });
+
+  const editUser = async () => {
+    // if (id && plate) {
+    //   try {
+    //     await updatePlate(id, plate);
+    //     setPlateValue("");
+    //     setVehicleId(null);
+    //     onClose();
+    //     await getIncomes();
+    //   } catch (error) {
+    //     console.error("Error editando la placa:", error);
+    //   }
+    // } else {
+    //   console.error("ID o placa no válidos");
+    // }
+  };
+
+  const [isView, setIsView] = useState(false);
+
+  const handleButtonClick = (data: any) => {
+    console.log(data);
+    onOpenEdit();
+  };
 
   const columns: GridColDef[] = [
     {
@@ -76,10 +121,24 @@ const Users = ({
       align: "center",
       renderCell: (params) => (
         <div className="flex justify-center items-center">
-          <Button className="bg-primary text-white">
+          <Button
+            color="primary"
+            onPress={() => {
+              handleButtonClick(params.row);
+              setUserEdit(params.row);
+              setIsView(false);
+            }}
+          >
             <Image src={ICONOLAPIZ} alt="IconoLapiz" width={20} />
           </Button>
-          <Button className="bg-primary text-white">
+          <Button
+            color="primary"
+            onPress={() => {
+              handleButtonClick(params.row);
+              setUserEdit(params.row);
+              setIsView(true);
+            }}
+          >
             <Image src={ICONOOJO} alt="IconoOjo" width={20} />
           </Button>
         </div>
@@ -204,6 +263,120 @@ const Users = ({
                       color="primary"
                       onClick={() => console.log("Guardar datos")}
                     >
+                      Guardar datos
+                    </Button>
+                    <Button
+                      color="primary"
+                      onClick={() => console.log("Limpiar Datos")}
+                    >
+                      Limpiar Datos
+                    </Button>
+                  </div>
+                </div>
+              </ModalBody>
+            </div>
+          )}
+        </ModalContent>
+      </Modal>
+
+      {/**          Modal de Edicion y vista */}
+      <Modal
+        onOpenChange={onOpenChangeEdit}
+        isOpen={isOpenEdit}
+        aria-labelledby="user-modal-title"
+        aria-describedby="user-modal-description"
+      >
+        <ModalContent>
+          {() => (
+            <div className="flex flex-col items-start w-full p-4">
+              <ModalHeader className="flex justify-between w-full">
+                <h1 className={`text-2xl ${title()}`}>USUARIO</h1>
+              </ModalHeader>
+
+              <ModalBody className="flex w-full mt-4">
+                <div className="flex-grow" />
+
+                <div className="flex flex-col items-start w-98 ">
+                  <div className="flex items-center mt-2 mb-2 w-full">
+                    <label className="text-xl font-bold text-nowrap w-1/3">
+                      Nombre
+                    </label>
+                    <Input
+                      placeholder="Inserta aquí tu usuario"
+                      className="ml-4 w-2/3"
+                      type="text"
+                      value={userEdit.name}
+                      onChange={(e) =>
+                        setUserEdit({ ...userEdit, name: e.target.value })
+                      }
+                      disabled={isView}
+                    />
+                  </div>
+                  <div className="flex items-center mt-2 mb-2 w-96">
+                    <label className="text-xl font-bold text-nowrap w-1/3">
+                      Apellido
+                    </label>
+                    <Input
+                      placeholder="Inserta aquí tu contraseña"
+                      className="ml-4 w-2/3"
+                      type="text"
+                      value={userEdit.lastName}
+                      onChange={(e) =>
+                        setUserEdit({ ...userEdit, lastName: e.target.value })
+                      }
+                      disabled={isView}
+                    />
+                  </div>
+                  <div className="flex items-center mt-2 mb-2 w-96">
+                    <label className="text-xl font-bold text-nowrap w-1/3">
+                      Usuario
+                    </label>
+                    <Input
+                      placeholder="Inserta aquí tu email"
+                      className="ml-4 w-2/3"
+                      type="email"
+                      value={userEdit.username}
+                      onChange={(e) =>
+                        setUserEdit({ ...userEdit, username: e.target.value })
+                      }
+                      disabled={isView}
+                    />
+                  </div>
+                  <div className="flex items-center mt-2 mb-2 w-96">
+                    <label className="text-xl font-bold text-nowrap w-1/3">
+                      Email
+                    </label>
+                    <Input
+                      placeholder="Inserta aquí tu nombre"
+                      className="ml-4 w-2/3"
+                      type="text"
+                      value={userEdit.username}
+                      onChange={(e) =>
+                        setUserEdit({ ...userEdit, email: e.target.value })
+                      }
+                      disabled={isView}
+                    />
+                  </div>
+                  <div className="flex items-center mt-2 mb-2 w-96">
+                    <label className="text-xl font-bold text-nowrap w-1/3">
+                      Perfil
+                    </label>
+                    <Input
+                      placeholder="Inserta aquí tu apellido"
+                      className="ml-4 w-2/3"
+                      type="text"
+                      value={userEdit.realm}
+                      onChange={(e) =>
+                        setUserEdit({ ...userEdit, realm: e.target.value })
+                      }
+                      disabled={isView}
+                    />
+                  </div>
+
+                  <div
+                    className={`flex justify-between w-96 mt-4 ${isView ? "hidden" : ""} `}
+                  >
+                    <Button color="primary" onClick={editUser}>
                       Guardar datos
                     </Button>
                     <Button
