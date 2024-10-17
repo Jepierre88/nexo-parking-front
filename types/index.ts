@@ -22,6 +22,17 @@ export interface User{
 	zoneId:               number;  
 
 }
+export interface Signup{
+	password: 			   string;
+	cellPhoneNumber:      string;
+	email:                string;
+	lastName:             string;
+	name:                 string;
+	realm:                string;
+	username:             string;
+}
+
+
 
 export interface UserData {
 	IVAPercentage: number;

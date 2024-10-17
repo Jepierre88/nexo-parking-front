@@ -1,9 +1,12 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { User } from "@/types"; // Asegúrate de que esta ruta sea correcta
+import { User, Signup } from "@/types";
+
+import { Email, Password } from "@mui/icons-material";
 
 export default function UseUsers() {
   const [users, setUsers] = useState<User[]>([]);
+  const [signup, setSignup] = useState<Signup[]>([]);
 
   const getUsers = async () => {
     try {
@@ -22,6 +25,15 @@ export default function UseUsers() {
       setUsers([]);
       console.error("Error al obtener los usuarios:", error);
     }
+  };
+
+  const isUserDataUnique = (newUserData: any, existingUsers: User[]) => {
+    const exists = existingUsers.some(
+      (user) =>
+        user.username === newUserData.username ||
+        user.email === newUserData.email
+    );
+    return !exists;
   };
 
   const updateUser = async (user: User) => {
@@ -43,9 +55,30 @@ export default function UseUsers() {
     }
   };
 
+  const createUser = async (signup: Signup) => {
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/signup`,
+        {
+          username: signup.username,
+          password: signup.password,
+          email: signup.email,
+          name: signup.name,
+          lastName: signup.lastName,
+          cellPhoneNumber: signup.cellPhoneNumber,
+          realm: signup.realm,
+        }
+      );
+      console.log("Usuario creado:", response.data);
+      return response.data;
+    } catch (error) {
+      console.error("Error al crear el usuario:", error);
+    }
+  };
+
   useEffect(() => {
     getUsers();
   }, []);
 
-  return { users, getUsers, updateUser };
+  return { users, signup, getUsers, updateUser, createUser, isUserDataUnique };
 }

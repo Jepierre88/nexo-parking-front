@@ -5,8 +5,9 @@ import { Button } from "@nextui-org/button";
 import ICONOLAPIZ from "@/public/iconoLapiz.png";
 import ICONOOJO from "@/public/IconoOjo.png";
 import Image from "next/image";
-import { User, UserData } from "@/types";
+import { Signup, User, UserData } from "@/types";
 import UseUsers from "@/app/parking-payment/hooks/UseUsers";
+import { SubmitHandler, useForm } from "react-hook-form";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
 import {
   ModalContent,
@@ -15,7 +16,26 @@ import {
   ModalHeader,
   ModalBody,
 } from "@nextui-org/modal";
-import { Input } from "@nextui-org/react";
+import { Input, Select, SelectItem } from "@nextui-org/react";
+import { roles } from "@/app/utils/data";
+import { ModalError } from "@/components/modales";
+
+const initialUserEdit: User = {
+  cellPhoneNumber: "",
+  departmentName: "",
+  email: "",
+  emailVerified: false,
+  generalEntityId: 0,
+  id: "",
+  lastName: "",
+  name: "",
+  privacyAuthorization: false,
+  realm: "",
+  resetKey: "",
+  username: "",
+  verificationToken: "",
+  zoneId: 0,
+};
 
 const Users = ({
   userData,
@@ -24,8 +44,10 @@ const Users = ({
   userData: UserData;
   setUserData: (userdata: UserData) => void;
 }) => {
-  const { users, updateUser, getUsers } = UseUsers();
+  const { users, updateUser, getUsers, createUser, isUserDataUnique } =
+    UseUsers();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+  const { register, handleSubmit } = useForm<UserData>();
   const {
     isOpen: isOpenEdit,
     onOpen: onOpenEdit,
@@ -33,50 +55,31 @@ const Users = ({
     onClose: onCloseEdit,
   } = useDisclosure();
 
+  const {
+    isOpen: isOpenErrorModal,
+    onOpen: onOpenErrorModal,
+    onOpenChange: onOpenChangeErrorModal,
+    onClose: onCloseErrorModal,
+  } = useDisclosure();
+
   const [paginationModel, setPaginationModel] = useState({
     pageSize: 5,
     page: 0,
   });
+  const [userEdit, setUserEdit] = useState<User>(initialUserEdit);
+  const [isView, setIsView] = useState(false);
+  const [message, setMessage] = useState("");
 
-  const [userEdit, setUserEdit] = useState<User>({
-    cellPhoneNumber: "",
-    departmentName: "",
-    email: "",
-    emailVerified: false,
-    generalEntityId: 0,
-    id: "",
-    lastName: "",
-    name: "",
-    privacyAuthorization: false,
-    realm: "",
-    resetKey: "",
-    username: "",
-    verificationToken: "",
-    zoneId: 0,
-  });
+  const clearInputs = () => {
+    setUserEdit(initialUserEdit);
+  };
 
   const editUser = async () => {
-    if (userEdit && userEdit.id) {
+    if (userEdit.id) {
       try {
         const response = await updateUser(userEdit);
         console.log("Usuario actualizado:", response);
-
-        setUserEdit({
-          cellPhoneNumber: "",
-          departmentName: "",
-          email: "",
-          emailVerified: false,
-          generalEntityId: 0,
-          id: "",
-          lastName: "",
-          name: "",
-          privacyAuthorization: false,
-          realm: "",
-          resetKey: "",
-          username: "",
-          verificationToken: "",
-          zoneId: 0,
-        });
+        clearInputs();
         onCloseEdit();
         await getUsers();
       } catch (error) {
@@ -87,11 +90,41 @@ const Users = ({
     }
   };
 
-  const [isView, setIsView] = useState(false);
-
-  const handleButtonClick = (data: any) => {
-    console.log(data);
+  const handleButtonClick = (data: User) => {
+    setUserEdit(data);
     onOpenEdit();
+  };
+
+  interface UserData {
+    username: string;
+    password: string;
+    email: string;
+    name: string;
+    lastName: string;
+    cellPhoneNumber: string;
+    realm: string;
+  }
+  const onSubmit: SubmitHandler<UserData> = async (data) => {
+    if (
+      isUserDataUnique({ username: data.username, email: data.email }, users)
+    ) {
+      const newUser = await createUser({
+        username: data.username,
+        password: data.password,
+        email: data.email,
+        name: data.name,
+        lastName: data.lastName,
+        cellPhoneNumber: data.cellPhoneNumber,
+        realm: data.realm,
+      });
+
+      console.log("Usuario creado exitosamente:", newUser);
+      await getUsers();
+      onClose();
+    } else {
+      setMessage("Usuario ya existe");
+      onOpenErrorModal();
+    }
   };
 
   const columns: GridColDef[] = [
@@ -142,7 +175,6 @@ const Users = ({
             color="primary"
             onPress={() => {
               handleButtonClick(params.row);
-              setUserEdit(params.row);
               setIsView(false);
             }}
           >
@@ -152,7 +184,6 @@ const Users = ({
             color="primary"
             onPress={() => {
               handleButtonClick(params.row);
-              setUserEdit(params.row);
               setIsView(true);
             }}
           >
@@ -167,7 +198,7 @@ const Users = ({
     <section>
       <div className="flex justify-between">
         <h1 className={title()}>Usuarios</h1>
-        <Button className="bg-primary text-white" onPress={() => onOpen()}>
+        <Button className="bg-primary text-white" onPress={onOpen}>
           +Agregar usuario
         </Button>
       </div>
@@ -181,10 +212,10 @@ const Users = ({
           paginationModel={paginationModel}
           onPaginationModelChange={setPaginationModel}
           pageSizeOptions={[5, 10, 20]}
-          initialState={{ pagination: { paginationModel: { pageSize: 5 } } }}
         />
       </div>
 
+      {/* Modal para agregar usuario */}
       <Modal
         onOpenChange={onOpenChange}
         isOpen={isOpen}
@@ -195,108 +226,127 @@ const Users = ({
           {() => (
             <div className="flex flex-col items-start w-full p-4">
               <ModalHeader className="flex justify-between w-full">
-                <h1 className={`text-2xl ${title()}`}>
+                <h1 className={"text-2xl ${title()}"}>
                   INFORMACIÓN DE USUARIO
                 </h1>
               </ModalHeader>
 
               <ModalBody className="flex w-full mt-4">
-                <div className="flex-grow" />
+                <form
+                  className="flex flex-col justify-around h-full"
+                  onSubmit={handleSubmit(onSubmit)}
+                >
+                  <div className="flex-grow" />
 
-                <div className="flex flex-col items-start w-98 ">
-                  <div className="flex items-center mt-2 mb-2 w-full">
-                    <label className="text-xl font-bold text-nowrap w-1/3">
-                      Usuario
-                    </label>
-                    <Input
-                      placeholder="Inserta aquí tu usuario"
-                      className="ml-4 w-2/3"
-                      type="text"
-                    />
+                  <div className="flex flex-col items-start w-98 ">
+                    <div className="flex items-center mt-2 mb-2 w-full">
+                      <label className="text-xl font-bold text-nowrap w-1/3">
+                        Usuario
+                      </label>
+                      <Input
+                        label={"Inserta aquí tu usuario"}
+                        className="ml-4 w-2/3"
+                        variant="faded"
+                        {...register("username", { required: true })}
+                      />
+                    </div>
+                    <div className="flex items-center mt-2 mb-2 w-96">
+                      <label className="text-xl font-bold text-nowrap w-1/3">
+                        Contraseña
+                      </label>
+                      <Input
+                        label="Inserta aquí tu contraseña"
+                        className="ml-4 w-2/3"
+                        type="password"
+                        variant="faded"
+                        {...register("password", { required: true })}
+                      />
+                    </div>
+                    <div className="flex items-center mt-2 mb-2 w-96">
+                      <label className="text-xl font-bold text-nowrap w-1/3">
+                        Email
+                      </label>
+                      <Input
+                        label="Inserta aquí tu email"
+                        className="ml-4 w-2/3"
+                        type="email"
+                        variant="faded"
+                        {...register("email", { required: true })}
+                      />
+                    </div>
+                    <div className="flex items-center mt-2 mb-2 w-96">
+                      <label className="text-xl font-bold text-nowrap w-1/3">
+                        Nombre
+                      </label>
+                      <Input
+                        label="Inserta aquí tu nombre"
+                        className="ml-4 w-2/3"
+                        type="text"
+                        variant="faded"
+                        {...register("name", { required: true })}
+                      />
+                    </div>
+                    <div className="flex items-center mt-2 mb-2 w-96">
+                      <label className="text-xl font-bold text-nowrap w-1/3">
+                        Apellido
+                      </label>
+                      <Input
+                        label="Inserta aquí tu apellido"
+                        className="ml-4 w-2/3"
+                        type="text"
+                        variant="faded"
+                        {...register("lastName", { required: true })}
+                      />
+                    </div>
+                    <div className="flex items-center mt-2 mb-2 w-96">
+                      <label className="text-xl font-bold text-nowrap w-1/3">
+                        Celular
+                      </label>
+                      <Input
+                        label="Inserta aquí tu celular"
+                        className="ml-4 w-2/3"
+                        type="text"
+                        variant="faded"
+                        {...register("cellPhoneNumber", { required: true })}
+                      />
+                    </div>
+                    <div className="flex items-center mt-2 mb-2 w-96">
+                      <label className="text-xl font-bold text-nowrap w-1/3">
+                        Perfil
+                      </label>
+                      <Select
+                        variant="faded"
+                        label="Selecciona tu rol"
+                        className="ml-4 w-2/3"
+                        {...register("realm", { required: false })}
+                      >
+                        {roles.map((rol) => {
+                          return (
+                            <SelectItem key={rol.key}>{rol.label}</SelectItem>
+                          );
+                        })}
+                      </Select>
+                    </div>
+                    <div className="flex justify-between w-96 mt-4 ">
+                      <Button color="primary" type="submit">
+                        Guardar datos
+                      </Button>
+                      <Button
+                        color="primary"
+                        onClick={() => console.log("Limpiar Datos")}
+                      >
+                        Limpiar Datos
+                      </Button>
+                    </div>
                   </div>
-                  <div className="flex items-center mt-2 mb-2 w-96">
-                    <label className="text-xl font-bold text-nowrap w-1/3">
-                      Contraseña
-                    </label>
-                    <Input
-                      placeholder="Inserta aquí tu contraseña"
-                      className="ml-4 w-2/3"
-                      type="password"
-                    />
-                  </div>
-                  <div className="flex items-center mt-2 mb-2 w-96">
-                    <label className="text-xl font-bold text-nowrap w-1/3">
-                      Email
-                    </label>
-                    <Input
-                      placeholder="Inserta aquí tu email"
-                      className="ml-4 w-2/3"
-                      type="email"
-                    />
-                  </div>
-                  <div className="flex items-center mt-2 mb-2 w-96">
-                    <label className="text-xl font-bold text-nowrap w-1/3">
-                      Nombre
-                    </label>
-                    <Input
-                      placeholder="Inserta aquí tu nombre"
-                      className="ml-4 w-2/3"
-                      type="text"
-                    />
-                  </div>
-                  <div className="flex items-center mt-2 mb-2 w-96">
-                    <label className="text-xl font-bold text-nowrap w-1/3">
-                      Apellido
-                    </label>
-                    <Input
-                      placeholder="Inserta aquí tu apellido"
-                      className="ml-4 w-2/3"
-                      type="text"
-                    />
-                  </div>
-                  <div className="flex items-center mt-2 mb-2 w-96">
-                    <label className="text-xl font-bold text-nowrap w-1/3">
-                      Celular
-                    </label>
-                    <Input
-                      placeholder="Inserta aquí tu celular"
-                      className="ml-4 w-2/3"
-                      type="text"
-                    />
-                  </div>
-                  <div className="flex items-center mt-2 mb-2 w-96">
-                    <label className="text-xl font-bold text-nowrap w-1/3">
-                      Perfil
-                    </label>
-                    <select className="ml-4 w-2/3 border rounded p-2">
-                      <option value=""> </option>
-                      <option value="admin">Admin</option>
-                      <option value="user">Usuario</option>
-                      <option value="guest">Invitado</option>
-                    </select>
-                  </div>
-                  <div className="flex justify-between w-96 mt-4 ">
-                    <Button
-                      color="primary"
-                      onClick={() => console.log("Guardar datos")}
-                    >
-                      Guardar datos
-                    </Button>
-                    <Button
-                      color="primary"
-                      onClick={() => console.log("Limpiar Datos")}
-                    >
-                      Limpiar Datos
-                    </Button>
-                  </div>
-                </div>
+                </form>
               </ModalBody>
             </div>
           )}
         </ModalContent>
       </Modal>
 
-      {/**          Modal de Edicion y vista */}
+      {/* Modal de Edicion y vista */}
       <Modal
         onOpenChange={onOpenChangeEdit}
         isOpen={isOpenEdit}
@@ -309,17 +359,17 @@ const Users = ({
               <ModalHeader className="flex justify-between w-full">
                 <h1 className={`text-2xl ${title()}`}>USUARIO</h1>
               </ModalHeader>
-
               <ModalBody className="flex w-full mt-4">
-                <div className="flex-grow" />
+                <form className="flex flex-grow flex-col items-start w-98">
+                  <div className="" />
 
-                <div className="flex flex-col items-start w-98 ">
+                  {/* Campos para editar usuario */}
                   <div className="flex items-center mt-2 mb-2 w-full">
                     <label className="text-xl font-bold text-nowrap w-1/3">
                       Nombre
                     </label>
                     <Input
-                      placeholder="Inserta aquí tu usuario"
+                      placeholder="Inserta aquí tu nombre"
                       className="ml-4 w-2/3"
                       type="text"
                       value={userEdit.name}
@@ -334,7 +384,7 @@ const Users = ({
                       Apellido
                     </label>
                     <Input
-                      placeholder="Inserta aquí tu contraseña"
+                      placeholder="Inserta aquí tu apellido"
                       className="ml-4 w-2/3"
                       type="text"
                       value={userEdit.lastName}
@@ -378,43 +428,56 @@ const Users = ({
                     <label className="text-xl font-bold text-nowrap w-1/3">
                       Perfil
                     </label>
-                    <select className="ml-4 w-2/3 border rounded p-2">
-                      <option value=""> </option>
-                      <option value="admin">Admin</option>
-                      <option value="user">Usuario</option>
-                      <option value="guest">Invitado</option>
-                    </select>
-                    <Input
-                      placeholder="Inserta aquí tu apellido"
+                    <Select
+                      variant="faded"
+                      label="Selecciona tu rol"
                       className="ml-4 w-2/3"
-                      type="text"
                       value={userEdit.realm}
                       onChange={(e) =>
                         setUserEdit({ ...userEdit, realm: e.target.value })
                       }
-                      disabled={isView}
-                    />
+                    >
+                      {roles.map((rol) => {
+                        return (
+                          <SelectItem key={rol.key}>{rol.label}</SelectItem>
+                        );
+                      })}
+                    </Select>
                   </div>
-
                   <div
-                    className={`flex justify-between w-96 mt-4 ${isView ? "hidden" : ""} `}
+                    className={`flex justify-between w-96 mt-4 ${isView ? "hidden" : ""}`}
                   >
                     <Button color="primary" onClick={editUser}>
                       Guardar datos
                     </Button>
-                    <Button
-                      color="primary"
-                      onClick={() => console.log("Limpiar Datos")}
-                    >
+                    <Button color="primary" onClick={clearInputs}>
                       Limpiar Datos
                     </Button>
                   </div>
-                </div>
+                </form>
               </ModalBody>
             </div>
           )}
         </ModalContent>
       </Modal>
+      <ModalError
+        modalControl={{
+          isOpen: isOpenErrorModal,
+          onOpen: onOpenErrorModal,
+          onClose: onCloseErrorModal,
+          onOpenChange: onOpenChangeErrorModal,
+        }}
+        message={message}
+      ></ModalError>
+      {/* <ModalExito
+        modalControl={{
+          isOpen: isOpenErrorModal,
+          onOpen: onOpenErrorModal,
+          onClose: onCloseErrorModal,
+          onOpenChange: onOpenChangeErrorModal,
+        }}
+        message={message}
+      ></ModalExito> */}
     </section>
   );
 };
