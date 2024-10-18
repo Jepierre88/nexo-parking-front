@@ -18,7 +18,7 @@ import {
 } from "@nextui-org/modal";
 import { Input, Select, SelectItem } from "@nextui-org/react";
 import { roles } from "@/app/utils/data";
-import { ModalError } from "@/components/modales";
+import { ModalError, ModalExito } from "@/components/modales";
 
 const initialUserEdit: User = {
   cellPhoneNumber: "",
@@ -54,6 +54,12 @@ const Users = ({
     onOpenChange: onOpenChangeEdit,
     onClose: onCloseEdit,
   } = useDisclosure();
+  const {
+    isOpen: isOpenExitoModal,
+    onOpen: onOpenExitoModal,
+    onOpenChange: onOpenChangeExitoModal,
+    onClose: onCloseExitoModal,
+  } = useDisclosure();
 
   const {
     isOpen: isOpenErrorModal,
@@ -84,13 +90,18 @@ const Users = ({
         await getUsers();
       } catch (error) {
         console.error("Error editando el usuario:", error);
+        setMessage("Erro al editar el usuario");
+        onOpenErrorModal();
       }
     } else {
       console.error("Usuario no válido");
+      setMessage("Usuario no valido");
+      onOpenErrorModal();
     }
   };
 
   const handleButtonClick = (data: User) => {
+    console.log(data);
     setUserEdit(data);
     onOpenEdit();
   };
@@ -119,6 +130,8 @@ const Users = ({
       });
 
       console.log("Usuario creado exitosamente:", newUser);
+      setMessage("Usuario creado con exito");
+      onOpenExitoModal();
       await getUsers();
       onClose();
     } else {
@@ -348,8 +361,8 @@ const Users = ({
 
       {/* Modal de Edicion y vista */}
       <Modal
-        onOpenChange={onOpenChangeEdit}
         isOpen={isOpenEdit}
+        onOpenChange={onOpenChangeEdit}
         aria-labelledby="user-modal-title"
         aria-describedby="user-modal-description"
       >
@@ -436,12 +449,13 @@ const Users = ({
                       onChange={(e) =>
                         setUserEdit({ ...userEdit, realm: e.target.value })
                       }
+                      disabled={isView}
                     >
-                      {roles.map((rol) => {
-                        return (
-                          <SelectItem key={rol.key}>{rol.label}</SelectItem>
-                        );
-                      })}
+                      {roles.map((rol) => (
+                        <SelectItem key={rol.key} value={rol.key}>
+                          {rol.label}
+                        </SelectItem>
+                      ))}
                     </Select>
                   </div>
                   <div
@@ -460,6 +474,7 @@ const Users = ({
           )}
         </ModalContent>
       </Modal>
+
       <ModalError
         modalControl={{
           isOpen: isOpenErrorModal,
@@ -469,15 +484,15 @@ const Users = ({
         }}
         message={message}
       ></ModalError>
-      {/* <ModalExito
+      <ModalExito
         modalControl={{
-          isOpen: isOpenErrorModal,
-          onOpen: onOpenErrorModal,
-          onClose: onCloseErrorModal,
-          onOpenChange: onOpenChangeErrorModal,
+          isOpen: isOpenExitoModal,
+          onOpen: onOpenExitoModal,
+          onClose: onCloseExitoModal,
+          onOpenChange: onOpenChangeExitoModal,
         }}
         message={message}
-      ></ModalExito> */}
+      ></ModalExito>
     </section>
   );
 };

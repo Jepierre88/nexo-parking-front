@@ -17,6 +17,7 @@ import {
   ModalBody,
 } from "@nextui-org/modal";
 import { Input } from "@nextui-org/react";
+import { ModalError, ModalExito } from "@/components/modales";
 
 const handleClick = () => {
   console.log("Click");
@@ -36,6 +37,20 @@ export default function Incomes({
     pageSize: 5,
     page: 0,
   });
+
+  const {
+    isOpen: isOpenExitoModal,
+    onOpen: onOpenExitoModal,
+    onOpenChange: onOpenChangeExitoModal,
+    onClose: onCloseExitoModal,
+  } = useDisclosure();
+
+  const {
+    isOpen: isOpenErrorModal,
+    onOpen: onOpenErrorModal,
+    onOpenChange: onOpenChangeErrorModal,
+    onClose: onCloseErrorModal,
+  } = useDisclosure();
 
   const handleFilter = () => {
     const startDateTime = new Date(`${startDate}T${startTime}`);
@@ -60,12 +75,13 @@ export default function Incomes({
   const [plate, setPlateValue] = useState("");
   const [id, setVehicleId] = useState<string | null>(null);
 
-  const handleButtonClick = (id: string, currentPlate: string) => {
+  const handleButtonClick = (id: string, plate: string) => {
     console.log(id);
     setVehicleId(id);
-    setPlateValue(currentPlate);
+    setPlateValue(plate);
     onOpen();
   };
+  const [message, setMessage] = useState("");
 
   const editPlate = async () => {
     if (id && plate) {
@@ -75,11 +91,17 @@ export default function Incomes({
         setVehicleId(null);
         onClose();
         await getIncomes();
+        setMessage("Placa actualizada con exito");
+        onOpenExitoModal();
       } catch (error) {
         console.error("Error editando la placa:", error);
+        setMessage("Error editando la placa");
+        onOpenErrorModal();
       }
     } else {
       console.error("ID o placa no válidos");
+      setMessage("Placa no valida");
+      onOpenErrorModal();
     }
   };
 
@@ -141,9 +163,7 @@ export default function Incomes({
         <div className="flex justify-center items-center">
           <Button
             color="primary"
-            onPress={() =>
-              handleButtonClick(params.row.id, params.row.currentPlate)
-            }
+            onPress={() => handleButtonClick(params.row.id, params.row.plate)}
           >
             <Image src={ICONOLAPIZ} alt="IconoLapiz" width={20} />
           </Button>
@@ -280,6 +300,24 @@ export default function Incomes({
           )}
         </ModalContent>
       </Modal>
+      <ModalError
+        modalControl={{
+          isOpen: isOpenErrorModal,
+          onOpen: onOpenErrorModal,
+          onClose: onCloseErrorModal,
+          onOpenChange: onOpenChangeErrorModal,
+        }}
+        message={message}
+      ></ModalError>
+      <ModalExito
+        modalControl={{
+          isOpen: isOpenExitoModal,
+          onOpen: onOpenExitoModal,
+          onClose: onCloseExitoModal,
+          onOpenChange: onOpenChangeExitoModal,
+        }}
+        message={message}
+      ></ModalExito>
     </section>
   );
 }
