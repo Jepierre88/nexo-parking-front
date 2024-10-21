@@ -2,9 +2,6 @@
 import React, { useState } from "react";
 import { title } from "@/components/primitives";
 import { Button } from "@nextui-org/button";
-import ICONOLAPIZ from "@/public/iconoLapiz.png";
-import ICONOIMPRESORA from "@/public/IconoImpresora.png";
-import Image from "next/image";
 import { UserData } from "@/types";
 import UseIncomes from "@/app/parking-payment/hooks/UseIncomes";
 import { DataGrid, GridColDef } from "@mui/x-data-grid";
@@ -16,12 +13,9 @@ import {
   ModalBody,
 } from "@nextui-org/modal";
 import { Input } from "@nextui-org/react";
+import Loading from "@/app/loading"; // Asegúrate de importar tu componente de carga
 
-const handleClick = () => {
-  console.log("Click");
-};
-
-export default function Incomes({
+export default function Outcomes({
   userData,
   setUserData,
 }: {
@@ -31,16 +25,36 @@ export default function Incomes({
   const { incomes, getIncomes } = UseIncomes();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
 
+  const [loading, setLoading] = useState(false);
   const [paginationModel, setPaginationModel] = useState({
     pageSize: 5,
     page: 0,
   });
 
+  const [startDate, setStartDate] = useState(
+    new Date().toISOString().split("T")[0]
+  );
+  const [startTime, setStartTime] = useState(
+    new Date().toISOString().split("T")[1].split(".")[0]
+  );
+  const [endDate, setEndDate] = useState(
+    new Date(new Date().setDate(new Date().getDate() + 1))
+      .toISOString()
+      .split("T")[0]
+  );
+  const [endTime, setEndTime] = useState(
+    new Date().toISOString().split("T")[1].split(".")[0]
+  );
+
   const handleFilter = () => {
+    setLoading(true); // Inicia el loading
     const startDateTime = new Date(`${startDate}T${startTime}`);
     const endDateTime = new Date(`${endDate}T${endTime}`);
     console.log(startDateTime.toISOString());
-    getIncomes(startDateTime, endDateTime);
+
+    getIncomes(startDateTime, endDateTime).finally(() => {
+      setLoading(false); // Finaliza el loading
+    });
   };
 
   const columns: GridColDef[] = [
@@ -88,22 +102,9 @@ export default function Incomes({
     },
   ];
 
-  const [startDate, setStartDate] = useState(
-    new Date().toISOString().split("T")[0]
-  );
-  const [startTime, setStartTime] = useState(
-    new Date().toISOString().split("T")[1].split(".")[0]
-  );
-  const [endDate, setEndDate] = useState(
-    new Date(new Date().setDate(new Date().getDate() + 1))
-      .toISOString()
-      .split("T")[0]
-  );
-  const [endTime, setEndTime] = useState(
-    new Date().toISOString().split("T")[1].split(".")[0]
-  );
   return (
     <section>
+      {loading && <Loading />} {/* Mostrar el componente de carga */}
       <div className="flex justify-between">
         <h1 className={title()}>Salidas</h1>
 
@@ -150,7 +151,6 @@ export default function Incomes({
         <Button
           className="bg-primary text-white mr-72 mt-14 ml-5"
           onClick={handleFilter}
-          onPress={handleFilter}
         >
           Filtrar
         </Button>

@@ -1,4 +1,5 @@
 "use client";
+import { useState } from "react";
 import { Button } from "@nextui-org/button";
 import { Card, CardBody, CardHeader } from "@nextui-org/card";
 import { Input } from "@nextui-org/input";
@@ -10,17 +11,22 @@ import axios from "axios";
 import { UseNavigateContext } from "@/app/context/NavigateContext";
 import { UseAuthContext } from "@/app/context/AuthContext";
 import { useDisclosure } from "@nextui-org/modal";
+import Loading from "@/app/loading";
 
 export default function Login() {
   const { router } = UseNavigateContext();
   const { setToken, setIsAuthenticated, setUser } = UseAuthContext();
+  const [loading, setLoading] = useState(false);
+
   interface UserLogin {
     email: string;
     password: string;
   }
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const { register, handleSubmit } = useForm();
+
   const onSubmit: SubmitHandler<any> = async (data: UserLogin) => {
+    setLoading(true);
     try {
       console.log();
       const response = await axios.post(
@@ -45,6 +51,8 @@ export default function Login() {
       setToken("");
       setIsAuthenticated(false);
       alert("Error en el inicio de sesión");
+    } finally {
+      setLoading(false);
     }
   };
   return (
@@ -58,34 +66,38 @@ export default function Login() {
             <h1 className="font-bold text-4xl mx-auto">Iniciar sesión</h1>
           </CardHeader>
           <CardBody>
-            <form
-              className="flex flex-col justify-around h-full"
-              onSubmit={handleSubmit(onSubmit)}
-            >
-              <Input
-                label={"Correo electronico"}
-                type="email"
-                size="lg"
-                variant="faded"
-                {...register("email", { required: true })}
-              />
-              <Input
-                label={"Contraseña"}
-                type="password"
-                size="lg"
-                variant="faded"
-                {...register("password", { required: true })}
-              />
-              <Button
-                className="mx-auto w-full"
-                color="primary"
-                type="submit"
-                size="lg"
-                variant="ghost"
+            {loading ? ( // Muestra el loading si está en carga
+              <Loading />
+            ) : (
+              <form
+                className="flex flex-col justify-around h-full"
+                onSubmit={handleSubmit(onSubmit)}
               >
-                Continuar
-              </Button>
-            </form>
+                <Input
+                  label={"Correo electronico"}
+                  type="email"
+                  size="lg"
+                  variant="faded"
+                  {...register("email", { required: true })}
+                />
+                <Input
+                  label={"Contraseña"}
+                  type="password"
+                  size="lg"
+                  variant="faded"
+                  {...register("password", { required: true })}
+                />
+                <Button
+                  className="mx-auto w-full"
+                  color="primary"
+                  type="submit"
+                  size="lg"
+                  variant="ghost"
+                >
+                  Continuar
+                </Button>
+              </form>
+            )}
           </CardBody>
         </Card>
         <div className="flex justify-between w-full mt-4">

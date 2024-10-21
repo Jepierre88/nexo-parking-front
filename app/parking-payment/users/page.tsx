@@ -19,6 +19,7 @@ import {
 import { Input, Select, SelectItem } from "@nextui-org/react";
 import { roles } from "@/app/utils/data";
 import { ModalError, ModalExito } from "@/components/modales";
+import Loading from "@/app/loading";
 
 const initialUserEdit: User = {
   cellPhoneNumber: "",
@@ -75,12 +76,14 @@ const Users = ({
   const [userEdit, setUserEdit] = useState<User>(initialUserEdit);
   const [isView, setIsView] = useState(false);
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const clearInputs = () => {
     setUserEdit(initialUserEdit);
   };
 
   const editUser = async () => {
+    setLoading(true);
     if (userEdit.id) {
       try {
         const response = await updateUser(userEdit);
@@ -92,11 +95,14 @@ const Users = ({
         console.error("Error editando el usuario:", error);
         setMessage("Erro al editar el usuario");
         onOpenErrorModal();
+      } finally {
+        setLoading(false);
       }
     } else {
       console.error("Usuario no válido");
       setMessage("Usuario no valido");
       onOpenErrorModal();
+      setLoading(false);
     }
   };
 
@@ -116,27 +122,36 @@ const Users = ({
     realm: string;
   }
   const onSubmit: SubmitHandler<UserData> = async (data) => {
+    setLoading(true);
     if (
       isUserDataUnique({ username: data.username, email: data.email }, users)
     ) {
-      const newUser = await createUser({
-        username: data.username,
-        password: data.password,
-        email: data.email,
-        name: data.name,
-        lastName: data.lastName,
-        cellPhoneNumber: data.cellPhoneNumber,
-        realm: data.realm,
-      });
-
-      console.log("Usuario creado exitosamente:", newUser);
-      setMessage("Usuario creado con exito");
-      onOpenExitoModal();
-      await getUsers();
-      onClose();
+      try {
+        const newUser = await createUser({
+          username: data.username,
+          password: data.password,
+          email: data.email,
+          name: data.name,
+          lastName: data.lastName,
+          cellPhoneNumber: data.cellPhoneNumber,
+          realm: data.realm,
+        });
+        console.log("Usuario creado exitosamente:", newUser);
+        setMessage("Usuario creado con exito");
+        onOpenExitoModal();
+        await getUsers();
+        onClose();
+      } catch (error) {
+        console.error("Error creando el usuario:", error);
+        setMessage("Error al crear el usuario");
+        onOpenErrorModal();
+      } finally {
+        setLoading(false); // Reset loading after the operation
+      }
     } else {
       setMessage("Usuario ya existe");
       onOpenErrorModal();
+      setLoading(false); // Reset loading
     }
   };
 
@@ -215,19 +230,21 @@ const Users = ({
           +Agregar usuario
         </Button>
       </div>
-
-      <div style={{ height: 400, width: "100%", marginTop: "20px" }}>
-        <DataGrid
-          sx={{ backgroundColor: "white" }}
-          rows={users || []}
-          columns={columns}
-          pagination
-          paginationModel={paginationModel}
-          onPaginationModelChange={setPaginationModel}
-          pageSizeOptions={[5, 10, 20]}
-        />
-      </div>
-
+      {loading ? (
+        <Loading />
+      ) : (
+        <div style={{ height: 400, width: "100%", marginTop: "20px" }}>
+          <DataGrid
+            sx={{ backgroundColor: "white" }}
+            rows={users || []}
+            columns={columns}
+            pagination
+            paginationModel={paginationModel}
+            onPaginationModelChange={setPaginationModel}
+            pageSizeOptions={[5, 10, 20]}
+          />
+        </div>
+      )}
       {/* Modal para agregar usuario */}
       <Modal
         onOpenChange={onOpenChange}

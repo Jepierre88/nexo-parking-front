@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { title } from "@/components/primitives";
 import { Button } from "@nextui-org/button";
 import ICONOLAPIZ from "@/public/iconoLapiz.png";
@@ -18,10 +18,7 @@ import {
 } from "@nextui-org/modal";
 import { Input } from "@nextui-org/react";
 import { ModalError, ModalExito } from "@/components/modales";
-
-const handleClick = () => {
-  console.log("Click");
-};
+import Loading from "@/app/loading";
 
 export default function Incomes({
   userData,
@@ -32,6 +29,7 @@ export default function Incomes({
 }) {
   const { incomes, getIncomes, updatePlate, setIncomes } = UseIncomes();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+  const [loading, setLoading] = useState(false);
 
   const [paginationModel, setPaginationModel] = useState({
     pageSize: 5,
@@ -52,16 +50,34 @@ export default function Incomes({
     onClose: onCloseErrorModal,
   } = useDisclosure();
 
+  // Inicialización de fechas
+  const today = new Date();
+  const tomorrow = new Date();
+  tomorrow.setDate(today.getDate() + 1);
+
+  const [startDate, setStartDate] = useState(today.toISOString().split("T")[0]);
+  const [startTime, setStartTime] = useState(
+    today.toISOString().split("T")[1].split(".")[0]
+  );
+  const [endDate, setEndDate] = useState(tomorrow.toISOString().split("T")[0]);
+  const [endTime, setEndTime] = useState(
+    today.toISOString().split("T")[1].split(".")[0]
+  );
+
   const handleFilter = () => {
+    setLoading(true);
     const startDateTime = new Date(`${startDate}T${startTime}`);
     const endDateTime = new Date(`${endDate}T${endTime}`);
     if (isNaN(startDateTime.getTime()) || isNaN(endDateTime.getTime())) {
       console.error("Fechas no válidas");
       setIncomes([]); // Establecer incomes como vacío
+      setLoading(false);
       return; // Salir de la función si las fechas no son válidas
     }
     console.log(startDateTime.toISOString(), endDateTime.toISOString());
-    getIncomes(startDateTime, endDateTime);
+    getIncomes(startDateTime, endDateTime).finally(() => {
+      setLoading(false); // Asegúrate de ocultar el loading al final
+    });
   };
 
   const handleClickPrint = async () => {
@@ -85,22 +101,25 @@ export default function Incomes({
 
   const editPlate = async () => {
     if (id && plate) {
+      setLoading(true); // Comienza el loading
       try {
         await updatePlate(id, plate);
         setPlateValue("");
         setVehicleId(null);
         onClose();
         await getIncomes();
-        setMessage("Placa actualizada con exito");
+        setMessage("Placa actualizada con éxito");
         onOpenExitoModal();
       } catch (error) {
         console.error("Error editando la placa:", error);
         setMessage("Error editando la placa");
         onOpenErrorModal();
+      } finally {
+        setLoading(false); // Detiene el loading al final
       }
     } else {
       console.error("ID o placa no válidos");
-      setMessage("Placa no valida");
+      setMessage("Placa no válida");
       onOpenErrorModal();
     }
   };
@@ -149,13 +168,6 @@ export default function Incomes({
       align: "center",
     },
     {
-      field: "plateImage",
-      headerName: "Imagen",
-      flex: 1,
-      headerAlign: "center",
-      align: "center",
-    },
-    {
       field: "actions",
       headerName: "Acciones",
       minWidth: 200,
@@ -164,6 +176,7 @@ export default function Incomes({
           <Button
             color="primary"
             onPress={() => handleButtonClick(params.row.id, params.row.plate)}
+            disabled={loading} // Deshabilitar el botón mientras está cargando
           >
             <Image src={ICONOLAPIZ} alt="IconoLapiz" width={20} />
           </Button>
@@ -175,22 +188,10 @@ export default function Incomes({
     },
   ];
 
-  const [startDate, setStartDate] = useState(
-    new Date().toISOString().split("T")[0]
-  );
-  const [startTime, setStartTime] = useState(
-    new Date().toISOString().split("T")[1].split(".")[0]
-  );
-  const [endDate, setEndDate] = useState(
-    new Date(new Date().setDate(new Date().getDate() + 1))
-      .toISOString()
-      .split("T")[0]
-  );
-  const [endTime, setEndTime] = useState(
-    new Date().toISOString().split("T")[1].split(".")[0]
-  );
   return (
     <section>
+      {loading && <Loading />}{" "}
+      {/* Muestra el componente Loading si loading es true */}
       <div className="flex justify-between">
         <h1 className={title()}>Entradas</h1>
 
@@ -222,13 +223,13 @@ export default function Incomes({
                   type="date"
                   value={endDate}
                   className="text-sm font-bold border border-gray-300 rounded p-1"
-                  onChange={(e) => setEndDate(e.target.value)} // Manejo de la fecha "Hasta"
+                  onChange={(e) => setEndDate(e.target.value)}
                 />
                 <input
                   type="time"
                   value={endTime}
                   className="text-sm font-bold border border-gray-300 rounded p-1"
-                  onChange={(e) => setEndTime(e.target.value)} // Manejo de la hora "Hasta"
+                  onChange={(e) => setEndTime(e.target.value)}
                 />
               </div>
             </div>
@@ -238,7 +239,7 @@ export default function Incomes({
           className="mr-72 mt-14 ml-5"
           color="primary"
           onClick={handleFilter}
-          onPress={handleFilter}
+          disabled={loading} // Deshabilitar el botón mientras está cargando
         >
           Filtrar
         </Button>
@@ -277,20 +278,35 @@ export default function Incomes({
                 <div className="flex-grow" />
                 <div className="flex flex-col items-center w-full">
                   <div className="flex flex-col items-center w-98">
+                    {userData && userData.plateImage ? (
+                      <Image
+                        src={userData.plateImage}
+                        alt="Imagen de Placa"
+                        width={100}
+                        height={50}
+                        className="mb-4"
+                      />
+                    ) : (
+                      <p>No hay imagen disponible</p> // Mensaje alternativo si no hay imagen
+                    )}
                     <Input
                       placeholder="Placa"
                       className="ml-4 w-2/3"
                       type="text"
                       variant="faded"
                       value={plate}
-                      onChange={(e) => setPlateValue(e.target.value)} // Manejo del input
+                      onChange={(e) => setPlateValue(e.target.value)}
                     />
                   </div>
                   <div className="flex justify-center w-full mt-4">
                     <Button color="primary" onClick={onClose} className="mr-2">
                       Cancelar
                     </Button>
-                    <Button color="primary" onClick={editPlate}>
+                    <Button
+                      color="primary"
+                      onClick={editPlate}
+                      disabled={loading}
+                    >
                       Guardar
                     </Button>
                   </div>
@@ -308,7 +324,7 @@ export default function Incomes({
           onOpenChange: onOpenChangeErrorModal,
         }}
         message={message}
-      ></ModalError>
+      />
       <ModalExito
         modalControl={{
           isOpen: isOpenExitoModal,
@@ -317,7 +333,7 @@ export default function Incomes({
           onOpenChange: onOpenChangeExitoModal,
         }}
         message={message}
-      ></ModalExito>
+      />
     </section>
   );
 }

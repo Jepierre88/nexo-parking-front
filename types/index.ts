@@ -50,6 +50,7 @@ export interface UserData {
 	messageTitle: string;
 	optionalFields: any[];
 	plate: string;
+	plateImage: string;
 	requiredFields: any[];
 	status: number;
 	subtotal: number;
