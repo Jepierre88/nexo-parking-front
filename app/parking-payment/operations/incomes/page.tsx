@@ -20,13 +20,7 @@ import { Input } from "@nextui-org/react";
 import { ModalError, ModalExito } from "@/components/modales";
 import Loading from "@/app/loading";
 
-export default function Incomes({
-  userData,
-  setUserData,
-}: {
-  userData: UserData;
-  setUserData: (userdata: UserData) => void;
-}) {
+export default function Incomes() {
   const { incomes, getIncomes, updatePlate, setIncomes } = UseIncomes();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [loading, setLoading] = useState(false);
@@ -90,11 +84,13 @@ export default function Incomes({
 
   const [plate, setPlateValue] = useState("");
   const [id, setVehicleId] = useState<string | null>(null);
+  const [plateImg, setPlateImg] = useState("");
 
-  const handleButtonClick = (id: string, plate: string) => {
+  const handleButtonClick = (id: string, plate: string, img: string) => {
     console.log(id);
     setVehicleId(id);
     setPlateValue(plate);
+    setPlateImg(img);
     onOpen();
   };
   const [message, setMessage] = useState("");
@@ -175,7 +171,13 @@ export default function Incomes({
         <div className="flex justify-center items-center">
           <Button
             color="primary"
-            onPress={() => handleButtonClick(params.row.id, params.row.plate)}
+            onPress={() =>
+              handleButtonClick(
+                params.row.id,
+                params.row.plate,
+                params.row.plateImage
+              )
+            }
             disabled={loading} // Deshabilitar el botón mientras está cargando
           >
             <Image src={ICONOLAPIZ} alt="IconoLapiz" width={20} />
@@ -192,11 +194,11 @@ export default function Incomes({
     <section>
       {loading && <Loading />}{" "}
       {/* Muestra el componente Loading si loading es true */}
-      <div className="flex justify-between">
+      <div className="flex gap-4 justify-between">
         <h1 className={title()}>Entradas</h1>
 
-        <div className="flex flex-col w-45 ml-72">
-          <div className="flex flex-col w-45 ml-64 mr-1">
+        <div className="flex w-45 ml-72">
+          <div className="flex gap-4 flex-col w-45 ml-64 mr-1">
             <label className="text-base font-bold text-nowrap mb-2 mr-2">
               DESDE
             </label>
@@ -235,6 +237,7 @@ export default function Incomes({
             </div>
           </div>
         </div>
+
         <Button
           className="mr-72 mt-14 ml-5"
           color="primary"
@@ -278,17 +281,13 @@ export default function Incomes({
                 <div className="flex-grow" />
                 <div className="flex flex-col items-center w-full">
                   <div className="flex flex-col items-center w-98">
-                    {userData && userData.plateImage ? (
-                      <Image
-                        src={userData.plateImage}
-                        alt="Imagen de Placa"
-                        width={100}
-                        height={50}
-                        className="mb-4"
-                      />
-                    ) : (
-                      <p>No hay imagen disponible</p> // Mensaje alternativo si no hay imagen
-                    )}
+                    {/* <Image
+                      src={plateImg.replace("C:/", "http://201.184.234.27")}
+                      alt="Imagen de Placa"
+                      width={100}
+                      height={50}
+                      className="mb-4"
+                    /> */}
                     <Input
                       placeholder="Placa"
                       className="ml-4 w-2/3"

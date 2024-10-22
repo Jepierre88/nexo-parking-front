@@ -16,17 +16,7 @@ import {
 } from "@nextui-org/modal";
 import { Input } from "@nextui-org/react";
 
-const handleClick = () => {
-  console.log("Click");
-};
-
-export default function Incomes({
-  userData,
-  setUserData,
-}: {
-  userData: UserData;
-  setUserData: (userdata: UserData) => void;
-}) {
+export default function Incomes() {
   const { incomes, getIncomes } = UseIncomes();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
 

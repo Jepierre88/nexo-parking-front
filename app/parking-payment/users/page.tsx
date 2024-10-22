@@ -38,13 +38,7 @@ const initialUserEdit: User = {
   zoneId: 0,
 };
 
-const Users = ({
-  userData,
-  setUserData,
-}: {
-  userData: UserData;
-  setUserData: (userdata: UserData) => void;
-}) => {
+const Users = () => {
   const { users, updateUser, getUsers, createUser, isUserDataUnique } =
     UseUsers();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
@@ -88,9 +82,10 @@ const Users = ({
       try {
         const response = await updateUser(userEdit);
         console.log("Usuario actualizado:", response);
-        clearInputs();
+        getUsers();
+        setMessage("Usuario actualizado con exito");
+        onOpenExitoModal();
         onCloseEdit();
-        await getUsers();
       } catch (error) {
         console.error("Error editando el usuario:", error);
         setMessage("Erro al editar el usuario");
@@ -102,7 +97,6 @@ const Users = ({
       console.error("Usuario no válido");
       setMessage("Usuario no valido");
       onOpenErrorModal();
-      setLoading(false);
     }
   };
 

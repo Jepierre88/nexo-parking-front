@@ -6,6 +6,7 @@ import {
   ModalHeader,
   useDisclosure,
 } from "@nextui-org/modal";
+import SmallButton from "./smallButton";
 
 interface ModalControls {
   isOpen: boolean;
@@ -30,11 +31,9 @@ export const ModalError = ({
         {(onClose) => (
           <>
             <ModalHeader></ModalHeader>
-            <ModalBody>
-              <h1>{message}</h1>
-              <Button color="danger" onPress={onClose}>
-                Cerrar
-              </Button>
+            <ModalBody className="flex flex-col items-center justify-center">
+              <h1 className="center">{message}</h1>
+              <SmallButton label="Cerrar" onClick={() => onClose()} />
             </ModalBody>
           </>
         )}
@@ -59,11 +58,9 @@ export const ModalExito = ({
         {(onClose) => (
           <>
             <ModalHeader></ModalHeader>
-            <ModalBody>
-              <h1>{message}</h1>
-              <Button color="danger" onPress={onClose}>
-                Cerrar
-              </Button>
+            <ModalBody className="flex flex-col items-center justify-center">
+              <h1 className="text-center">{message}</h1>
+              <SmallButton label="Cerrar" onClick={() => onClose()} />
             </ModalBody>
           </>
         )}

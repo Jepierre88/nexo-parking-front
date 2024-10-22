@@ -15,13 +15,7 @@ import {
 import { Input } from "@nextui-org/react";
 import Loading from "@/app/loading"; // Asegúrate de importar tu componente de carga
 
-export default function Outcomes({
-  userData,
-  setUserData,
-}: {
-  userData: UserData;
-  setUserData: (userdata: UserData) => void;
-}) {
+export default function Outcomes() {
   const { incomes, getIncomes } = UseIncomes();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
 

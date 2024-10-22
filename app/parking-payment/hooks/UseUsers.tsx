@@ -2,8 +2,6 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { User, Signup } from "@/types";
 
-import { Email, Password } from "@mui/icons-material";
-
 export default function UseUsers() {
   const [users, setUsers] = useState<User[]>([]);
   const [signup, setSignup] = useState<Signup[]>([]);
@@ -21,9 +19,10 @@ export default function UseUsers() {
           (item) => item.realm !== "Consultorio" && item.realm !== "consultorio"
         )
       );
+      console.log(users);
     } catch (error) {
-      setUsers([]);
       console.error("Error al obtener los usuarios:", error);
+      setUsers([]);
     }
   };
 
@@ -42,14 +41,14 @@ export default function UseUsers() {
         `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/users/${user.id}`,
         {
           name: user.name,
-          lastname: user.lastName,
+          lastName: user.lastName,
           username: user.username,
           email: user.email,
           realm: user.realm,
         }
       );
       console.log("Usuario actualizado:", response.data);
-      return response.data; // Retorna el usuario actualizado
+      return response.data;
     } catch (error) {
       console.error("Error actualizando el usuario:", error);
     }
