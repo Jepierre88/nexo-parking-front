@@ -19,16 +19,12 @@ import {
 import { Input } from "@nextui-org/react";
 import { ModalError, ModalExito } from "@/components/modales";
 import Loading from "@/app/loading";
+import CustomDataGrid from "@/components/customDataGrid";
 
 export default function Incomes() {
-  const { incomes, getIncomes, updatePlate, setIncomes } = UseIncomes();
+  const { incomes, getIncomes, updatePlate, setIncomes, loading } =
+    UseIncomes();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-  const [loading, setLoading] = useState(false);
-
-  const [paginationModel, setPaginationModel] = useState({
-    pageSize: 5,
-    page: 0,
-  });
 
   const {
     isOpen: isOpenExitoModal,
@@ -59,19 +55,15 @@ export default function Incomes() {
   );
 
   const handleFilter = () => {
-    setLoading(true);
     const startDateTime = new Date(`${startDate}T${startTime}`);
     const endDateTime = new Date(`${endDate}T${endTime}`);
     if (isNaN(startDateTime.getTime()) || isNaN(endDateTime.getTime())) {
       console.error("Fechas no válidas");
-      setIncomes([]); // Establecer incomes como vacío
-      setLoading(false);
-      return; // Salir de la función si las fechas no son válidas
+      setIncomes([]);
+      return;
     }
     console.log(startDateTime.toISOString(), endDateTime.toISOString());
-    getIncomes(startDateTime, endDateTime).finally(() => {
-      setLoading(false); // Asegúrate de ocultar el loading al final
-    });
+    getIncomes(startDateTime, endDateTime);
   };
 
   const handleClickPrint = async () => {
@@ -97,21 +89,19 @@ export default function Incomes() {
 
   const editPlate = async () => {
     if (id && plate) {
-      setLoading(true); // Comienza el loading
       try {
         await updatePlate(id, plate);
         setPlateValue("");
         setVehicleId(null);
         onClose();
-        await getIncomes();
         setMessage("Placa actualizada con éxito");
         onOpenExitoModal();
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await getIncomes();
       } catch (error) {
         console.error("Error editando la placa:", error);
         setMessage("Error editando la placa");
         onOpenErrorModal();
-      } finally {
-        setLoading(false); // Detiene el loading al final
       }
     } else {
       console.error("ID o placa no válidos");
@@ -191,14 +181,13 @@ export default function Incomes() {
   ];
 
   return (
-    <section>
+    <section className="relative flex-col">
       {loading && <Loading />}{" "}
-      {/* Muestra el componente Loading si loading es true */}
       <div className="flex gap-4 justify-between">
         <h1 className={title()}>Entradas</h1>
 
-        <div className="flex w-45 ml-72">
-          <div className="flex gap-4 flex-col w-45 ml-64 mr-1">
+        <div className="flex">
+          <div className="flex gap-4 flex-col w-45 mr-1">
             <label className="text-base font-bold text-nowrap mb-2 mr-2">
               DESDE
             </label>
@@ -236,34 +225,19 @@ export default function Incomes() {
               </div>
             </div>
           </div>
-        </div>
 
-        <Button
-          className="mr-72 mt-14 ml-5"
-          color="primary"
-          onClick={handleFilter}
-          disabled={loading} // Deshabilitar el botón mientras está cargando
-        >
-          Filtrar
-        </Button>
+          <Button
+            className=" my-auto "
+            color="primary"
+            onClick={handleFilter}
+            disabled={loading} // Deshabilitar el botón mientras está cargando
+          >
+            Filtrar
+          </Button>
+        </div>
       </div>
       <div style={{ height: 400, width: "100%", marginTop: "20px" }}>
-        <DataGrid
-          sx={{ backgroundColor: "white" }}
-          rows={incomes || []}
-          columns={columns}
-          pagination
-          paginationModel={paginationModel}
-          onPaginationModelChange={setPaginationModel}
-          pageSizeOptions={[5, 10, 20]}
-          initialState={{
-            pagination: {
-              paginationModel: {
-                pageSize: 5,
-              },
-            },
-          }}
-        />
+        <CustomDataGrid rows={incomes} columns={columns} />
       </div>
       <Modal
         onOpenChange={onOpenChange}

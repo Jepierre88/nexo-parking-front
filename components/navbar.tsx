@@ -28,11 +28,8 @@ export const Navbar = () => {
   const [loading, setLoading] = useState(false);
 
   const redirectWithLoading = (url: string): void => {
-    setLoading(true);
-    setTimeout(() => {
-      window.location.href = url;
-      setLoading(false);
-    }, 500);
+    //setLoading(true);
+    window.location.href = url;
   };
 
   const cerrarSesion = () => {

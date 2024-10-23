@@ -1,18 +1,31 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { User } from "@/types";
 
 interface Income {
   id: string;
   realm: string;
   plate: string;
-  // Añade otras propiedades relevantes aquí
 }
 
 export default function UseIncomes() {
   const [incomes, setIncomes] = useState<Income[]>([]);
+  const [loading, setLoading] = useState(true);
+  const today = new Date();
+  const todayNight = new Date();
+
+  today.setHours(0, 0, 0);
+  todayNight.setHours(23, 59, 59);
+
+  console.log(today.toISOString());
+  useEffect(() => {
+    setLoading(true);
+    getIncomes(today, todayNight);
+    return () => {};
+  }, []);
 
   const getIncomes = async (startDateTime?: Date, endDateTime?: Date) => {
+    setLoading(true);
+
     try {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/incomes/pp`,
@@ -34,10 +47,12 @@ export default function UseIncomes() {
     } catch (error) {
       console.error("Error al obtener ingresos: ", error);
       setIncomes([]);
+    } finally {
+      setLoading(false);
     }
   };
-
   const updatePlate = async (id: string, plate: string) => {
+    setLoading(true);
     try {
       const response = await axios.patch(
         `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/incomes/${id}`,
@@ -48,12 +63,10 @@ export default function UseIncomes() {
       console.log("Placa actualizada:", response.data);
     } catch (error) {
       console.error("Error actualizando la placa: ", error);
+    } finally {
+      setLoading(false);
     }
   };
 
-  useEffect(() => {
-    getIncomes();
-  }, []);
-
-  return { incomes, getIncomes, updatePlate, setIncomes };
+  return { incomes, loading, getIncomes, updatePlate, setIncomes };
 }

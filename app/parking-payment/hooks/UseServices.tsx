@@ -25,6 +25,7 @@ export default function UseServices(type: string) {
   };
   useEffect(() => {
     getServices();
+    return () => {};
   }, []);
 
   return {

@@ -10,13 +10,34 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import axios from "axios";
 import { UseNavigateContext } from "@/app/context/NavigateContext";
 import { UseAuthContext } from "@/app/context/AuthContext";
-import { useDisclosure } from "@nextui-org/modal";
+import {
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+  useDisclosure,
+} from "@nextui-org/modal";
 import Loading from "@/app/loading";
+import { ModalError, ModalExito } from "@/components/modales";
 
 export default function Login() {
   const { router } = UseNavigateContext();
   const { setToken, setIsAuthenticated, setUser } = UseAuthContext();
   const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState("");
+  const {
+    isOpen: isOpenExitoModal,
+    onOpen: onOpenExitoModal,
+    onOpenChange: onOpenChangeExitoModal,
+    onClose: onCloseExitoModal,
+  } = useDisclosure();
+
+  const {
+    isOpen: isOpenErrorModal,
+    onOpen: onOpenErrorModal,
+    onOpenChange: onOpenChangeErrorModal,
+    onClose: onCloseErrorModal,
+  } = useDisclosure();
 
   interface UserLogin {
     email: string;
@@ -74,6 +95,7 @@ export default function Login() {
                 onSubmit={handleSubmit(onSubmit)}
               >
                 <Input
+                  isRequired
                   label={"Correo electronico"}
                   type="email"
                   size="lg"
@@ -81,6 +103,7 @@ export default function Login() {
                   {...register("email", { required: true })}
                 />
                 <Input
+                  isRequired
                   label={"Contraseña"}
                   type="password"
                   size="lg"
@@ -96,6 +119,16 @@ export default function Login() {
                 >
                   Continuar
                 </Button>
+                <span
+                  onClick={onOpen}
+                  style={{
+                    color: "primary",
+                    cursor: "pointer",
+                    textDecoration: "underline",
+                  }}
+                >
+                  ¿Olvidaste tu contraseña?
+                </span>
               </form>
             )}
           </CardBody>
@@ -108,6 +141,60 @@ export default function Login() {
           <h6>©2024, HECHO POR COINS</h6>
         </div>
       </section>
+      <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+        <ModalContent>
+          <ModalHeader className="flex justify-center items-center">
+            Recuperar Contraseña
+          </ModalHeader>
+
+          <ModalBody>
+            <Input
+              isRequired
+              label="Correo Electrónico"
+              type="email"
+              {...register("recoveryEmail", { required: true })}
+              className="mb-4"
+            />
+            <Button
+              onPress={() => {
+                setLoading(true);
+
+                try {
+                  setMessage("Nueva contraseña enviada con éxito");
+                  onOpenExitoModal();
+                } catch (error) {
+                  setMessage("Correo electronico no valido");
+                  onOpenErrorModal();
+                } finally {
+                  setLoading(false); // Detiene el loading al final
+                }
+                /* Lógica para enviar el correo de recuperación */
+              }}
+              color="primary"
+            >
+              Obtener nueva contraseña
+            </Button>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+      <ModalError
+        modalControl={{
+          isOpen: isOpenErrorModal,
+          onOpen: onOpenErrorModal,
+          onClose: onCloseErrorModal,
+          onOpenChange: onOpenChangeErrorModal,
+        }}
+        message={message}
+      />
+      <ModalExito
+        modalControl={{
+          isOpen: isOpenExitoModal,
+          onOpen: onOpenExitoModal,
+          onClose: onCloseExitoModal,
+          onOpenChange: onOpenChangeExitoModal,
+        }}
+        message={message}
+      />
     </main>
   );
 }
