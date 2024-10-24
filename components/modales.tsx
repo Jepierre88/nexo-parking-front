@@ -1,11 +1,5 @@
 import { Button } from "@nextui-org/button";
-import {
-  Modal,
-  ModalBody,
-  ModalContent,
-  ModalHeader,
-  useDisclosure,
-} from "@nextui-org/modal";
+import { Modal, ModalBody, ModalContent, ModalHeader } from "@nextui-org/modal";
 import SmallButton from "./smallButton";
 
 interface ModalControls {
@@ -64,6 +58,53 @@ export const ModalExito = ({
             </ModalBody>
           </>
         )}
+      </ModalContent>
+    </Modal>
+  );
+};
+
+export const ModalConfirmation = ({
+  modalControl,
+  message,
+  title,
+  onConfirm,
+}: {
+  modalControl: ModalControls;
+  message: string;
+  title: string;
+  onConfirm: () => void;
+}) => {
+  return (
+    <Modal
+      isOpen={modalControl.isOpen}
+      onOpenChange={modalControl.onOpenChange}
+    >
+      <ModalContent>
+        <ModalHeader className="flex items-center">
+          <span className="font-bold">{title}</span>
+        </ModalHeader>
+        <ModalBody className="flex flex-col items-center">
+          <p className="text-center mb-4">{message}</p>
+          <div className="flex justify-around w-full">
+            <Button
+              onClick={() => {
+                onConfirm();
+                modalControl.onClose();
+              }}
+              color="primary"
+              className="flex-1 mr-2"
+            >
+              Sí
+            </Button>
+            <Button
+              onClick={() => modalControl.onClose()}
+              color="primary"
+              className="flex-1"
+            >
+              No
+            </Button>
+          </div>
+        </ModalBody>
       </ModalContent>
     </Modal>
   );

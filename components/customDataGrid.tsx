@@ -27,7 +27,7 @@ const CustomDataGrid = ({ rows, columns }: DataGridProps) => {
           backgroundColor: "#000",
           color: "white",
           "&:hover": {
-            backgroundColor: isDark ? "#fff" : "#f5f5f5", // Color de fondo al pasar el mouse
+            backroundColor: isDark ? "#fff" : "#f5f5f5", // Color de fondo al pasar el mouse
           },
         },
         "& .MuiDataGrid-columnHeaders": {
