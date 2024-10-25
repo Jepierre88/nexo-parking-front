@@ -15,6 +15,7 @@ import { Input } from "@nextui-org/input";
 import { useDisclosure } from "@nextui-org/modal";
 import { ModalConfirmation } from "@/components/modales";
 import { printInvoice } from "../libs/utils";
+import CardPropierties from "@/components/cardPropierties";
 
 export default function ParkingPayment() {
   const { user } = UseAuthContext();
@@ -100,8 +101,8 @@ export default function ParkingPayment() {
   };
 
   return (
-    <section className="flex flex-col md:flex-row gap-1 justify-center items-center">
-      <Card className="md:w-[600px] w-full h-[550px] py-2">
+    <section className="flex flex-col lg:flex-row gap-1 justify-center items-center">
+      <CardPropierties>
         <CardHeader className="flex flex-col gap-1">
           <h1 className="font-bold text-3xl text-center my-3">Procesos</h1>
         </CardHeader>
@@ -116,9 +117,9 @@ export default function ParkingPayment() {
             <QrPerdido />
           </Tab>
         </Tabs>
-      </Card>
+      </CardPropierties>
 
-      <Card className="md:w-[500px] w-full py-2">
+      <CardPropierties>
         <CardHeader className="flex flex-col gap-2">
           <h1 className="font-bold text-3xl text-center">Datos de cobro</h1>
           <h1 className="font-bold text-xl text-center">Visitante (QR)</h1>
@@ -155,9 +156,9 @@ export default function ParkingPayment() {
             </div>
           </div>
         </form>
-      </Card>
+      </CardPropierties>
 
-      <Card className="md:w-[500px] w-full py-2">
+      <CardPropierties>
         <CardHeader className="flex flex-col gap-2">
           <h1 className="font-bold text-3xl text-center">Datos de pago</h1>
           <h1 className="font-bold text-xl text-center">Visitante (QR)</h1>
@@ -256,7 +257,7 @@ export default function ParkingPayment() {
             </Button>
           </div>
         </form>
-      </Card>
+      </CardPropierties>
 
       <ModalConfirmation
         modalControl={{

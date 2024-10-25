@@ -217,28 +217,25 @@ const Users = () => {
   ];
 
   return (
-    <section>
+    <section className="relative flex-col">
+      {loading && <Loading />}{" "}
       <div className="flex justify-between">
         <h1 className={title()}>Usuarios</h1>
         <Button className="bg-primary text-white" onPress={onOpen}>
           +Agregar usuario
         </Button>
       </div>
-      {loading ? (
-        <Loading />
-      ) : (
-        <div style={{ height: 400, width: "100%", marginTop: "20px" }}>
-          <DataGrid
-            sx={{ backgroundColor: "white" }}
-            rows={users || []}
-            columns={columns}
-            pagination
-            paginationModel={paginationModel}
-            onPaginationModelChange={setPaginationModel}
-            pageSizeOptions={[5, 10, 20]}
-          />
-        </div>
-      )}
+      <div style={{ height: 400, width: "100%", marginTop: "20px" }}>
+        <DataGrid
+          sx={{ backgroundColor: "white" }}
+          rows={users || []}
+          columns={columns}
+          pagination
+          paginationModel={paginationModel}
+          onPaginationModelChange={setPaginationModel}
+          pageSizeOptions={[5, 10, 20]}
+        />
+      </div>
       {/* Modal para agregar usuario */}
       <Modal
         onOpenChange={onOpenChange}
@@ -369,7 +366,6 @@ const Users = () => {
           )}
         </ModalContent>
       </Modal>
-
       {/* Modal de Edicion y vista */}
       <Modal
         isOpen={isOpenEdit}
@@ -485,7 +481,6 @@ const Users = () => {
           )}
         </ModalContent>
       </Modal>
-
       <ModalError
         modalControl={{
           isOpen: isOpenErrorModal,

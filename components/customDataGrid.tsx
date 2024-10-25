@@ -24,8 +24,9 @@ const CustomDataGrid = ({ rows, columns }: DataGridProps) => {
         // Celda de cada fila
         "& .MuiDataGrid-cell": {
           borderBottom: `1px solid ${isDark ? "#09f" : "#ccc"}`,
-          backgroundColor: "#000",
-          color: "white",
+          backgroundColor: isDark ? "#1D1D1D" : "#fff",
+
+          color: isDark ? "#000" : "#000",
           "&:hover": {
             backroundColor: isDark ? "#fff" : "#f5f5f5", // Color de fondo al pasar el mouse
           },

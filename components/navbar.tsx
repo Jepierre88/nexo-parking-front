@@ -45,10 +45,10 @@ export const Navbar = () => {
       <NextUINavbar
         maxWidth="xl"
         position="sticky"
-        className="py-4 /*bg-white*/"
+        className="flex flex-col  gap-1 justify-center items-center"
       >
         <NavbarContent
-          className="flex flex-wrap basis-1/5 sm:basis-full"
+          className="flex flex-col lg:flex-row gap-4"
           justify="start"
         >
           {/* <NavbarBrand as="li" className="gap-3 max-w-fit">

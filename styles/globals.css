@@ -1,6 +1,7 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
 /* styles.css */
 html {
     --bg-color: white; /* Color de fondo claro */
@@ -15,4 +16,6 @@ html.dark {
 body {
     background-color: var(--bg-color);
     color: var(--text-color);
+    overflow-x: hidden;
 }
+

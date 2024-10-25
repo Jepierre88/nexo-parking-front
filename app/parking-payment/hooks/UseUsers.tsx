@@ -5,8 +5,10 @@ import { User, Signup } from "@/types";
 export default function UseUsers() {
   const [users, setUsers] = useState<User[]>([]);
   const [signup, setSignup] = useState<Signup[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const getUsers = async () => {
+    setLoading(true);
     try {
       const response = await axios.get(
         `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/users`
@@ -23,6 +25,8 @@ export default function UseUsers() {
     } catch (error) {
       console.error("Error al obtener los usuarios:", error);
       setUsers([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -36,6 +40,7 @@ export default function UseUsers() {
   };
 
   const updateUser = async (user: User) => {
+    setLoading(true);
     try {
       const response = await axios.patch(
         `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/users/${user.id}`,
@@ -51,10 +56,13 @@ export default function UseUsers() {
       return response.data;
     } catch (error) {
       console.error("Error actualizando el usuario:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   const createUser = async (signup: Signup) => {
+    setLoading(true);
     try {
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/signup`,
@@ -72,12 +80,23 @@ export default function UseUsers() {
       return response.data;
     } catch (error) {
       console.error("Error al crear el usuario:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
+    setLoading(true);
     getUsers();
   }, []);
 
-  return { users, signup, getUsers, updateUser, createUser, isUserDataUnique };
+  return {
+    users,
+    signup,
+    loading,
+    getUsers,
+    updateUser,
+    createUser,
+    isUserDataUnique,
+  };
 }
