@@ -32,6 +32,9 @@ export interface Signup{
 	username:             string;
 }
 
+export interface Email{
+	email: string;
+}
 
 
 export interface UserData {

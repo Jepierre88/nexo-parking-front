@@ -19,6 +19,7 @@ import {
 } from "@nextui-org/modal";
 import Loading from "@/app/loading";
 import { ModalError, ModalExito } from "@/components/modales";
+import UseResetPassword from "@/app/parking-payment/hooks/UseResetPassword";
 
 export default function Login() {
   const { router } = UseNavigateContext();
@@ -44,7 +45,10 @@ export default function Login() {
     password: string;
   }
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit, getValues } = useForm();
+  const { resetPassword, loading: loadingReset } = UseResetPassword();
+  const [showAdditionalInputs, setShowAdditionalInputs] = useState(false);
+  const [showEmailInput, setShowEmailInput] = useState(true);
 
   const onSubmit: SubmitHandler<any> = async (data: UserLogin) => {
     setLoading(true);
@@ -76,6 +80,34 @@ export default function Login() {
       setLoading(false);
     }
   };
+
+  const handleResetPassword = async () => {
+    const email = getValues("recoveryEmail");
+
+    setLoading(true);
+    try {
+      const result = await resetPassword(email);
+      if (result) {
+        setMessage("Nueva contraseña enviada con éxito");
+        onOpenExitoModal();
+      } else {
+        setMessage("Error al enviar el correo");
+        onOpenErrorModal();
+      }
+    } catch (error) {
+      setMessage("Correo electrónico no válido");
+      onOpenErrorModal();
+    } finally {
+      setLoading(false);
+    }
+  };
+  const handleSuccessClose = () => {
+    console.log("Modal de éxito cerrado");
+    setShowEmailInput(false);
+    setShowAdditionalInputs(true);
+    onCloseExitoModal();
+  };
+
   return (
     <main className="container mx-auto max-w-7xl pt-16 px-6 flex-grow">
       <section className="flex flex-col items-center h-full">
@@ -148,32 +180,48 @@ export default function Login() {
           </ModalHeader>
 
           <ModalBody>
-            <Input
-              isRequired
-              label="Correo Electrónico"
-              type="email"
-              {...register("recoveryEmail", { required: true })}
-              className="mb-4"
-            />
-            <Button
-              onPress={() => {
-                setLoading(true);
+            {showEmailInput && (
+              <>
+                <Input
+                  isRequired
+                  label="Correo Electrónico"
+                  type="email"
+                  {...register("recoveryEmail", { required: true })}
+                  className="mb-4"
+                />
+                <Button
+                  onClick={handleResetPassword}
+                  color="primary"
+                  disabled={loadingReset}
+                >
+                  {loadingReset ? "Cargando..." : "Obtener nueva contraseña"}
+                </Button>
+              </>
+            )}
 
-                try {
-                  setMessage("Nueva contraseña enviada con éxito");
-                  onOpenExitoModal();
-                } catch (error) {
-                  setMessage("Correo electronico no valido");
-                  onOpenErrorModal();
-                } finally {
-                  setLoading(false); // Detiene el loading al final
-                }
-                /* Lógica para enviar el correo de recuperación */
-              }}
-              color="primary"
-            >
-              Obtener nueva contraseña
-            </Button>
+            {showAdditionalInputs && (
+              <>
+                <Input
+                  isRequired
+                  label="Digite su codigo"
+                  type="text"
+                  className="mb-4"
+                />
+                <Input
+                  isRequired
+                  label="Digite su nueva contraseña"
+                  type="text"
+                  className="mb-4"
+                />
+                <Input
+                  isRequired
+                  label="Confirme la nueva contraseña"
+                  type="text"
+                  className="mb-4"
+                />
+              </>
+            )}
+            {showAdditionalInputs && <></>}
           </ModalBody>
         </ModalContent>
       </Modal>
@@ -190,7 +238,7 @@ export default function Login() {
         modalControl={{
           isOpen: isOpenExitoModal,
           onOpen: onOpenExitoModal,
-          onClose: onCloseExitoModal,
+          onClose: handleSuccessClose,
           onOpenChange: onOpenChangeExitoModal,
         }}
         message={message}

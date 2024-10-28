@@ -49,15 +49,16 @@ export const ModalExito = ({
       onOpenChange={modalControl.onOpenChange}
     >
       <ModalContent>
-        {(onClose) => (
-          <>
-            <ModalHeader></ModalHeader>
-            <ModalBody className="flex flex-col items-center justify-center">
-              <h1 className="text-center">{message}</h1>
-              <SmallButton label="Cerrar" onClick={() => onClose()} />
-            </ModalBody>
-          </>
-        )}
+        <ModalHeader></ModalHeader>
+        <ModalBody className="flex flex-col items-center justify-center">
+          <h1 className="text-center">{message}</h1>
+          <SmallButton
+            label="Cerrar"
+            onClick={() => {
+              modalControl.onClose();
+            }}
+          ></SmallButton>
+        </ModalBody>
       </ModalContent>
     </Modal>
   );
