@@ -253,7 +253,42 @@ export const TrashIcon = (props: IconSvgProps) => (
     {...props}
   >
     <path
+      d="M1 2h6"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
       d="M3 6h18M5 6l1 16h12l1-16H5z"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+export const LoaderIcon = (props: IconSvgProps) => (
+  <svg
+    aria-hidden="true"
+    fill="none"
+    focusable="false"
+    height="1em"
+    width="1em"
+    viewBox="0 0 24 24"
+    className="loader-icon"
+    {...props}
+  >
+    <path
+      d="M12 2v4"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M12 22v-4"
       stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"

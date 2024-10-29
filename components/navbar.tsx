@@ -167,7 +167,7 @@ export const Navbar = () => {
                       radius="sm"
                       variant="light"
                     >
-                      CONTINGENCIA
+                      INGRESO POR PLACA
                     </Button>
                   </DropdownTrigger>
                 </NavbarItem>
