@@ -180,7 +180,7 @@ export const Navbar = () => {
                     <SmallButton
                       label="INGRESO MANUAL DE PLACA"
                       onClick={() =>
-                        redirectWithLoading("/parking-payment/contingency")
+                        redirectWithLoading("/parking-payment/ingresoSalida")
                       }
                     />
                   </DropdownItem>
