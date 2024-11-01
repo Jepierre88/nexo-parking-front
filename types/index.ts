@@ -36,6 +36,15 @@ export interface Email{
 	email: string;
 }
 
+export interface IngresoSalida {
+	identificationType: "QR"; 
+	plate: string; 
+	vehicleKind: "CARRO" | "MOTO"; 
+	datetime?: string; 
+	incomeConditionType: "Visitor" | "Event" | "Courtesy"; 
+	incomeConditionDetail: string; 
+  }
+
 
 export interface UserData {
 	IVAPercentage: number;

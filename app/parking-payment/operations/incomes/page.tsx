@@ -20,6 +20,8 @@ import { Input } from "@nextui-org/react";
 import { ModalError, ModalExito } from "@/components/modales";
 import Loading from "@/app/loading";
 import CustomDataGrid from "@/components/customDataGrid";
+import { finished } from "stream";
+import { Connector } from "@/app/libs/Printer";
 
 export default function Incomes() {
   const { incomes, getIncomes, updatePlate, setIncomes, loading } =
@@ -66,12 +68,11 @@ export default function Incomes() {
     getIncomes(startDateTime, endDateTime);
   };
 
-  const handleClickPrint = async () => {
-    try {
-      printInvoice();
-    } catch (error) {
-      console.error(error);
-    }
+  const handleClickPrint = async (row: any) => {
+    const conec = new Connector("EPSON");
+    conec.agregarOperacion("text", "richar hola");
+    conec.agregarOperacion("text", "coins");
+    conec.imprimir();
   };
 
   const [plate, setPlateValue] = useState("");
@@ -172,7 +173,7 @@ export default function Incomes() {
           >
             <Image src={ICONOLAPIZ} alt="IconoLapiz" width={20} />
           </Button>
-          <Button color="primary" onClick={handleClickPrint}>
+          <Button color="primary" onClick={() => handleClickPrint(params.row)}>
             <Image src={ICONOIMPRESORA} alt="IconoImpresora" width={20} />
           </Button>
         </div>
