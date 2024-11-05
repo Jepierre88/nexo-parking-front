@@ -86,18 +86,18 @@ export default function Incomes() {
 
   return (
     <section>
-      <div className="flex justify-between mb-2">
+      <div className="flex justify-between items-center space-x-4">
         <h1 className={title()}>Parqueadero - Cierres</h1>
-        <Button color="primary" className="w-2 p-6 mt-4 px-14 ml-80">
-          Abrir caja
-        </Button>
-        <Button color="primary" className="w-2 p-6 mt-4 px-16">
-          Informe parcial
-        </Button>
-        <Button className="w-2 p-6 mt-4 px-20 bg-primary text-white">
-          +Realizar cierre
-        </Button>
+        <div className="flex space-x-4">
+          <Button color="primary" className="p-6 px-16 w-2">
+            Informe parcial
+          </Button>
+          <Button className="p-6 px-20 bg-primary w-2 text-white">
+            +Realizar cierre
+          </Button>
+        </div>
       </div>
+
       <div style={{ height: 400, width: "100%", marginTop: "20px" }}>
         <DataGrid
           sx={{ backgroundColor: "white" }}

@@ -119,50 +119,46 @@ export default function Login() {
             <h1 className="font-bold text-4xl mx-auto">Iniciar sesión</h1>
           </CardHeader>
           <CardBody>
-            {loading ? ( // Muestra el loading si está en carga
-              <Loading />
-            ) : (
-              <form
-                className="flex flex-col justify-around h-full"
-                onSubmit={handleSubmit(onSubmit)}
+            <form
+              className="flex flex-col justify-around h-full"
+              onSubmit={handleSubmit(onSubmit)}
+            >
+              <Input
+                isRequired
+                label={"Correo electronico"}
+                type="email"
+                size="lg"
+                variant="faded"
+                {...register("email", { required: true })}
+              />
+              <Input
+                isRequired
+                label={"Contraseña"}
+                type="password"
+                size="lg"
+                variant="faded"
+                {...register("password", { required: true })}
+              />
+              <Button
+                className="mx-auto w-full"
+                color="primary"
+                type="submit"
+                size="lg"
+                variant="ghost"
               >
-                <Input
-                  isRequired
-                  label={"Correo electronico"}
-                  type="email"
-                  size="lg"
-                  variant="faded"
-                  {...register("email", { required: true })}
-                />
-                <Input
-                  isRequired
-                  label={"Contraseña"}
-                  type="password"
-                  size="lg"
-                  variant="faded"
-                  {...register("password", { required: true })}
-                />
-                <Button
-                  className="mx-auto w-full"
-                  color="primary"
-                  type="submit"
-                  size="lg"
-                  variant="ghost"
-                >
-                  Continuar
-                </Button>
-                <span
-                  onClick={onOpen}
-                  style={{
-                    color: "primary",
-                    cursor: "pointer",
-                    textDecoration: "underline",
-                  }}
-                >
-                  ¿Olvidaste tu contraseña?
-                </span>
-              </form>
-            )}
+                Continuar
+              </Button>
+              <span
+                onClick={onOpen}
+                style={{
+                  color: "primary",
+                  cursor: "pointer",
+                  textDecoration: "underline",
+                }}
+              >
+                ¿Olvidaste tu contraseña?
+              </span>
+            </form>
           </CardBody>
         </Card>
         <div className="flex justify-between w-full mt-4">

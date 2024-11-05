@@ -16,6 +16,8 @@ import ICONOMOTO from "@/public/iconoMotoOscuro.png";
 import Image from "next/image";
 import { UserData } from "@/types";
 import { UseAuthContext } from "@/app/context/AuthContext";
+import { ModalError, ModalExito } from "@/components/modales";
+import { useDisclosure } from "@nextui-org/react";
 
 const Home = () => {
   const [placaIn, setPlacaIn] = useState("");
@@ -24,6 +26,7 @@ const Home = () => {
   const [dateTimeOut, setDateTimeOut] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [message, setMessage] = useState(""); // Estado para manejar los mensajes
   const { user } = UseAuthContext();
   const [userData, setUserData] = useState<UserData>({
     IVAPercentage: 0,
@@ -56,6 +59,23 @@ const Home = () => {
     },
     vehicleKind: "",
   });
+
+  const [vehicleType, setVehicleType] = useState("CARRO");
+
+  const {
+    isOpen: isOpenErrorModal,
+    onOpen: onOpenErrorModal,
+    onClose: onCloseErrorModal,
+    onOpenChange: onOpenChangeErrorModal,
+  } = useDisclosure();
+
+  const {
+    isOpen: isOpenExitoModal,
+    onOpen: onOpenExitoModal,
+    onClose: onCloseExitoModal,
+    onOpenChange: onOpenChangeExitoModal,
+  } = useDisclosure();
+
   useEffect(() => {
     const now = new Date();
     const formattedDateTime = now
@@ -74,11 +94,37 @@ const Home = () => {
   }, []);
 
   const handleInputChangeIn = (e: any) => {
-    setPlacaIn(e.target.value);
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
+    const placa = e.target.value;
+
+    if (placa.length > 6) {
+      setMessage("La placa debe tener exactamente 6 caracteres.");
+      onOpenErrorModal();
+      return;
+    }
+
+    if (placa != "") {
+      if (!/^[A-Za-z0-9]+$/.test(placa)) {
+        setMessage("La placa solo puede contener letras y números.");
+        onOpenErrorModal();
+        return;
+      }
+
+      setPlacaIn(placa);
+      setIsLoading(true);
+
+      const lastChar = placa.charAt(placa.length - 1).toUpperCase();
+      if (!isNaN(lastChar)) {
+        setVehicleType("CARRO");
+      } else {
+        setVehicleType("MOTO");
+      }
+
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 1000);
+    } else {
+      setPlacaIn(placa);
+    }
   };
 
   const handleInputChangeOut = (e: any) => {
@@ -90,10 +136,21 @@ const Home = () => {
   };
 
   const handleGenerateEntry = () => {
+    if (placaIn === "") {
+      setMessage("La placa no puede estar vacía.");
+      onOpenErrorModal();
+      return;
+    }
+
+    setMessage("Vehículo registrado exitosamente.");
+    onOpenExitoModal();
+    setPlacaIn("");
     console.log("Entrada generada:", placaIn, dateTimeIn);
   };
 
   const handleGenerateExit = () => {
+    setMessage("Vehículo ha salido del parqueadero.");
+    onOpenExitoModal();
     console.log("Salida generada:", placaOut, dateTimeOut);
   };
 
@@ -116,7 +173,7 @@ const Home = () => {
                 variant="bordered"
                 placeholder="Ingresar Placa"
                 labelPlacement="outside"
-                className="w-full  md:w-3/4"
+                className="w-full md:w-3/4"
                 size="lg"
                 style={{
                   height: "80px",
@@ -131,6 +188,8 @@ const Home = () => {
                 className="mt-5"
                 label="Detalles de ingreso"
                 orientation="horizontal"
+                value={vehicleType}
+                onChange={() => {}}
               >
                 <Radio value="CARRO">
                   <Image
@@ -147,18 +206,9 @@ const Home = () => {
                     alt="iconoMotoOscuro"
                     width={40}
                     height={40}
-                  ></Image>
+                  />
                 </Radio>
               </RadioGroup>
-              <Checkbox
-                className="flex  items-center "
-                color="primary"
-                onChange={() => setIsVisible((prev) => !prev)}
-              >
-                <p className="text-gray-600 my-2 px-4 mb-2">
-                  ¿Pagar día completo?
-                </p>
-              </Checkbox>
 
               <Button
                 color="primary"
@@ -213,6 +263,26 @@ const Home = () => {
             </div>
           </form>
         </CardPropierties>
+
+        <ModalError
+          modalControl={{
+            isOpen: isOpenErrorModal,
+            onOpen: onOpenErrorModal,
+            onClose: onCloseErrorModal,
+            onOpenChange: onOpenChangeErrorModal,
+          }}
+          message={message}
+        />
+
+        <ModalExito
+          modalControl={{
+            isOpen: isOpenExitoModal,
+            onOpen: onOpenExitoModal,
+            onClose: onCloseExitoModal,
+            onOpenChange: onOpenChangeExitoModal,
+          }}
+          message={message}
+        />
       </div>
     </NextUIProvider>
   );
