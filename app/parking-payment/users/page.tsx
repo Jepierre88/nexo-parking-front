@@ -352,10 +352,7 @@ const Users = () => {
                       <Button color="primary" type="submit">
                         Guardar datos
                       </Button>
-                      <Button
-                        color="primary"
-                        onClick={() => console.log("Limpiar Datos")}
-                      >
+                      <Button color="primary" onClick={clearInputs}>
                         Limpiar Datos
                       </Button>
                     </div>

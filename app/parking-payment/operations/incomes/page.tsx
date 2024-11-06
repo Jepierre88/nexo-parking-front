@@ -273,15 +273,15 @@ export default function Incomes() {
                     />
                   </div>
                   <div className="flex justify-center w-full mt-4">
-                    <Button color="primary" onClick={onClose} className="mr-2">
-                      Cancelar
-                    </Button>
                     <Button
                       color="primary"
                       onClick={editPlate}
                       disabled={loading}
                     >
                       Guardar
+                    </Button>
+                    <Button color="primary" onClick={onClose} className="mr-2">
+                      Cancelar
                     </Button>
                   </div>
                 </div>

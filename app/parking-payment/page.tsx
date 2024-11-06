@@ -20,6 +20,7 @@ import CardPropierties from "@/components/cardPropierties";
 export default function ParkingPayment() {
   const { user } = UseAuthContext();
   const { namePaymentType } = UseListsPaymentMethods("namePaymentType");
+  const [subHeaderTitle, setSubHeaderTitle] = useState("Visitante (QR)");
 
   const [isVisible, setIsVisible] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("");
@@ -106,14 +107,18 @@ export default function ParkingPayment() {
         <CardHeader className="flex flex-col gap-1">
           <h1 className="font-bold text-3xl text-center my-3">Procesos</h1>
         </CardHeader>
-        <Tabs className="mx-auto" color="primary">
-          <Tab title={"Visitante QR"}>
+        <Tabs
+          className="mx-auto"
+          color="primary"
+          onSelectionChange={(key) => setSubHeaderTitle(key.toString())}
+        >
+          <Tab title={"Visitante QR"} key="Visitante QR">
             <VisitanteQr userData={userData} setUserData={setUserData} />
           </Tab>
-          <Tab title={"Mensualidad"}>
+          <Tab title={"Mensualidad"} key="Mensualidad">
             <Mensualidad />
           </Tab>
-          <Tab title={"QR perdido"}>
+          <Tab title={"QR perdido"} key="QR perdido">
             <QrPerdido />
           </Tab>
         </Tabs>
@@ -122,7 +127,7 @@ export default function ParkingPayment() {
       <CardPropierties>
         <CardHeader className="flex flex-col gap-2">
           <h1 className="font-bold text-3xl text-center">Datos de cobro</h1>
-          <h1 className="font-bold text-xl text-center">Visitante (QR)</h1>
+          <h1 className="font-bold text-xl text-center">{subHeaderTitle}</h1>
         </CardHeader>
         <form className="flex flex-col">
           <div className="items-start m-4">
@@ -161,7 +166,7 @@ export default function ParkingPayment() {
       <CardPropierties>
         <CardHeader className="flex flex-col gap-2">
           <h1 className="font-bold text-3xl text-center">Datos de pago</h1>
-          <h1 className="font-bold text-xl text-center">Visitante (QR)</h1>
+          <h1 className="font-bold text-xl text-center">{subHeaderTitle}</h1>
         </CardHeader>
         <form className="flex flex-col">
           <div className="flex flex-col place-items-end mb-1 my-2 gap-2">
@@ -221,32 +226,24 @@ export default function ParkingPayment() {
                 ))}
               </Select>
             </div>
-            {paymentMethod === "Efectivo" && (
-              <>
-                <div className="flex gap-4 justify-between px-4">
-                  <label className="text-lg font-bold my-auto">Recibido</label>
-                  <Input
-                    variant="underlined"
-                    className="w-1/1"
-                    onChange={(e) => {
-                      setUserData((prev) => ({
-                        ...prev,
-                        identificationCode: e.target.value,
-                      }));
-                    }}
-                  />
-                </div>
-
-                <div className="flex gap-4 justify-between px-4">
-                  <label className="text-lg font-bold my-auto">
-                    Devolución
-                  </label>
-                  <span>holaaaaaaaaaaaaaa</span>
-                </div>
-              </>
-            )}
+            <div className="flex gap-4 justify-between px-4">
+              <label className="text-lg font-bold my-auto">Recibido</label>
+              <Input
+                variant="underlined"
+                className="w-1/1"
+                onChange={(e) => {
+                  setUserData((prev) => ({
+                    ...prev,
+                    identificationCode: e.target.value,
+                  }));
+                }}
+              />
+            </div>
+            <div className="flex gap-4 justify-between px-4">
+              <label className="text-lg font-bold my-auto">Devolución</label>
+              <span> </span>
+            </div>
           </div>
-
           <div className="flex justify-center items-center">
             <Button
               color="primary"

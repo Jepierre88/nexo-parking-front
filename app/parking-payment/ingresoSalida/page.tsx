@@ -7,6 +7,7 @@ import {
   Checkbox,
   RadioGroup,
   Radio,
+  DateInput,
 } from "@nextui-org/react";
 import { Button } from "@nextui-org/button";
 import { TrashIcon, LoaderIcon } from "@/components/icons";
@@ -18,15 +19,14 @@ import { UserData } from "@/types";
 import { UseAuthContext } from "@/app/context/AuthContext";
 import { ModalError, ModalExito } from "@/components/modales";
 import { useDisclosure } from "@nextui-org/react";
+import { parseAbsoluteToLocal } from "@internationalized/date";
 
 const Home = () => {
   const [placaIn, setPlacaIn] = useState("");
   const [placaOut, setPlacaOut] = useState("");
-  const [dateTimeIn, setDateTimeIn] = useState("");
-  const [dateTimeOut, setDateTimeOut] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
-  const [message, setMessage] = useState(""); // Estado para manejar los mensajes
+  const [message, setMessage] = useState("");
   const { user } = UseAuthContext();
   const [userData, setUserData] = useState<UserData>({
     IVAPercentage: 0,
@@ -76,22 +76,9 @@ const Home = () => {
     onOpenChange: onOpenChangeExitoModal,
   } = useDisclosure();
 
-  useEffect(() => {
-    const now = new Date();
-    const formattedDateTime = now
-      .toLocaleString("en-CA", {
-        year: "numeric",
-        month: "2-digit",
-        day: "2-digit",
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: false,
-      })
-      .replace(",", "")
-      .replace(" ", "T");
-    setDateTimeIn(formattedDateTime);
-    setDateTimeOut(formattedDateTime);
-  }, []);
+  const [currentDate, setCurrentDate] = useState(
+    parseAbsoluteToLocal(new Date().toISOString())
+  );
 
   const handleInputChangeIn = (e: any) => {
     const placa = e.target.value;
@@ -127,14 +114,6 @@ const Home = () => {
     }
   };
 
-  const handleInputChangeOut = (e: any) => {
-    setPlacaOut(e.target.value);
-    setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-  };
-
   const handleGenerateEntry = () => {
     if (placaIn === "") {
       setMessage("La placa no puede estar vacía.");
@@ -145,13 +124,7 @@ const Home = () => {
     setMessage("Vehículo registrado exitosamente.");
     onOpenExitoModal();
     setPlacaIn("");
-    console.log("Entrada generada:", placaIn, dateTimeIn);
-  };
-
-  const handleGenerateExit = () => {
-    setMessage("Vehículo ha salido del parqueadero.");
-    onOpenExitoModal();
-    console.log("Salida generada:", placaOut, dateTimeOut);
+    console.log("Entrada generada:", placaIn);
   };
 
   return (
@@ -209,6 +182,14 @@ const Home = () => {
                   />
                 </Radio>
               </RadioGroup>
+
+              <DateInput
+                granularity="second"
+                label="Fecha y Hora de ingreso"
+                value={currentDate}
+                onChange={setCurrentDate}
+                className="w-full md:w-1/2"
+              />
 
               <Button
                 color="primary"
