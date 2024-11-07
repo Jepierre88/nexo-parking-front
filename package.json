@@ -12,6 +12,7 @@
 		"@emotion/react": "^11.13.3",
 		"@emotion/styled": "^11.13.0",
 		"@fontsource/roboto": "^5.1.0",
+		"@hookform/resolvers": "^3.9.1",
 		"@internationalized/date": "^3.5.5",
 		"@mui/icons-material": "^6.1.2",
 		"@mui/material": "^6.1.2",
@@ -51,7 +52,8 @@
 		"react-css-spinners": "^4.0.2",
 		"react-dom": "18.3.1",
 		"react-hook-form": "^7.53.0",
-		"styled-components": "^6.1.13"
+		"styled-components": "^6.1.13",
+		"zod": "^3.23.8"
 	},
 	"devDependencies": {
 		"@types/node": "20.5.7",

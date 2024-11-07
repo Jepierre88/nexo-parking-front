@@ -6,7 +6,8 @@ export default function UseUsers() {
   const [users, setUsers] = useState<User[]>([]);
   const [signup, setSignup] = useState<Signup[]>([]);
   const [loading, setLoading] = useState(true);
-
+  const [existingUsernames, setExistingUsernames] = useState<string[]>([]);
+  const [existingUserEmails, setExistingEmails] = useState<string[]>([]);
   const getUsers = async () => {
     setLoading(true);
     try {
@@ -16,11 +17,12 @@ export default function UseUsers() {
       const arrayfilter: User[] = Array.isArray(response.data)
         ? response.data
         : [];
-      setUsers(
-        arrayfilter.filter(
-          (item) => item.realm !== "Consultorio" && item.realm !== "consultorio"
-        )
+      const filteredUsers = arrayfilter.filter(
+        (item) => item.realm !== "Consultorio" && item.realm !== "consultorio"
       );
+      setUsers(filteredUsers);
+      setExistingUsernames(filteredUsers.map((user) => user.username));
+      setExistingEmails(filteredUsers.map((user) => user.email));
       console.log(users);
     } catch (error) {
       console.error("Error al obtener los usuarios:", error);
@@ -62,27 +64,20 @@ export default function UseUsers() {
   };
 
   const createUser = async (signup: Signup) => {
-    setLoading(true);
-    try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/signup`,
-        {
-          username: signup.username,
-          password: signup.password,
-          email: signup.email,
-          name: signup.name,
-          lastName: signup.lastName,
-          cellPhoneNumber: signup.cellPhoneNumber,
-          realm: signup.realm,
-        }
-      );
-      console.log("Usuario creado:", response.data);
-      return response.data;
-    } catch (error) {
-      console.error("Error al crear el usuario:", error);
-    } finally {
-      setLoading(false);
-    }
+    const response = await axios.post(
+      `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/signup`,
+      {
+        username: signup.username,
+        password: signup.password,
+        email: signup.email,
+        name: signup.name,
+        lastName: signup.lastName,
+        cellPhoneNumber: signup.cellPhoneNumber,
+        realm: signup.realm,
+      }
+    );
+    console.log("Usuario creado:", response.data);
+    return response.data;
   };
 
   useEffect(() => {
@@ -98,5 +93,7 @@ export default function UseUsers() {
     updateUser,
     createUser,
     isUserDataUnique,
+    existingUsernames,
+    existingUserEmails,
   };
 }

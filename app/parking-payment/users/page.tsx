@@ -20,6 +20,9 @@ import { Input, Select, SelectItem } from "@nextui-org/react";
 import { roles } from "@/app/utils/data";
 import { ModalError, ModalExito } from "@/components/modales";
 import Loading from "@/app/loading";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { createUserSchema } from "@/app/validationSchemas";
+import { AxiosError } from "axios";
 
 const initialUserEdit: User = {
   cellPhoneNumber: "",
@@ -38,11 +41,37 @@ const initialUserEdit: User = {
   zoneId: 0,
 };
 
+const initialNewUser: Signup = {
+  username: "",
+  password: "",
+  email: "",
+  name: "",
+  lastName: "",
+  cellPhoneNumber: "",
+  realm: "",
+};
+
 const Users = () => {
-  const { users, updateUser, getUsers, createUser, isUserDataUnique } =
-    UseUsers();
+  const {
+    users,
+    updateUser,
+    getUsers,
+    createUser,
+    existingUsernames,
+    existingUserEmails,
+  } = UseUsers();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-  const { register, handleSubmit } = useForm<UserData>();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors },
+  } = useForm<UserData>({
+    resolver: zodResolver(
+      createUserSchema(existingUsernames, existingUserEmails)
+    ),
+  });
+
   const {
     isOpen: isOpenEdit,
     onOpen: onOpenEdit,
@@ -68,12 +97,15 @@ const Users = () => {
     page: 0,
   });
   const [userEdit, setUserEdit] = useState<User>(initialUserEdit);
+  const [newUser, setNewUser] = useState<Signup>(initialNewUser);
+
   const [isView, setIsView] = useState(false);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
   const clearInputs = () => {
     setUserEdit(initialUserEdit);
+    reset();
   };
 
   const editUser = async () => {
@@ -117,35 +149,25 @@ const Users = () => {
   }
   const onSubmit: SubmitHandler<UserData> = async (data) => {
     setLoading(true);
-    if (
-      isUserDataUnique({ username: data.username, email: data.email }, users)
-    ) {
-      try {
-        const newUser = await createUser({
-          username: data.username,
-          password: data.password,
-          email: data.email,
-          name: data.name,
-          lastName: data.lastName,
-          cellPhoneNumber: data.cellPhoneNumber,
-          realm: data.realm,
-        });
-        console.log("Usuario creado exitosamente:", newUser);
-        setMessage("Usuario creado con exito");
-        onOpenExitoModal();
-        await getUsers();
-        onClose();
-      } catch (error) {
+    try {
+      console.log(data);
+      await createUser(data);
+      console.log("Usuario creado exitosamente:", data);
+      setMessage("Usuario creado con exito");
+      onOpenExitoModal();
+      await getUsers();
+      onClose();
+    } catch (error) {
+      if (error instanceof AxiosError && error.response) {
         console.error("Error creando el usuario:", error);
         setMessage("Error al crear el usuario");
         onOpenErrorModal();
-      } finally {
-        setLoading(false); // Reset loading after the operation
+      } else {
+        setMessage("Ocurrió un error desconocido. Inténtalo de nuevo.");
       }
-    } else {
-      setMessage("Usuario ya existe");
       onOpenErrorModal();
-      setLoading(false); // Reset loading
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -236,7 +258,6 @@ const Users = () => {
           pageSizeOptions={[5, 10, 20]}
         />
       </div>
-      {/* Modal para agregar usuario */}
       <Modal
         onOpenChange={onOpenChange}
         isOpen={isOpen}
@@ -265,12 +286,19 @@ const Users = () => {
                         Usuario
                       </label>
                       <Input
-                        label={"Inserta aquí tu usuario"}
+                        placeholder="Inserta aquí tu usuario"
                         className="ml-4 w-2/3"
-                        variant="faded"
-                        {...register("username", { required: true })}
+                        type="text"
+                        disabled={isView}
+                        {...register("username")}
                       />
+                      {errors.username && (
+                        <span className="text-red-500">
+                          {errors.username.message}
+                        </span>
+                      )}
                     </div>
+
                     <div className="flex items-center mt-2 mb-2 w-96">
                       <label className="text-xl font-bold text-nowrap w-1/3">
                         Contraseña
@@ -279,10 +307,16 @@ const Users = () => {
                         label="Inserta aquí tu contraseña"
                         className="ml-4 w-2/3"
                         type="password"
-                        variant="faded"
-                        {...register("password", { required: true })}
+                        disabled={isView}
+                        {...register("password")}
                       />
+                      {errors.password && (
+                        <span className="text-red-500">
+                          {errors.password.message}
+                        </span>
+                      )}
                     </div>
+
                     <div className="flex items-center mt-2 mb-2 w-96">
                       <label className="text-xl font-bold text-nowrap w-1/3">
                         Email
@@ -291,22 +325,34 @@ const Users = () => {
                         label="Inserta aquí tu email"
                         className="ml-4 w-2/3"
                         type="email"
-                        variant="faded"
-                        {...register("email", { required: true })}
+                        disabled={isView}
+                        {...register("email")}
                       />
+                      {errors.email && (
+                        <span className="text-red-500">
+                          {errors.email.message}
+                        </span>
+                      )}
                     </div>
+
                     <div className="flex items-center mt-2 mb-2 w-96">
                       <label className="text-xl font-bold text-nowrap w-1/3">
                         Nombre
                       </label>
                       <Input
-                        label="Inserta aquí tu nombre"
+                        placeholder="Inserta aquí tu nombre"
                         className="ml-4 w-2/3"
                         type="text"
-                        variant="faded"
-                        {...register("name", { required: true })}
+                        disabled={isView}
+                        {...register("name")}
                       />
+                      {errors.name && (
+                        <span className="text-red-500">
+                          {errors.name.message}
+                        </span>
+                      )}
                     </div>
+
                     <div className="flex items-center mt-2 mb-2 w-96">
                       <label className="text-xl font-bold text-nowrap w-1/3">
                         Apellido
@@ -315,10 +361,16 @@ const Users = () => {
                         label="Inserta aquí tu apellido"
                         className="ml-4 w-2/3"
                         type="text"
-                        variant="faded"
-                        {...register("lastName", { required: true })}
+                        disabled={isView}
+                        {...register("lastName")}
                       />
+                      {errors.lastName && (
+                        <span className="text-red-500">
+                          {errors.lastName.message}
+                        </span>
+                      )}
                     </div>
+
                     <div className="flex items-center mt-2 mb-2 w-96">
                       <label className="text-xl font-bold text-nowrap w-1/3">
                         Celular
@@ -327,10 +379,16 @@ const Users = () => {
                         label="Inserta aquí tu celular"
                         className="ml-4 w-2/3"
                         type="text"
-                        variant="faded"
-                        {...register("cellPhoneNumber", { required: true })}
+                        disabled={isView}
+                        {...register("cellPhoneNumber")}
                       />
+                      {errors.cellPhoneNumber && (
+                        <span className="text-red-500">
+                          {errors.cellPhoneNumber.message}
+                        </span>
+                      )}
                     </div>
+
                     <div className="flex items-center mt-2 mb-2 w-96">
                       <label className="text-xl font-bold text-nowrap w-1/3">
                         Perfil
@@ -339,15 +397,23 @@ const Users = () => {
                         variant="faded"
                         label="Selecciona tu rol"
                         className="ml-4 w-2/3"
-                        {...register("realm", { required: false })}
+                        disabled={isView}
+                        {...register("realm")}
                       >
-                        {roles.map((rol) => {
-                          return (
-                            <SelectItem key={rol.key}>{rol.label}</SelectItem>
-                          );
-                        })}
+                        {roles.map((rol) => (
+                          <SelectItem key={rol.key} value={rol.key}>
+                            {rol.label}
+                          </SelectItem>
+                        ))}
                       </Select>
+                      {errors.realm && (
+                        <span className="text-red-500">
+                          {errors.realm.message}
+                        </span>
+                      )}
                     </div>
+
+                    {/* Botones de acción */}
                     <div className="flex justify-between w-96 mt-4 ">
                       <Button color="primary" type="submit">
                         Guardar datos
