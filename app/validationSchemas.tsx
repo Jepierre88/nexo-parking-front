@@ -7,7 +7,7 @@ export const createUserSchema = (
     username: z
       .string()
       .min(1, "El usuario es obligatorio")
-      .max(20, "El nombre de usuario no debe tener má de 20 caracteres")
+      .max(20, "Este campo no debe exceder lo 20 caracteres")
       .regex(
         /^[A-Za-z0-9\s]+$/,
         "El nombre de usuario solo puede contener letras, números y espacios"
@@ -30,5 +30,7 @@ export const createUserSchema = (
     realm: z.string().min(1, "El perfil es obligatorio"),
     name: z.optional(z.string()),
     lastName: z.optional(z.string()),
-    cellPhoneNumber: z.string(),
+    cellPhoneNumber: z
+      .string()
+      .regex(/^\d*$/, "El número de celular solo puede contener números"),
   });

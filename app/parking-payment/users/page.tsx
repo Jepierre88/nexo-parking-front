@@ -23,7 +23,7 @@ import Loading from "@/app/loading";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createUserSchema } from "@/app/validationSchemas";
 import { AxiosError } from "axios";
-
+import MessageError from "@/components/menssageError";
 const initialUserEdit: User = {
   cellPhoneNumber: "",
   departmentName: "",
@@ -279,137 +279,132 @@ const Users = () => {
                   onSubmit={handleSubmit(onSubmit)}
                 >
                   <div className="flex-grow" />
-
                   <div className="flex flex-col items-start w-98 ">
-                    <div className="flex items-center mt-2 mb-2 w-full">
-                      <label className="text-xl font-bold text-nowrap w-1/3">
-                        Usuario
-                      </label>
-                      <Input
-                        placeholder="Inserta aquí tu usuario"
-                        className="ml-4 w-2/3"
-                        type="text"
-                        disabled={isView}
-                        {...register("username")}
-                      />
+                    <div className="flex flex-col mt-2 mb-2 w-96">
+                      <div className="flex items-center mt-2 mb-2 w-full">
+                        <label className="text-xl font-bold text-nowrap w-1/3">
+                          Usuario
+                        </label>
+                        <Input
+                          placeholder="Inserta aquí tu usuario"
+                          className="ml-4 w-2/3"
+                          type="text"
+                          disabled={isView}
+                          {...register("username")}
+                        />
+                      </div>
                       {errors.username && (
-                        <span className="text-red-500">
-                          {errors.username.message}
-                        </span>
+                        <MessageError message={errors.username.message} />
                       )}
                     </div>
-
-                    <div className="flex items-center mt-2 mb-2 w-96">
-                      <label className="text-xl font-bold text-nowrap w-1/3">
-                        Contraseña
-                      </label>
-                      <Input
-                        label="Inserta aquí tu contraseña"
-                        className="ml-4 w-2/3"
-                        type="password"
-                        disabled={isView}
-                        {...register("password")}
-                      />
+                    <div className="flex flex-col itms-star w-98">
+                      <div className="flex items-center mt-2 mb-2 w-96">
+                        <label className="text-xl font-bold text-nowrap w-1/3">
+                          Contraseña
+                        </label>
+                        <Input
+                          placeholder="Inserta aquí tu contraseña"
+                          className="ml-4 w-2/3"
+                          type="password"
+                          disabled={isView}
+                          {...register("password")}
+                        />
+                      </div>
                       {errors.password && (
-                        <span className="text-red-500">
-                          {errors.password.message}
-                        </span>
+                        <MessageError message={errors.password.message} />
                       )}
                     </div>
-
-                    <div className="flex items-center mt-2 mb-2 w-96">
-                      <label className="text-xl font-bold text-nowrap w-1/3">
-                        Email
-                      </label>
-                      <Input
-                        label="Inserta aquí tu email"
-                        className="ml-4 w-2/3"
-                        type="email"
-                        disabled={isView}
-                        {...register("email")}
-                      />
+                    <div className="flex flex-col itms-star w-98">
+                      <div className="flex items-center mt-2 mb-2 w-96">
+                        <label className="text-xl font-bold text-nowrap w-1/3">
+                          Email
+                        </label>
+                        <Input
+                          placeholder="Inserta aquí tu email"
+                          className="ml-4 w-2/3"
+                          type="email"
+                          disabled={isView}
+                          {...register("email")}
+                        />
+                      </div>
                       {errors.email && (
-                        <span className="text-red-500">
-                          {errors.email.message}
-                        </span>
+                        <MessageError message={errors.email.message} />
                       )}
                     </div>
-
-                    <div className="flex items-center mt-2 mb-2 w-96">
-                      <label className="text-xl font-bold text-nowrap w-1/3">
-                        Nombre
-                      </label>
-                      <Input
-                        placeholder="Inserta aquí tu nombre"
-                        className="ml-4 w-2/3"
-                        type="text"
-                        disabled={isView}
-                        {...register("name")}
-                      />
+                    <div className="flex flex-col itms-star w-98">
+                      <div className="flex items-center mt-2 mb-2 w-96">
+                        <label className="text-xl font-bold text-nowrap w-1/3">
+                          Nombre
+                        </label>
+                        <Input
+                          placeholder="Inserta aquí tu nombre"
+                          className="ml-4 w-2/3"
+                          type="text"
+                          disabled={isView}
+                          {...register("name")}
+                        />
+                      </div>
                       {errors.name && (
-                        <span className="text-red-500">
-                          {errors.name.message}
-                        </span>
+                        <MessageError message={errors.name.message} />
                       )}
                     </div>
-
-                    <div className="flex items-center mt-2 mb-2 w-96">
-                      <label className="text-xl font-bold text-nowrap w-1/3">
-                        Apellido
-                      </label>
-                      <Input
-                        label="Inserta aquí tu apellido"
-                        className="ml-4 w-2/3"
-                        type="text"
-                        disabled={isView}
-                        {...register("lastName")}
-                      />
+                    <div className="flex flex-col itms-star w-98">
+                      <div className="flex items-center mt-2 mb-2 w-96">
+                        <label className="text-xl font-bold text-nowrap w-1/3">
+                          Apellido
+                        </label>
+                        <Input
+                          placeholder="Inserta aquí tu apellido"
+                          className="ml-4 w-2/3"
+                          type="text"
+                          disabled={isView}
+                          {...register("lastName")}
+                        />
+                      </div>
                       {errors.lastName && (
-                        <span className="text-red-500">
-                          {errors.lastName.message}
-                        </span>
+                        <MessageError message={errors.lastName.message} />
                       )}
                     </div>
-
-                    <div className="flex items-center mt-2 mb-2 w-96">
-                      <label className="text-xl font-bold text-nowrap w-1/3">
-                        Celular
-                      </label>
-                      <Input
-                        label="Inserta aquí tu celular"
-                        className="ml-4 w-2/3"
-                        type="text"
-                        disabled={isView}
-                        {...register("cellPhoneNumber")}
-                      />
+                    <div className="flex flex-col itms-star w-98">
+                      <div className="flex items-center mt-2 mb-2 w-96">
+                        <label className="text-xl font-bold text-nowrap w-1/3">
+                          Celular
+                        </label>
+                        <Input
+                          placeholder="Inserta aquí tu celular"
+                          className="ml-4 w-2/3"
+                          type="text"
+                          disabled={isView}
+                          {...register("cellPhoneNumber")}
+                        />
+                      </div>
                       {errors.cellPhoneNumber && (
-                        <span className="text-red-500">
-                          {errors.cellPhoneNumber.message}
-                        </span>
+                        <MessageError
+                          message={errors.cellPhoneNumber.message}
+                        />
                       )}
                     </div>
-
-                    <div className="flex items-center mt-2 mb-2 w-96">
-                      <label className="text-xl font-bold text-nowrap w-1/3">
-                        Perfil
-                      </label>
-                      <Select
-                        variant="faded"
-                        label="Selecciona tu rol"
-                        className="ml-4 w-2/3"
-                        disabled={isView}
-                        {...register("realm")}
-                      >
-                        {roles.map((rol) => (
-                          <SelectItem key={rol.key} value={rol.key}>
-                            {rol.label}
-                          </SelectItem>
-                        ))}
-                      </Select>
+                    <div className="flex flex-col itms-star w-98">
+                      <div className="flex items-center mt-2 mb-2 w-96">
+                        <label className="text-xl font-bold text-nowrap w-1/3">
+                          Perfil
+                        </label>
+                        <Select
+                          variant="faded"
+                          placeholder="Selecciona tu rol"
+                          className="ml-4 w-2/3"
+                          disabled={isView}
+                          {...register("realm")}
+                        >
+                          {roles.map((rol) => (
+                            <SelectItem key={rol.key} value={rol.key}>
+                              {rol.label}
+                            </SelectItem>
+                          ))}
+                        </Select>
+                      </div>
                       {errors.realm && (
-                        <span className="text-red-500">
-                          {errors.realm.message}
-                        </span>
+                        <MessageError message={errors.realm.message} />
                       )}
                     </div>
 

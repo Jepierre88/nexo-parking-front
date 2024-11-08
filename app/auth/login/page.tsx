@@ -20,6 +20,8 @@ import {
 import Loading from "@/app/loading";
 import { ModalError, ModalExito } from "@/components/modales";
 import UseResetPassword from "@/app/parking-payment/hooks/UseResetPassword";
+import { EyeFilledIcon, EyeSlashFilledIcon } from "@/components/icons";
+import SmallButton from "@/components/smallButton";
 
 export default function Login() {
   const { router } = UseNavigateContext();
@@ -45,10 +47,21 @@ export default function Login() {
     password: string;
   }
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-  const { register, handleSubmit, getValues } = useForm();
+  const { register, handleSubmit, getValues, reset } = useForm();
   const { resetPassword, loading: loadingReset } = UseResetPassword();
   const [showAdditionalInputs, setShowAdditionalInputs] = useState(false);
   const [showEmailInput, setShowEmailInput] = useState(true);
+
+  const [isVisiblePassword1, setIsVisiblePassword1] = useState(false);
+  const [isVisiblePassword2, setIsVisiblePassword2] = useState(false);
+  const [isVisiblePassword3, setIsVisiblePassword3] = useState(false);
+
+  const toggleVisibilityPassword1 = () =>
+    setIsVisiblePassword1(!isVisiblePassword1);
+  const toggleVisibilityPassword2 = () =>
+    setIsVisiblePassword2(!isVisiblePassword2);
+  const toggleVisibilityPassword3 = () =>
+    setIsVisiblePassword3(!isVisiblePassword3);
 
   const onSubmit: SubmitHandler<any> = async (data: UserLogin) => {
     setLoading(true);
@@ -133,11 +146,25 @@ export default function Login() {
               />
               <Input
                 isRequired
-                label={"Contraseña"}
-                type="password"
+                placeholder="Contraseña"
                 size="lg"
                 variant="faded"
                 {...register("password", { required: true })}
+                endContent={
+                  <button
+                    className="focus:outline-none"
+                    type="button"
+                    onClick={toggleVisibilityPassword1}
+                    aria-label="toggle password visibility"
+                  >
+                    {isVisiblePassword1 ? (
+                      <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                    ) : (
+                      <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                    )}
+                  </button>
+                }
+                type={isVisiblePassword1 ? "text" : "password"}
               />
               <Button
                 className="mx-auto w-full"
@@ -180,7 +207,7 @@ export default function Login() {
               <>
                 <Input
                   isRequired
-                  label="Correo Electrónico"
+                  placeholder="Correo Electrónico"
                   type="email"
                   {...register("recoveryEmail", { required: true })}
                   className="mb-4"
@@ -199,22 +226,79 @@ export default function Login() {
               <>
                 <Input
                   isRequired
-                  label="Digite su codigo"
+                  size="lg"
+                  variant="faded"
+                  placeholder="Digite su codigo"
                   type="text"
                   className="mb-4"
                 />
                 <Input
                   isRequired
-                  label="Digite su nueva contraseña"
-                  type="text"
-                  className="mb-4"
+                  placeholder="Contraseña"
+                  size="lg"
+                  variant="faded"
+                  endContent={
+                    <button
+                      className="focus:outline-none"
+                      type="button"
+                      onClick={toggleVisibilityPassword2}
+                      aria-label="toggle password visibility"
+                    >
+                      {isVisiblePassword2 ? (
+                        <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                      ) : (
+                        <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                      )}
+                    </button>
+                  }
+                  type={isVisiblePassword2 ? "text" : "password"}
                 />
                 <Input
                   isRequired
-                  label="Confirme la nueva contraseña"
-                  type="text"
-                  className="mb-4"
+                  placeholder="Contraseña"
+                  size="lg"
+                  variant="faded"
+                  {...register("password", { required: true })}
+                  endContent={
+                    <button
+                      className="focus:outline-none"
+                      type="button"
+                      onClick={toggleVisibilityPassword3}
+                      aria-label="toggle password visibility"
+                    >
+                      {isVisiblePassword3 ? (
+                        <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                      ) : (
+                        <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                      )}
+                    </button>
+                  }
+                  type={isVisiblePassword3 ? "text" : "password"}
                 />
+                <div className="flex justify-center space-x-4 mt-6 mb-6 px-4 ">
+                  <Button
+                    className=" w-full"
+                    color="primary"
+                    type="submit"
+                    size="lg"
+                    variant="ghost"
+                    onClick={() => {
+                      onClose();
+                      reset();
+                    }}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button
+                    className="w-full"
+                    color="primary"
+                    type="submit"
+                    size="lg"
+                    variant="solid"
+                  >
+                    Guardar
+                  </Button>
+                </div>
               </>
             )}
             {showAdditionalInputs && <></>}
