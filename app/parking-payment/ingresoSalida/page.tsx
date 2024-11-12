@@ -20,14 +20,16 @@ import { UseAuthContext } from "@/app/context/AuthContext";
 import { ModalError, ModalExito } from "@/components/modales";
 import { useDisclosure } from "@nextui-org/react";
 import { parseAbsoluteToLocal } from "@internationalized/date";
+import { vehicleEntrySchema } from "@/app/validationSchemas";
 
 const Home = () => {
   const [placaIn, setPlacaIn] = useState("");
-  const [placaOut, setPlacaOut] = useState("");
+
   const [isLoading, setIsLoading] = useState(false);
-  const [isVisible, setIsVisible] = useState(false);
+
   const [message, setMessage] = useState("");
   const { user } = UseAuthContext();
+  const [vehicleType, setVehicleType] = useState("CARRO");
   const [userData, setUserData] = useState<UserData>({
     IVAPercentage: 0,
     IVATotal: 0,
@@ -60,8 +62,6 @@ const Home = () => {
     vehicleKind: "",
   });
 
-  const [vehicleType, setVehicleType] = useState("CARRO");
-
   const {
     isOpen: isOpenErrorModal,
     onOpen: onOpenErrorModal,
@@ -79,45 +79,37 @@ const Home = () => {
   const [currentDate, setCurrentDate] = useState(
     parseAbsoluteToLocal(new Date().toISOString())
   );
+  const validatePlaca = (placa: string, checkEmpty: boolean = true) => {
+    if (checkEmpty && placa.trim() === "") {
+      setMessage("La placa no puede estar vacía.");
+      onOpenErrorModal();
+      return false;
+    }
 
+    const validationSchemas = vehicleEntrySchema.safeParse({ placa });
+    if (!validationSchemas.success) {
+      setMessage(validationSchemas.error.issues[0].message);
+      setPlacaIn((prevPlaca) => prevPlaca.slice(0, -1));
+      onOpenErrorModal();
+      return false;
+    }
+    return true;
+  };
   const handleInputChangeIn = (e: any) => {
     const placa = e.target.value;
+    setPlacaIn(placa);
+    setIsLoading(true);
 
-    if (placa.length > 6) {
-      setMessage("La placa debe tener exactamente 6 caracteres.");
-      onOpenErrorModal();
-      return;
-    }
-
-    if (placa != "") {
-      if (!/^[A-Za-z0-9]+$/.test(placa)) {
-        setMessage("La placa solo puede contener letras y números.");
-        onOpenErrorModal();
-        return;
-      }
-
-      setPlacaIn(placa);
-      setIsLoading(true);
-
+    if (placa.trim() !== "") {
       const lastChar = placa.charAt(placa.length - 1).toUpperCase();
-      if (!isNaN(lastChar)) {
-        setVehicleType("CARRO");
-      } else {
-        setVehicleType("MOTO");
-      }
-
-      setTimeout(() => {
-        setIsLoading(false);
-      }, 1000);
-    } else {
-      setPlacaIn(placa);
+      setVehicleType(isNaN(Number(lastChar)) ? "MOTO" : "CARRO");
+      validatePlaca(placa, false);
     }
+    setIsLoading(true);
   };
 
   const handleGenerateEntry = () => {
-    if (placaIn === "") {
-      setMessage("La placa no puede estar vacía.");
-      onOpenErrorModal();
+    if (!validatePlaca(placaIn)) {
       return;
     }
 
@@ -125,6 +117,9 @@ const Home = () => {
     onOpenExitoModal();
     setPlacaIn("");
     console.log("Entrada generada:", placaIn);
+  };
+  const handleCloseErrorModal = () => {
+    onCloseErrorModal();
   };
 
   return (
@@ -249,7 +244,7 @@ const Home = () => {
           modalControl={{
             isOpen: isOpenErrorModal,
             onOpen: onOpenErrorModal,
-            onClose: onCloseErrorModal,
+            onClose: handleCloseErrorModal,
             onOpenChange: onOpenChangeErrorModal,
           }}
           message={message}

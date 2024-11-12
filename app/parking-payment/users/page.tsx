@@ -4,6 +4,7 @@ import { title } from "@/components/primitives";
 import { Button } from "@nextui-org/button";
 import ICONOLAPIZ from "@/public/iconoLapiz.png";
 import ICONOOJO from "@/public/IconoOjo.png";
+import ICONOBASURERO from "@/public/iconoBasurero.png";
 import Image from "next/image";
 import { Signup, User, UserData } from "@/types";
 import UseUsers from "@/app/parking-payment/hooks/UseUsers";
@@ -79,6 +80,12 @@ const Users = () => {
     onClose: onCloseEdit,
   } = useDisclosure();
   const {
+    isOpen: isOpenDelete,
+    onOpen: onOpenDelete,
+    onOpenChange: onOpenChangeDelete,
+    onClose: onCloseDelete,
+  } = useDisclosure();
+  const {
     isOpen: isOpenExitoModal,
     onOpen: onOpenExitoModal,
     onOpenChange: onOpenChangeExitoModal,
@@ -98,7 +105,7 @@ const Users = () => {
   });
   const [userEdit, setUserEdit] = useState<User>(initialUserEdit);
   const [newUser, setNewUser] = useState<Signup>(initialNewUser);
-
+  //const [userDelete, setUserDelete] = useState<>();
   const [isView, setIsView] = useState(false);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -136,6 +143,12 @@ const Users = () => {
     console.log(data);
     setUserEdit(data);
     onOpenEdit();
+  };
+
+  const buttonDelete = (data: User) => {
+    console.log(data);
+    setUserEdit(data);
+    onOpenDelete();
   };
 
   interface UserData {
@@ -232,6 +245,15 @@ const Users = () => {
             }}
           >
             <Image src={ICONOOJO} alt="IconoOjo" width={20} />
+          </Button>
+          <Button
+            color="primary"
+            onPress={() => {
+              buttonDelete(params.row);
+              setIsView(true);
+            }}
+          >
+            <Image src={ICONOBASURERO} alt="iconoBasurero" width={20} />
           </Button>
         </div>
       ),
@@ -537,6 +559,35 @@ const Users = () => {
               </ModalBody>
             </div>
           )}
+        </ModalContent>
+      </Modal>
+      <Modal
+        onOpenChange={onOpenChangeDelete}
+        isOpen={isOpenDelete}
+        aria-labelledby="user-modal-title"
+        aria-describedby="user-modal-description"
+      >
+        <ModalContent>
+          <ModalHeader>
+            <h1 className={`text-xl ${title()}`}>Eliminar Usuario</h1>
+          </ModalHeader>
+          <ModalBody>
+            <p>
+              ¿Está seguro que desea eliminar al usuario:
+              <span className="ml-1 font-bold">
+                {userEdit.name} {userEdit.lastName}
+              </span>
+              ?
+            </p>
+            <div className="flex justify-between ">
+              <Button color="primary" type="submit">
+                Eliminar
+              </Button>
+              <Button color="primary" onClick={onCloseDelete}>
+                Volver
+              </Button>
+            </div>
+          </ModalBody>
         </ModalContent>
       </Modal>
       <ModalError

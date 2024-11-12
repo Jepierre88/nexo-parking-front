@@ -2,7 +2,7 @@ import axios from "axios";
 import { useState } from "react";
 import { IngresoSalida } from "@/types";
 
-export default function UseIngresoSalida() {
+export default function UseIncomesContingency() {
   const [loading, setLoading] = useState(false);
 
   const ingresarSalida = async (data: IngresoSalida) => {
@@ -12,7 +12,7 @@ export default function UseIngresoSalida() {
         `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/access-control/visitor-service/generateContingency`,
         {
           ...data,
-          datetime: data.datetime || new Date().toISOString(), // Si no se envía, se toma la actual
+          datetime: data.datetime || new Date().toISOString(),
         }
       );
       console.log("Ingreso/Salida registrado:", response.data);

@@ -4,6 +4,7 @@ import { title } from "@/components/primitives";
 import { Button } from "@nextui-org/button";
 import ICONOLAPIZ from "@/public/iconoLapiz.png";
 import ICONOIMPRESORA from "@/public/IconoImpresora.png";
+import ICONOBASURERO from "@/public/iconoBasurero.png";
 import Image from "next/image";
 import { UserData } from "@/types";
 import UseIncomes from "@/app/parking-payment/hooks/UseIncomes";
@@ -40,6 +41,13 @@ export default function Incomes() {
     onOpen: onOpenErrorModal,
     onOpenChange: onOpenChangeErrorModal,
     onClose: onCloseErrorModal,
+  } = useDisclosure();
+
+  const {
+    isOpen: isOpenDelete,
+    onOpen: onOpenDelete,
+    onOpenChange: onOpenChangeDelete,
+    onClose: onCloseDelete,
   } = useDisclosure();
 
   // Inicialización de fechas
@@ -111,6 +119,10 @@ export default function Incomes() {
     }
   };
 
+  const buttonDelete = () => {
+    onOpenDelete();
+  };
+
   const columns: GridColDef[] = [
     {
       field: "id",
@@ -169,12 +181,15 @@ export default function Incomes() {
                 params.row.plateImage
               )
             }
-            disabled={loading} // Deshabilitar el botón mientras está cargando
+            disabled={loading}
           >
             <Image src={ICONOLAPIZ} alt="IconoLapiz" width={20} />
           </Button>
           <Button color="primary" onClick={() => handleClickPrint(params.row)}>
             <Image src={ICONOIMPRESORA} alt="IconoImpresora" width={20} />
+          </Button>
+          <Button color="primary" onClick={() => buttonDelete()}>
+            <Image src={ICONOBASURERO} alt="IconoBasurero" width={20} />
           </Button>
         </div>
       ),
@@ -256,13 +271,6 @@ export default function Incomes() {
                 <div className="flex-grow" />
                 <div className="flex flex-col items-center w-full">
                   <div className="flex flex-col items-center w-98">
-                    {/* <Image
-                      src={plateImg.replace("C:/", "http://201.184.234.27")}
-                      alt="Imagen de Placa"
-                      width={100}
-                      height={50}
-                      className="mb-4"
-                    /> */}
                     <Input
                       placeholder="Placa"
                       className="ml-4 w-2/3"
@@ -288,6 +296,32 @@ export default function Incomes() {
               </ModalBody>
             </div>
           )}
+        </ModalContent>
+      </Modal>
+      <Modal
+        onOpenChange={onOpenChangeDelete}
+        isOpen={isOpenDelete}
+        aria-labelledby="user-modal-title"
+        aria-describedby="user-modal-description"
+      >
+        <ModalContent>
+          <ModalHeader>
+            <h1 className={`text-xl ${title()}`}>Eliminar Ingreso</h1>
+          </ModalHeader>
+          <ModalBody>
+            <p>
+              ¿Está seguro que desea eliminar el ingreso de la placa:
+              <span className="ml-1 font-bold">{plate}</span>?
+            </p>
+            <div className="flex justify-between ">
+              <Button color="primary" type="submit">
+                Eliminar
+              </Button>
+              <Button color="primary" onClick={onCloseDelete}>
+                Volver
+              </Button>
+            </div>
+          </ModalBody>
         </ModalContent>
       </Modal>
       <ModalError

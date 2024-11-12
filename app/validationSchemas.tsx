@@ -34,3 +34,11 @@ export const createUserSchema = (
       .string()
       .regex(/^\d*$/, "El número de celular solo puede contener números"),
   });
+
+export const vehicleEntrySchema = z.object({
+  placa: z
+    .string()
+    .min(1, "La placa no puede estar vacía")
+    .max(6, "La placa debe tener exactamente 6 caracteres")
+    .regex(/^[A-Za-z0-9]+$/, "La placa no puede tener caracteres especiales"),
+});
