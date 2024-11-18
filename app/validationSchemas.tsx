@@ -25,7 +25,7 @@ export const createUserSchema = (
       }),
     password: z
       .string()
-      .min(6, "La contraseña debe tener al menos 6 caracteres"),
+      .min(8, "La contraseña debe tener al menos 8 caracteres"),
 
     realm: z.string().min(1, "El perfil es obligatorio"),
     name: z.optional(z.string()),

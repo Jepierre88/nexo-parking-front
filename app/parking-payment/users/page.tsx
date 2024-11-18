@@ -25,6 +25,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { createUserSchema } from "@/app/validationSchemas";
 import { AxiosError } from "axios";
 import MessageError from "@/components/menssageError";
+import { canDeletUser } from "@/app/utils/rolValidation";
+
 const initialUserEdit: User = {
   cellPhoneNumber: "",
   departmentName: "",
@@ -246,19 +248,19 @@ const Users = () => {
           >
             <Image src={ICONOOJO} alt="IconoOjo" width={20} />
           </Button>
-          <Button
-            color="primary"
-            onPress={() => {
-              buttonDelete(params.row);
-              setIsView(true);
-            }}
-          >
-            <Image src={ICONOBASURERO} alt="iconoBasurero" width={20} />
-          </Button>
+          {canDeletUser(params.row.realm) && (
+            <Button color="primary" onPress={() => handleDelete(params.row.id)}>
+              <Image src={ICONOBASURERO} alt="iconoBasurero" width={20} />
+            </Button>
+          )}
         </div>
       ),
     },
   ];
+
+  const handleDelete = (username: string) => {
+    console.log("Eliminado usuario con ID: ", username);
+  };
 
   return (
     <section className="relative flex-col">
