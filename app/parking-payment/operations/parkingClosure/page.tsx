@@ -6,7 +6,7 @@ import ICONOIMPRESORA from "@/public/IconoImpresora.png";
 import Image from "next/image";
 import { UserData } from "@/types";
 import UseIncomes from "@/app/parking-payment/hooks/UseIncomes";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { GridColDef } from "@mui/x-data-grid";
 import {
 	ModalContent,
 	useDisclosure,
@@ -21,11 +21,6 @@ import Loading from "@/app/loading";
 export default function Incomes() {
 	const { incomes, getIncomes, loading } = UseIncomes();
 	const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-
-	const [paginationModel, setPaginationModel] = useState({
-		pageSize: 5,
-		page: 0,
-	});
 
 	const columns: GridColDef[] = [
 		{
