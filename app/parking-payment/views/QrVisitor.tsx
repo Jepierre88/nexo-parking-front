@@ -1,13 +1,12 @@
-import { DateInput } from "@nextui-org/date-input";
 import { Input } from "@nextui-org/input";
 import { Select, SelectItem } from "@nextui-org/select";
 import axios from "axios";
-import UseServices from "../hooks/UseServices";
-import { Button } from "@nextui-org/button";
-import { useEffect, useState } from "react";
-import { UserData } from "@/types";
-import { CalendarDate } from "@internationalized/date";
+import { useEffect } from "react";
 import { Checkbox } from "@nextui-org/checkbox";
+
+import UseServices from "../hooks/UseServices";
+
+import { UserData } from "@/types";
 
 export default function VisitanteQr({
   userData,
@@ -31,8 +30,9 @@ export default function VisitanteQr({
           identificationType: "QR",
           identificationCode: userData.identificationCode,
           plate: userData.plate,
-        }
+        },
       );
+
       setUserData(response.data);
     } catch (error) {
       console.error(error);
@@ -46,14 +46,17 @@ export default function VisitanteQr({
       </h2>
       <form className="flex flex-col gap-2 px-4">
         <div className="flex gap-4 justify-between">
-          <label className="text-base font-bold text-nowrap my-auto">
+          <label
+            className="text-base font-bold text-nowrap my-auto"
+            htmlFor="services"
+          >
             Tipo de visitante (QR)
           </label>
-          <Select className="w-52" size="sm" label="Seleccionar">
+          <Select className="w-52" label="Seleccionar" size="sm">
             {services &&
               services.map((item, index) => {
                 return (
-                  <SelectItem color="primary" key={index} value={item.id}>
+                  <SelectItem key={index} color="primary" value={item.id}>
                     {item.name}
                   </SelectItem>
                 );
@@ -61,23 +64,31 @@ export default function VisitanteQr({
           </Select>
         </div>
         <div className="flex gap-4 justify-between">
-          <label className="text-base font-bold text-nowrap my-auto">QR</label>
+          <label
+            className="text-base font-bold text-nowrap my-auto"
+            htmlFor="QR"
+          >
+            QR
+          </label>
           <Input
-            variant="underlined"
             className="w-1/2"
+            variant="underlined"
             onChange={(e) => {
               setUserData({ ...userData, identificationCode: e.target.value });
             }}
           />
         </div>
         <div className="flex gap-4 justify-between">
-          <label className="text-base  font-bold text-nowrap my-auto ">
+          <label
+            className="text-base  font-bold text-nowrap my-auto "
+            htmlFor="plate"
+          >
             Placa
           </label>
           <Input
-            variant="underlined"
             className="w-1"
             value={userData.plate}
+            variant="underlined"
             onChange={(e) =>
               setUserData({ ...userData, plate: e.target.value.toUpperCase() })
             }
@@ -91,18 +102,27 @@ export default function VisitanteQr({
           </Checkbox>
         </div>
         <div className="flex gap-4 justify-between ">
-          <label className="text-base font-bold text-nowrap my-auto">
+          <label
+            className="text-base font-bold text-nowrap my-auto"
+            htmlFor="discount"
+          >
             Código de descuento
           </label>
-          <Input variant="underlined" className="w-1/2" />
+          <Input className="w-1/2" variant="underlined" />
         </div>
         <div className="flex gap-4 justify-between">
-          <label className="text-base font-bold text-nowrap my-auto px-6">
+          <label
+            className="text-base font-bold text-nowrap my-auto px-6"
+            htmlFor="startDatetime"
+          >
             Fecha de entrada
           </label>
         </div>
         <div className="flex gap-4 justify-between">
-          <label className="text-base font-bold text-nowrap my-auto px-9">
+          <label
+            className="text-base font-bold text-nowrap my-auto px-9"
+            htmlFor="endDatetime"
+          >
             Pago hasta
           </label>
         </div>

@@ -11,7 +11,7 @@ export default function QrPerdido() {
             <label className="text-xl font-bold text-nowrap my-auto">
               Placa
             </label>
-            <Input variant="underlined" className="w-1/2" />
+            <Input className="w-1/2" variant="underlined" />
           </div>
         </form>
       </article>

@@ -1,15 +1,13 @@
 import "@/styles/globals.css";
 import { Metadata, Viewport } from "next";
-import { Link } from "@nextui-org/link";
 import clsx from "clsx";
 
 import { Providers } from "./providers";
+import { NavigateProvider } from "./context/NavigateContext";
+import { AuthProvider } from "./context/AuthContext";
 
 import { siteConfig } from "@/config/site";
 import { fontSans } from "@/config/fonts";
-import { Navbar } from "@/components/navbar";
-import { NavigateProvider } from "./context/NavigateContext";
-import { AuthProvider } from "./context/AuthContext";
 
 export const metadata: Metadata = {
   title: {
@@ -40,7 +38,7 @@ export default function RootLayout({
       <body
         className={clsx(
           "min-h-screen bg-background font-sans antialiased",
-          fontSans.variable
+          fontSans.variable,
         )}
       >
         <Providers themeProps={{ attribute: "class" }}>

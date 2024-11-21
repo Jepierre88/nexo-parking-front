@@ -13,8 +13,9 @@ export default function UseServices(type: string) {
           params: {
             serviceType: type,
           },
-        }
+        },
       );
+
       setServices(response.data);
     } catch (error) {
       setServices([]);
@@ -23,8 +24,10 @@ export default function UseServices(type: string) {
       setIsLoading(false);
     }
   };
+
   useEffect(() => {
     getServices();
+
     return () => {};
   }, []);
 

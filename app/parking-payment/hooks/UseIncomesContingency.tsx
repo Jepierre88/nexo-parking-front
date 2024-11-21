@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useState } from "react";
+
 import { IngresoSalida } from "@/types";
 
 export default function UseIncomesContingency() {
@@ -13,9 +14,11 @@ export default function UseIncomesContingency() {
         {
           ...data,
           datetime: data.datetime || new Date().toISOString(),
-        }
+        },
       );
+
       console.log("Ingreso/Salida registrado:", response.data);
+
       return response.data;
     } catch (error) {
       console.error("Error al registrar ingreso/salida:", error);

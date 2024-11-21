@@ -1,7 +1,7 @@
 import { z } from "zod";
 export const createUserSchema = (
   existingUsernames: string[],
-  existingUserEmails: string[]
+  existingUserEmails: string[],
 ) =>
   z.object({
     username: z
@@ -10,7 +10,7 @@ export const createUserSchema = (
       .max(20, "Este campo no debe exceder lo 20 caracteres")
       .regex(
         /^[A-Za-z0-9\s]+$/,
-        "El nombre de usuario solo puede contener letras, números y espacios"
+        "El nombre de usuario solo puede contener letras, números y espacios",
       )
       .refine((value) => !existingUsernames.includes(value), {
         message: "Este nombre de usuario ya está en uso",

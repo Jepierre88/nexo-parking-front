@@ -11,8 +11,9 @@ export default function UseListsPaymentMethods(type: string) {
           params: {
             namePaymentType: type,
           },
-        }
+        },
       );
+
       console.log("Datos recibidos:", response.data);
       setnamePaymentType(response.data);
     } catch (error) {
@@ -20,6 +21,7 @@ export default function UseListsPaymentMethods(type: string) {
       console.error(error);
     }
   };
+
   useEffect(() => {
     getnamePaymentType();
   }, []);
