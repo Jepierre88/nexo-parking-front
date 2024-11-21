@@ -1,7 +1,32 @@
-export const canDeletUser = (rol:string) : boolean => {
-    return rol === "Administrador" ; 
+export const rolValidate: { [key: number]: string } = {
+    1: "Vista Usuario",
+    2: "Vista ingreso",
+    3: "Vista salida",
+    4: "Vista proceso de pago",
+    5: "Vista transacción",
+    6: "Vista realizar cierre",
+    7: "Ingreso manual placa",
+    8: "Crear Usuario",
+    9: "Editar Usuario",
+    10: "Listar todos los usuarios",
+    11: "Eliminar usuario",
+    12: "Eliminar todos los usuarios",
+    13: "Imprimir entrada",
+    14: "Exportar Excel de entrada",
+    15: "Eliminar entrada",
+    16: "Eliminar todas las entradas",
+    17: "Realizar pago",
+    18: "Seleccionar medio de pago",
+    19: "Facturación electrónica",
+    20: "Consultar QR perdido",
+    21: "Hacer informe parcial",
+    22: "Realizar el cierre",
+    23: "Listar cierres",
+    24: "Listar un cierre",
+    25: "Imprimir cierre",
+    26: "Realizar ingreso manual",
+    27: "Consultar ingreso manual",
+    28: "Manejar hora de ingreso manual",
+    29: "Agregar placa",
+    30: "Editar perfil de usuario",
 };
-
-export const canEditUser = (rol:string) : boolean => {
-    return rol === "Administrador" || rol === "Operador";
-}

@@ -51,6 +51,7 @@ export default function UseIncomes() {
       setLoading(false);
     }
   };
+
   const updatePlate = async (id: string, plate: string) => {
     setLoading(true);
     try {

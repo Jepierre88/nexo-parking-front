@@ -25,7 +25,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { createUserSchema } from "@/app/validationSchemas";
 import { AxiosError } from "axios";
 import MessageError from "@/components/menssageError";
-import { canDeletUser } from "@/app/utils/rolValidation";
 
 const initialUserEdit: User = {
   cellPhoneNumber: "",
@@ -248,11 +247,10 @@ const Users = () => {
           >
             <Image src={ICONOOJO} alt="IconoOjo" width={20} />
           </Button>
-          {canDeletUser(params.row.realm) && (
-            <Button color="primary" onPress={() => handleDelete(params.row.id)}>
-              <Image src={ICONOBASURERO} alt="iconoBasurero" width={20} />
-            </Button>
-          )}
+
+          <Button color="primary" onPress={() => handleDelete(params.row.id)}>
+            <Image src={ICONOBASURERO} alt="iconoBasurero" width={20} />
+          </Button>
         </div>
       ),
     },

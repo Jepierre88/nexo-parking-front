@@ -13,7 +13,7 @@ export default function UseListsPaymentMethods(type: string) {
           },
         }
       );
-      console.log("Datos recibidos:", response.data);
+
       setnamePaymentType(response.data);
     } catch (error) {
       setnamePaymentType([]);
