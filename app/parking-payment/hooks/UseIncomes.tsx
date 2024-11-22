@@ -15,16 +15,17 @@ export default function UseIncomes() {
 
   today.setHours(0, 0, 0);
   todayNight.setHours(23, 59, 59);
-
-  console.log(today.toISOString());
   useEffect(() => {
     setLoading(true);
     getIncomes(today, todayNight);
-
     return () => {};
   }, []);
 
-  const getIncomes = async (startDateTime?: Date, endDateTime?: Date) => {
+  const getIncomes = async (
+    startDateTime?: Date,
+    endDateTime?: Date,
+    plate?: string
+  ) => {
     setLoading(true);
 
     try {
@@ -34,8 +35,9 @@ export default function UseIncomes() {
           params: {
             startDateTime: startDateTime?.toISOString(),
             endDateTime: endDateTime?.toISOString(),
+            plate: plate?.toString(),
           },
-        },
+        }
       );
 
       console.log(response.data);
@@ -43,9 +45,8 @@ export default function UseIncomes() {
 
       setIncomes(
         arrayfilter.filter(
-          (item) =>
-            item.realm !== "Consultorio" && item.realm !== "consultorio",
-        ),
+          (item) => item.realm !== "Consultorio" && item.realm !== "consultorio"
+        )
       );
     } catch (error) {
       console.error("Error al obtener ingresos: ", error);
@@ -54,7 +55,6 @@ export default function UseIncomes() {
       setLoading(false);
     }
   };
-
   const updatePlate = async (id: string, plate: string) => {
     setLoading(true);
     try {
@@ -62,7 +62,7 @@ export default function UseIncomes() {
         `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/incomes/${id}`,
         {
           plate,
-        },
+        }
       );
 
       console.log("Placa actualizada:", response.data);
