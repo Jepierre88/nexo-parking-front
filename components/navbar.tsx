@@ -14,10 +14,11 @@ import {
   DropdownTrigger,
 } from "@nextui-org/dropdown";
 import { Button } from "@nextui-org/button";
-
-import { ChevronDown } from "@/components/icons";
+import { UseAuthContext } from "@/app/context/AuthContext";
+import { ChevronDown, Logo } from "@/components/icons";
 import COINSLOGO from "@/app/assets/img/LOGO.png";
 import Loading from "@/app/loading";
+import { barItems } from "@/config/views";
 
 export const Navbar = () => {
   const icons = {
@@ -25,6 +26,7 @@ export const Navbar = () => {
   };
 
   const [loading, setLoading] = useState(false);
+  const [userPermissions, setUserPermissions] = useState<number[]>([]);
 
   const redirectWithLoading = (url: string): void => {
     //setLoading(true);
@@ -50,9 +52,6 @@ export const Navbar = () => {
           className="flex flex-col lg:flex-row gap-4"
           justify="start"
         >
-          {/* <NavbarBrand as="li" className="gap-3 max-w-fit">
-					<Image src={LOGO} alt="..." width={250} />
-				</NavbarBrand> */}
           <div className="flex gap-4 flex-grow justify-end">
             <ul className="flex lg:flex gap-4 justify-start ml-2">
               <Dropdown>
