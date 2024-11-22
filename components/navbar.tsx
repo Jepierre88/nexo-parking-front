@@ -5,10 +5,7 @@ import {
   NavbarContent,
   NavbarBrand,
   NavbarItem,
-  NavbarMenuItem,
 } from "@nextui-org/navbar";
-import COINSLOGO from "@/app/assets/img/LOGO.png";
-import { ChevronDown } from "@/components/icons";
 import Image from "next/image";
 import {
   Dropdown,
@@ -17,6 +14,9 @@ import {
   DropdownTrigger,
 } from "@nextui-org/dropdown";
 import { Button } from "@nextui-org/button";
+
+import { ChevronDown } from "@/components/icons";
+import COINSLOGO from "@/app/assets/img/LOGO.png";
 import Loading from "@/app/loading";
 
 export const Navbar = () => {
@@ -26,7 +26,6 @@ export const Navbar = () => {
 
   const [loading, setLoading] = useState(false);
 
-  useEffect(() => {});
   const redirectWithLoading = (url: string): void => {
     //setLoading(true);
     window.location.href = url;
@@ -43,9 +42,9 @@ export const Navbar = () => {
     <>
       {loading && <Loading />}
       <NextUINavbar
+        className="flex flex-col  gap-1 justify-center items-center"
         maxWidth="xl"
         position="sticky"
-        className="flex flex-col  gap-1 justify-center items-center"
       >
         <NavbarContent
           className="flex flex-col lg:flex-row gap-4"
@@ -177,7 +176,7 @@ export const Navbar = () => {
             as="li"
             className="gap-3 my-auto self-end max-w-md flex justify-end"
           >
-            <Image src={COINSLOGO} alt="..." className="my-auto" height={65} />
+            <Image alt="..." className="my-auto" height={65} src={COINSLOGO} />
           </NavbarBrand>
         </NavbarContent>
       </NextUINavbar>

@@ -20,6 +20,7 @@ export default function UseIncomes() {
   useEffect(() => {
     setLoading(true);
     getIncomes(today, todayNight);
+
     return () => {};
   }, []);
 
@@ -34,15 +35,17 @@ export default function UseIncomes() {
             startDateTime: startDateTime?.toISOString(),
             endDateTime: endDateTime?.toISOString(),
           },
-        }
+        },
       );
 
       console.log(response.data);
       const arrayfilter: Income[] = response.data;
+
       setIncomes(
         arrayfilter.filter(
-          (item) => item.realm !== "Consultorio" && item.realm !== "consultorio"
-        )
+          (item) =>
+            item.realm !== "Consultorio" && item.realm !== "consultorio",
+        ),
       );
     } catch (error) {
       console.error("Error al obtener ingresos: ", error);
@@ -59,8 +62,9 @@ export default function UseIncomes() {
         `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/incomes/${id}`,
         {
           plate,
-        }
+        },
       );
+
       console.log("Placa actualizada:", response.data);
     } catch (error) {
       console.error("Error actualizando la placa: ", error);

@@ -20,6 +20,7 @@ export default function UseListsPaymentMethods(type: string) {
       console.error(error);
     }
   };
+
   useEffect(() => {
     getnamePaymentType();
   }, []);

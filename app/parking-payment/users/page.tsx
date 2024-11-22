@@ -1,15 +1,9 @@
 "use client";
 import { useState } from "react";
-import { title } from "@/components/primitives";
 import { Button } from "@nextui-org/button";
-import ICONOLAPIZ from "@/public/iconoLapiz.png";
-import ICONOOJO from "@/public/IconoOjo.png";
-import ICONOBASURERO from "@/public/iconoBasurero.png";
 import Image from "next/image";
-import { Signup, User, UserData } from "@/types";
-import UseUsers from "@/app/parking-payment/hooks/UseUsers";
 import { SubmitHandler, useForm } from "react-hook-form";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { GridColDef } from "@mui/x-data-grid";
 import {
   ModalContent,
   useDisclosure,
@@ -18,14 +12,21 @@ import {
   ModalBody,
 } from "@nextui-org/modal";
 import { Input, Select, SelectItem } from "@nextui-org/react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { AxiosError } from "axios";
+
+import { title } from "@/components/primitives";
+import ICONOLAPIZ from "@/public/iconoLapiz.png";
+import ICONOOJO from "@/public/IconoOjo.png";
+import ICONOBASURERO from "@/public/iconoBasurero.png";
+import { Signup, User } from "@/types";
+import UseUsers from "@/app/parking-payment/hooks/UseUsers";
 import { roles } from "@/app/utils/data";
 import { ModalError, ModalExito } from "@/components/modales";
 import Loading from "@/app/loading";
-import { zodResolver } from "@hookform/resolvers/zod";
 import { createUserSchema } from "@/app/validationSchemas";
-import { AxiosError } from "axios";
 import MessageError from "@/components/menssageError";
-
+import CustomDataGrid from "@/components/customDataGrid";
 const initialUserEdit: User = {
   cellPhoneNumber: "",
   departmentName: "",
@@ -121,6 +122,7 @@ const Users = () => {
     if (userEdit.id) {
       try {
         const response = await updateUser(userEdit);
+
         console.log("Usuario actualizado:", response);
         getUsers();
         setMessage("Usuario actualizado con exito");
@@ -236,7 +238,7 @@ const Users = () => {
               setIsView(false);
             }}
           >
-            <Image src={ICONOLAPIZ} alt="IconoLapiz" width={20} />
+            <Image alt="IconoLapiz" src={ICONOLAPIZ} width={20} />
           </Button>
           <Button
             color="primary"
@@ -245,11 +247,16 @@ const Users = () => {
               setIsView(true);
             }}
           >
-            <Image src={ICONOOJO} alt="IconoOjo" width={20} />
+            <Image alt="IconoOjo" src={ICONOOJO} width={20} />
           </Button>
-
-          <Button color="primary" onPress={() => handleDelete(params.row.id)}>
-            <Image src={ICONOBASURERO} alt="iconoBasurero" width={20} />
+          <Button
+            color="primary"
+            onPress={() => {
+              buttonDelete(params.row);
+              setIsView(true);
+            }}
+          >
+            <Image alt="iconoBasurero" src={ICONOBASURERO} width={20} />
           </Button>
         </div>
       ),
@@ -261,7 +268,7 @@ const Users = () => {
   };
 
   return (
-    <section className="relative flex-col">
+    <section className="relative flex-col overflow-hidden h-full">
       {loading && <Loading />}{" "}
       <div className="flex justify-between">
         <h1 className={title()}>Usuarios</h1>
@@ -269,22 +276,12 @@ const Users = () => {
           +Agregar usuario
         </Button>
       </div>
-      <div style={{ height: 400, width: "100%", marginTop: "20px" }}>
-        <DataGrid
-          sx={{ backgroundColor: "white" }}
-          rows={users || []}
-          columns={columns}
-          pagination
-          paginationModel={paginationModel}
-          onPaginationModelChange={setPaginationModel}
-          pageSizeOptions={[5, 10, 20]}
-        />
-      </div>
+      <CustomDataGrid columns={columns} rows={users || []} />
       <Modal
-        onOpenChange={onOpenChange}
-        isOpen={isOpen}
-        aria-labelledby="user-modal-title"
         aria-describedby="user-modal-description"
+        aria-labelledby="user-modal-title"
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
       >
         <ModalContent>
           {() => (
@@ -308,10 +305,10 @@ const Users = () => {
                           Usuario
                         </label>
                         <Input
-                          placeholder="Inserta aquí tu usuario"
                           className="ml-4 w-2/3"
-                          type="text"
                           disabled={isView}
+                          placeholder="Inserta aquí tu usuario"
+                          type="text"
                           {...register("username")}
                         />
                       </div>
@@ -325,10 +322,10 @@ const Users = () => {
                           Contraseña
                         </label>
                         <Input
-                          placeholder="Inserta aquí tu contraseña"
                           className="ml-4 w-2/3"
-                          type="password"
                           disabled={isView}
+                          placeholder="Inserta aquí tu contraseña"
+                          type="password"
                           {...register("password")}
                         />
                       </div>
@@ -342,10 +339,10 @@ const Users = () => {
                           Email
                         </label>
                         <Input
-                          placeholder="Inserta aquí tu email"
                           className="ml-4 w-2/3"
-                          type="email"
                           disabled={isView}
+                          placeholder="Inserta aquí tu email"
+                          type="email"
                           {...register("email")}
                         />
                       </div>
@@ -359,10 +356,10 @@ const Users = () => {
                           Nombre
                         </label>
                         <Input
-                          placeholder="Inserta aquí tu nombre"
                           className="ml-4 w-2/3"
-                          type="text"
                           disabled={isView}
+                          placeholder="Inserta aquí tu nombre"
+                          type="text"
                           {...register("name")}
                         />
                       </div>
@@ -376,10 +373,10 @@ const Users = () => {
                           Apellido
                         </label>
                         <Input
-                          placeholder="Inserta aquí tu apellido"
                           className="ml-4 w-2/3"
-                          type="text"
                           disabled={isView}
+                          placeholder="Inserta aquí tu apellido"
+                          type="text"
                           {...register("lastName")}
                         />
                       </div>
@@ -393,10 +390,10 @@ const Users = () => {
                           Celular
                         </label>
                         <Input
-                          placeholder="Inserta aquí tu celular"
                           className="ml-4 w-2/3"
-                          type="text"
                           disabled={isView}
+                          placeholder="Inserta aquí tu celular"
+                          type="text"
                           {...register("cellPhoneNumber")}
                         />
                       </div>
@@ -412,10 +409,10 @@ const Users = () => {
                           Perfil
                         </label>
                         <Select
-                          variant="faded"
-                          placeholder="Selecciona tu rol"
                           className="ml-4 w-2/3"
                           disabled={isView}
+                          placeholder="Selecciona tu rol"
+                          variant="faded"
                           {...register("realm")}
                         >
                           {roles.map((rol) => (
@@ -448,10 +445,10 @@ const Users = () => {
       </Modal>
       {/* Modal de Edicion y vista */}
       <Modal
+        aria-describedby="user-modal-description"
+        aria-labelledby="user-modal-title"
         isOpen={isOpenEdit}
         onOpenChange={onOpenChangeEdit}
-        aria-labelledby="user-modal-title"
-        aria-describedby="user-modal-description"
       >
         <ModalContent>
           {() => (
@@ -469,14 +466,14 @@ const Users = () => {
                       Nombre
                     </label>
                     <Input
-                      placeholder="Inserta aquí tu nombre"
                       className="ml-4 w-2/3"
+                      disabled={isView}
+                      placeholder="Inserta aquí tu nombre"
                       type="text"
                       value={userEdit.name}
                       onChange={(e) =>
                         setUserEdit({ ...userEdit, name: e.target.value })
                       }
-                      disabled={isView}
                     />
                   </div>
                   <div className="flex items-center mt-2 mb-2 w-96">
@@ -484,14 +481,14 @@ const Users = () => {
                       Apellido
                     </label>
                     <Input
-                      placeholder="Inserta aquí tu apellido"
                       className="ml-4 w-2/3"
+                      disabled={isView}
+                      placeholder="Inserta aquí tu apellido"
                       type="text"
                       value={userEdit.lastName}
                       onChange={(e) =>
                         setUserEdit({ ...userEdit, lastName: e.target.value })
                       }
-                      disabled={isView}
                     />
                   </div>
                   <div className="flex items-center mt-2 mb-2 w-96">
@@ -499,14 +496,14 @@ const Users = () => {
                       Usuario
                     </label>
                     <Input
-                      placeholder="Inserta aquí tu usuario"
                       className="ml-4 w-2/3"
+                      disabled={isView}
+                      placeholder="Inserta aquí tu usuario"
                       type="text"
                       value={userEdit.username}
                       onChange={(e) =>
                         setUserEdit({ ...userEdit, username: e.target.value })
                       }
-                      disabled={isView}
                     />
                   </div>
                   <div className="flex items-center mt-2 mb-2 w-96">
@@ -514,14 +511,14 @@ const Users = () => {
                       Email
                     </label>
                     <Input
-                      placeholder="Inserta aquí tu email"
                       className="ml-4 w-2/3"
+                      disabled={isView}
+                      placeholder="Inserta aquí tu email"
                       type="email"
                       value={userEdit.email}
                       onChange={(e) =>
                         setUserEdit({ ...userEdit, email: e.target.value })
                       }
-                      disabled={isView}
                     />
                   </div>
                   <div className="flex items-center mt-2 mb-2 w-96">
@@ -529,14 +526,14 @@ const Users = () => {
                       Perfil
                     </label>
                     <Select
-                      variant="faded"
-                      label="Selecciona tu rol"
                       className="ml-4 w-2/3"
+                      disabled={isView}
+                      label="Selecciona tu rol"
                       value={userEdit.realm}
+                      variant="faded"
                       onChange={(e) =>
                         setUserEdit({ ...userEdit, realm: e.target.value })
                       }
-                      disabled={isView}
                     >
                       {roles.map((rol) => (
                         <SelectItem key={rol.key} value={rol.key}>
@@ -562,10 +559,10 @@ const Users = () => {
         </ModalContent>
       </Modal>
       <Modal
-        onOpenChange={onOpenChangeDelete}
-        isOpen={isOpenDelete}
-        aria-labelledby="user-modal-title"
         aria-describedby="user-modal-description"
+        aria-labelledby="user-modal-title"
+        isOpen={isOpenDelete}
+        onOpenChange={onOpenChangeDelete}
       >
         <ModalContent>
           <ModalHeader>
@@ -591,23 +588,23 @@ const Users = () => {
         </ModalContent>
       </Modal>
       <ModalError
+        message={message}
         modalControl={{
           isOpen: isOpenErrorModal,
           onOpen: onOpenErrorModal,
           onClose: onCloseErrorModal,
           onOpenChange: onOpenChangeErrorModal,
         }}
-        message={message}
-      ></ModalError>
+      />
       <ModalExito
+        message={message}
         modalControl={{
           isOpen: isOpenExitoModal,
           onOpen: onOpenExitoModal,
           onClose: onCloseExitoModal,
           onOpenChange: onOpenChangeExitoModal,
         }}
-        message={message}
-      ></ModalExito>
+      />
     </section>
   );
 };

@@ -1,13 +1,11 @@
 "use client";
-import React, { useState } from "react";
-import { title } from "@/components/primitives";
+import React, { useEffect, useState } from "react";
 import { Button } from "@nextui-org/button";
-import ICONOLAPIZ from "@/public/iconoLapiz.png";
-import ICONOIMPRESORA from "@/public/IconoImpresora.png";
-import Image from "next/image";
-import { UserData } from "@/types";
-import UseIncomes from "@/app/parking-payment/hooks/UseIncomes";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
+import { GridColDef } from "@mui/x-data-grid";
+import {
+  getLocalTimeZone,
+  parseAbsoluteToLocal,
+} from "@internationalized/date";
 import {
   ModalContent,
   useDisclosure,
@@ -15,24 +13,62 @@ import {
   ModalHeader,
   ModalBody,
 } from "@nextui-org/modal";
-import { Input } from "@nextui-org/react";
+import { DatePicker, DateValue, Input } from "@nextui-org/react";
+import { useTheme } from "next-themes";
 
-export default function Incomes() {
-  const { incomes, getIncomes } = UseIncomes();
+import { UseTransactions } from "../../hooks/Usetransactions";
+
+import { Connector } from "@/app/libs/Printer";
+import { Factura } from "@/types";
+import { PrinterIcon } from "@/components/icons";
+import CustomDataGrid from "@/components/customDataGrid";
+import { title } from "@/components/primitives";
+
+export default function Transaction() {
+  ////////////////////////////////////////////////////////////////
+  ///////////////FALTA HOOK DE TRANSACCIONES//////////////////////
+  ////////////////////////////////////////////////////////////////
+  const { transactions, getTransactions, getTransactionForPrint, loading } =
+    UseTransactions();
+  const { resolvedTheme } = useTheme();
+  const [isDark, setIsDark] = useState(false);
+  const [plate, setPlate] = useState("");
+
+  useEffect(() => {
+    setIsDark(resolvedTheme === "dark");
+  }, [resolvedTheme]);
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-
-  const [paginationModel, setPaginationModel] = useState({
-    pageSize: 5,
-    page: 0,
-  });
+  let [datetime, setDatetime] = React.useState<DateValue>(
+    parseAbsoluteToLocal(
+      new Date(
+        new Date().getFullYear(),
+        new Date().getMonth(),
+        new Date().getDate() - 1, // Resta un día
+        0, // Hora
+        0, // Minuto
+        0, // Segundo
+        0, // Milisegundo
+      ).toISOString(),
+    ),
+  );
 
   const handleFilter = () => {
-    const startDateTime = new Date(`${startDate}T${startTime}`);
-    const endDateTime = new Date(`${endDate}T${endTime}`);
-    console.log(startDateTime.toISOString());
-    getIncomes(startDateTime, endDateTime);
+    getTransactions(datetime.toDate(getLocalTimeZone()), plate);
   };
 
+  const handlePrint = async (id: number) => {
+    try {
+      const factura: Factura = await getTransactionForPrint(id);
+
+      console.log("Factura:", factura);
+      const impresora = new Connector("EPSON");
+
+      impresora.agregarOperacion("text", "Richar hola");
+      impresora.imprimirFacturaTransaccion(factura);
+    } catch (error) {
+      console.error("Error al imprimir", error);
+    }
+  };
   const columns: GridColDef[] = [
     {
       field: "id",
@@ -40,6 +76,7 @@ export default function Incomes() {
       flex: 1,
       headerAlign: "center",
       align: "center",
+      minWidth: 100,
     },
     {
       field: "datetime",
@@ -47,6 +84,29 @@ export default function Incomes() {
       flex: 1,
       headerAlign: "center",
       align: "center",
+      minWidth: 150,
+      valueFormatter: (value) => {
+        const date = new Date(value);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0"); // Los meses van de 0 a 11
+        const day = String(date.getDate()).padStart(2, "0");
+        const hour = String(date.getHours());
+        const minute = String(date.getMinutes());
+        const second = String(date.getSeconds());
+
+        return `${year}/${month}/${day} ${hour}:${minute}:${second}`;
+      },
+      valueGetter: (value) => {
+        const date = new Date(value);
+        const year = date.getFullYear();
+        const month = String(date.getMonth() + 1).padStart(2, "0"); // Los meses van de 0 a 11
+        const day = String(date.getDate()).padStart(2, "0");
+        const hour = String(date.getHours()).padStart(2, "0");
+        const minute = String(date.getMinutes()).padStart(2, "0");
+        const second = String(date.getSeconds()).padStart(2, "0");
+
+        return `${year}/${month}/${day} ${hour}:${minute}:${second}`;
+      },
     },
     {
       field: "identificationMethod",
@@ -54,6 +114,7 @@ export default function Incomes() {
       flex: 1,
       headerAlign: "center",
       align: "center",
+      minWidth: 100,
     },
     {
       field: "identificationId",
@@ -61,123 +122,100 @@ export default function Incomes() {
       flex: 1,
       headerAlign: "center",
       align: "center",
+      minWidth: 150,
     },
     {
-      field: "vehicleKind",
-      headerName: "Tipo V",
+      field: "vehicleType",
+      headerName: "Tipo de vehículo",
       flex: 1,
       headerAlign: "center",
       align: "center",
+      minWidth: 100,
     },
     {
-      field: "plate",
+      field: "vehiclePlate",
       headerName: "Placa",
       flex: 1,
       headerAlign: "center",
       align: "center",
+      minWidth: 200,
     },
     {
-      field: "time",
-      headerName: "Tiempo p.",
+      field: "vehicleParkingTime",
+      headerName: "Tiempo de parqueo",
       flex: 1,
       headerAlign: "center",
       align: "center",
+      minWidth: 100,
+    },
+    {
+      field: "actions",
+      headerName: "Acciones",
+      flex: 1,
+      headerAlign: "center",
+      align: "center",
+      minWidth: 150,
+      renderCell: (params) => (
+        <Button
+          color="default"
+          radius="md"
+          variant="light"
+          onPress={() => handlePrint(params.row.id)}
+        >
+          <PrinterIcon
+            fill={isDark ? "#000" : "#FFF"}
+            size={28}
+            stroke={isDark ? "#FFF" : "#000"}
+          />
+        </Button>
+      ),
     },
   ];
 
-  const [startDate, setStartDate] = useState(
-    new Date().toISOString().split("T")[0]
-  );
-  const [startTime, setStartTime] = useState(
-    new Date().toISOString().split("T")[1].split(".")[0]
-  );
-  const [endDate, setEndDate] = useState(
-    new Date(new Date().setDate(new Date().getDate() + 1))
-      .toISOString()
-      .split("T")[0]
-  );
-  const [endTime, setEndTime] = useState(
-    new Date().toISOString().split("T")[1].split(".")[0]
-  );
   return (
-    <section>
-      <div className="flex justify-between">
-        <h1 className={title()}>
-          Parqueadero -<br />
+    <section className="relative flex-col overflow-hidden h-full justify-center">
+      <div className="flex justify-between items-center">
+        <h1 className="text-4xl font-bold my-3 h-20 text-center items-center content-center">
           Transacciones
         </h1>
-
-        <div className="flex flex-col w-45 ml-72 ">
-          <div className="flex flex-col w-45 ml-64 mr-1">
-            <label className="text-base font-bold text-nowrap mb-2 mr-2">
-              DESDE
-            </label>
-            <div className="flex space-x-2">
-              <input
-                type="date"
-                value={startDate}
-                className="text-sm font-bold mr-2 border border-gray-300 rounded p-1"
-                onChange={(e) => setStartDate(e.target.value)}
-              />
-              <input
-                type="time"
-                value={startTime}
-                className="text-sm font-bold border border-gray-300 rounded p-1"
-                onChange={(e) => setStartTime(e.target.value)}
-              />
-            </div>
-            <div className="flex flex-col w-45">
-              <label className="text-base font-bold text-nowrap mr-2 mb-2">
-                HASTA
-              </label>
-              <div className="flex space-x-2">
-                <input
-                  type="date"
-                  value={endDate}
-                  className="text-sm font-bold border border-gray-300 rounded p-1"
-                  onChange={(e) => setEndDate(e.target.value)} // Manejo de la fecha "Hasta"
-                />
-                <input
-                  type="time"
-                  value={endTime}
-                  className="text-sm font-bold border border-gray-300 rounded p-1"
-                  onChange={(e) => setEndTime(e.target.value)} // Manejo de la hora "Hasta"
-                />
-              </div>
-            </div>
-          </div>
+        <div className="flex my-3 gap-4 items-center justify-center h-20">
+          <DatePicker
+            hideTimeZone
+            showMonthAndYearPickers
+            className="text-sm"
+            label={"Desde"}
+            size="lg"
+            value={datetime}
+            onChange={setDatetime}
+          />
+          <Input
+            label={"Placa"}
+            maxLength={6}
+            size="lg"
+            value={plate}
+            onChange={(e) => setPlate(e.target.value.toUpperCase())}
+          />
+          <Button
+            className="bg-primary text-white my-auto"
+            size="lg"
+            variant="shadow"
+            onClick={handleFilter}
+            onPress={handleFilter}
+          >
+            Filtrar
+          </Button>
         </div>
-        <Button
-          className="bg-primary text-white mr-72 mt-14 ml-5"
-          onClick={handleFilter}
-          onPress={handleFilter}
-        >
-          Filtrar
-        </Button>
       </div>
-      <div style={{ height: 400, width: "100%", marginTop: "20px" }}>
-        <DataGrid
-          sx={{ backgroundColor: "white" }}
-          rows={incomes || []}
-          columns={columns}
-          pagination
-          paginationModel={paginationModel}
-          onPaginationModelChange={setPaginationModel}
-          pageSizeOptions={[5, 10, 20]}
-          initialState={{
-            pagination: {
-              paginationModel: {
-                pageSize: 5,
-              },
-            },
-          }}
-        />
-      </div>
+      <CustomDataGrid
+        columns={columns}
+        loading={loading}
+        rows={transactions || []}
+      />
       <Modal
-        onOpenChange={onOpenChange}
-        isOpen={isOpen}
-        aria-labelledby="user-modal-title"
         aria-describedby="user-modal-description"
+        aria-labelledby="user-modal-title"
+        isOpen={isOpen}
+        onOpenChange={onOpenChange}
       >
         <ModalContent>
           {() => (
@@ -192,7 +230,7 @@ export default function Incomes() {
                     <label className="text-xl font-bold text-nowrap w-1/3">
                       Placa
                     </label>
-                    <Input placeholder=" " className="ml-4 w-2/3" type="text" />
+                    <Input className="ml-4 w-2/3" placeholder=" " type="text" />
                   </div>
                   <div className="flex justify-center w-full mt-4">
                     <Button onClick={onClose}>Cancelar</Button>

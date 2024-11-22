@@ -1,25 +1,25 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
   NextUIProvider,
   Input,
   CardHeader,
-  Checkbox,
   RadioGroup,
   Radio,
   DateInput,
 } from "@nextui-org/react";
 import { Button } from "@nextui-org/button";
-import { TrashIcon, LoaderIcon } from "@/components/icons";
+import Image from "next/image";
+import { useDisclosure } from "@nextui-org/react";
+import { parseAbsoluteToLocal } from "@internationalized/date";
+
+import { LoaderIcon } from "@/components/icons";
 import CardPropierties from "@/components/cardPropierties";
 import ICONOCARRO from "@/public/iconoCarroOscuro.png";
 import ICONOMOTO from "@/public/iconoMotoOscuro.png";
-import Image from "next/image";
 import { UserData } from "@/types";
 import { UseAuthContext } from "@/app/context/AuthContext";
 import { ModalError, ModalExito } from "@/components/modales";
-import { useDisclosure } from "@nextui-org/react";
-import { parseAbsoluteToLocal } from "@internationalized/date";
 import { vehicleEntrySchema } from "@/app/validationSchemas";
 
 const Home = () => {
@@ -77,31 +77,37 @@ const Home = () => {
   } = useDisclosure();
 
   const [currentDate, setCurrentDate] = useState(
-    parseAbsoluteToLocal(new Date().toISOString())
+    parseAbsoluteToLocal(new Date().toISOString()),
   );
   const validatePlaca = (placa: string, checkEmpty: boolean = true) => {
     if (checkEmpty && placa.trim() === "") {
       setMessage("La placa no puede estar vacía.");
       onOpenErrorModal();
+
       return false;
     }
 
     const validationSchemas = vehicleEntrySchema.safeParse({ placa });
+
     if (!validationSchemas.success) {
       setMessage(validationSchemas.error.issues[0].message);
       setPlacaIn((prevPlaca) => prevPlaca.slice(0, -1));
       onOpenErrorModal();
+
       return false;
     }
+
     return true;
   };
   const handleInputChangeIn = (e: any) => {
     const placa = e.target.value;
+
     setPlacaIn(placa);
     setIsLoading(true);
 
     if (placa.trim() !== "") {
       const lastChar = placa.charAt(placa.length - 1).toUpperCase();
+
       setVehicleType(isNaN(Number(lastChar)) ? "MOTO" : "CARRO");
       validatePlaca(placa, false);
     }
@@ -128,28 +134,28 @@ const Home = () => {
         <CardPropierties className="flex-1 md:mr-2">
           <CardHeader className="flex flex-col gap-2">
             <h1 className="font-bold text-3xl text-center md:text-3xl">
-              Ingresos De Vehículos
+              Ingresos
             </h1>
           </CardHeader>
           <form className="flex flex-col p-4">
             <div className="flex flex-col items-center justify-center gap-4 mb-4">
               <Input
-                value={placaIn}
-                type="text"
-                label="Registro/Consulta de placa vehícular:"
-                onChange={handleInputChangeIn}
-                variant="bordered"
-                placeholder="Ingresar Placa"
-                labelPlacement="outside"
                 className="w-full md:w-3/4"
+                endContent={
+                  <LoaderIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
+                }
+                label="Registro/Consulta de placa vehícular:"
+                labelPlacement="outside"
+                placeholder="Ingresar Placa"
                 size="lg"
                 style={{
                   height: "80px",
                   fontSize: "1.2em",
                 }}
-                endContent={
-                  <LoaderIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
-                }
+                type="text"
+                value={placaIn}
+                variant="bordered"
+                onChange={handleInputChangeIn}
               />
 
               <RadioGroup
@@ -161,36 +167,36 @@ const Home = () => {
               >
                 <Radio value="CARRO">
                   <Image
-                    src={ICONOCARRO}
                     alt="iconoCarroOscuro"
-                    width={50}
                     height={50}
+                    src={ICONOCARRO}
+                    width={50}
                   />
                 </Radio>
 
                 <Radio value="MOTO">
                   <Image
-                    src={ICONOMOTO}
                     alt="iconoMotoOscuro"
-                    width={40}
                     height={40}
+                    src={ICONOMOTO}
+                    width={40}
                   />
                 </Radio>
               </RadioGroup>
 
               <DateInput
+                className="w-full md:w-1/2"
                 granularity="second"
                 label="Fecha y Hora de ingreso"
                 value={currentDate}
                 onChange={setCurrentDate}
-                className="w-full md:w-1/2"
               />
 
               <Button
                 color="primary"
                 size="lg"
-                onClick={handleGenerateEntry}
                 style={{ width: "250px" }}
+                onClick={handleGenerateEntry}
               >
                 Registrar Vehículo
               </Button>
@@ -241,23 +247,23 @@ const Home = () => {
         </CardPropierties>
 
         <ModalError
+          message={message}
           modalControl={{
             isOpen: isOpenErrorModal,
             onOpen: onOpenErrorModal,
             onClose: handleCloseErrorModal,
             onOpenChange: onOpenChangeErrorModal,
           }}
-          message={message}
         />
 
         <ModalExito
+          message={message}
           modalControl={{
             isOpen: isOpenExitoModal,
             onOpen: onOpenExitoModal,
             onClose: onCloseExitoModal,
             onOpenChange: onOpenChangeExitoModal,
           }}
-          message={message}
         />
       </div>
     </NextUIProvider>

@@ -1,5 +1,6 @@
 import { Button } from "@nextui-org/button";
 import { Modal, ModalBody, ModalContent, ModalHeader } from "@nextui-org/modal";
+
 import SmallButton from "./smallButton";
 
 interface ModalControls {
@@ -24,7 +25,7 @@ export const ModalError = ({
       <ModalContent>
         {(onClose) => (
           <>
-            <ModalHeader></ModalHeader>
+            <ModalHeader />
             <ModalBody className="flex flex-col items-center justify-center">
               <h1 className="center">{message}</h1>
               <SmallButton label="Cerrar" onClick={() => onClose()} />
@@ -49,7 +50,7 @@ export const ModalExito = ({
       onOpenChange={modalControl.onOpenChange}
     >
       <ModalContent>
-        <ModalHeader></ModalHeader>
+        <ModalHeader />
         <ModalBody className="flex flex-col items-center justify-center">
           <h1 className="text-center">{message}</h1>
           <SmallButton
@@ -57,7 +58,7 @@ export const ModalExito = ({
             onClick={() => {
               modalControl.onClose();
             }}
-          ></SmallButton>
+          />
         </ModalBody>
       </ModalContent>
     </Modal>
@@ -88,19 +89,19 @@ export const ModalConfirmation = ({
           <p className="text-center mb-4">{message}</p>
           <div className="flex justify-around w-full">
             <Button
+              className="flex-1 mr-2"
+              color="primary"
               onClick={() => {
                 onConfirm();
                 modalControl.onClose();
               }}
-              color="primary"
-              className="flex-1 mr-2"
             >
               Sí
             </Button>
             <Button
-              onClick={() => modalControl.onClose()}
-              color="primary"
               className="flex-1"
+              color="primary"
+              onClick={() => modalControl.onClose()}
             >
               No
             </Button>

@@ -1,5 +1,6 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+
 import { User, Signup } from "@/types";
 
 export default function UseUsers() {
@@ -12,14 +13,15 @@ export default function UseUsers() {
     setLoading(true);
     try {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/users`
+        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/users`,
       );
       const arrayfilter: User[] = Array.isArray(response.data)
         ? response.data
         : [];
       const filteredUsers = arrayfilter.filter(
-        (item) => item.realm !== "Consultorio" && item.realm !== "consultorio"
+        (item) => item.realm !== "Consultorio" && item.realm !== "consultorio",
       );
+
       setUsers(filteredUsers);
       setExistingUsernames(filteredUsers.map((user) => user.username));
       setExistingEmails(filteredUsers.map((user) => user.email));
@@ -36,8 +38,9 @@ export default function UseUsers() {
     const exists = existingUsers.some(
       (user) =>
         user.username === newUserData.username ||
-        user.email === newUserData.email
+        user.email === newUserData.email,
     );
+
     return !exists;
   };
 
@@ -52,9 +55,11 @@ export default function UseUsers() {
           username: user.username,
           email: user.email,
           realm: user.realm,
-        }
+        },
       );
+
       console.log("Usuario actualizado:", response.data);
+
       return response.data;
     } catch (error) {
       console.error("Error actualizando el usuario:", error);
@@ -74,9 +79,11 @@ export default function UseUsers() {
         lastName: signup.lastName,
         cellPhoneNumber: signup.cellPhoneNumber,
         realm: signup.realm,
-      }
+      },
     );
+
     console.log("Usuario creado:", response.data);
+
     return response.data;
   };
 

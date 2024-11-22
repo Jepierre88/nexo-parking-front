@@ -4,7 +4,7 @@ import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 
-const CustomDataGrid = ({ rows, columns }: DataGridProps) => {
+const CustomDataGrid = (props: DataGridProps) => {
   const { resolvedTheme } = useTheme();
   const [isDark, setIsDark] = useState(false);
 
@@ -156,14 +156,16 @@ const CustomDataGrid = ({ rows, columns }: DataGridProps) => {
 
   const exportToExcel = () => {
     const worksheet = XLSX.utils.json_to_sheet(
-      rows!.map((row) => {
+      props.rows!.map((row) => {
         // Retirar columnas no deseadas como "id"
         const { id, ...rest } = row;
+
         return rest;
       })
     );
 
     const workbook = XLSX.utils.book_new();
+
     XLSX.utils.book_append_sheet(workbook, worksheet, "Datos");
 
     XLSX.writeFile(workbook, "tabla-datos.xlsx");
@@ -173,14 +175,29 @@ const CustomDataGrid = ({ rows, columns }: DataGridProps) => {
 
   return (
     <div className="w-full h-3/5">
-      <Button className="mb-4" onClick={exportToExcel} color="primary">
+      <Button
+        className="mb-4"
+        color="primary"
+        variant="shadow"
+        onClick={exportToExcel}
+      >
         Exportar a Excel
       </Button>
       <DataGrid
-        rows={rows}
-        columns={columns}
         pagination
+        columns={props.columns}
+        initialState={{
+          pagination: {
+            paginationModel: {
+              pageSize: 8,
+            },
+          },
+        }}
+        loading={props.loading ? props.loading : false}
         localeText={customLocaleText}
+        rowHeight={50}
+        rowSelection={false}
+        rows={props.rows}
         sx={{
           "& .MuiDataGrid-root": {
             backgroundColor: isDark ? "#1E1E1E" : "#FFFFFF",
@@ -191,10 +208,13 @@ const CustomDataGrid = ({ rows, columns }: DataGridProps) => {
             color: isDark ? "#FFF" : "#000",
             borderBottom: `1px solid ${isDark ? "#444444" : "#CCCCCC"}`,
           },
-
           "& .MuiDataGrid-cell": {
             borderBottom: `1px solid ${isDark ? "#444444" : "#E0E0E0"}`,
             color: isDark ? "#FFFFFF" : "#000",
+          },
+          "& .MuiDataGrid-row": {
+            alignItems: "center",
+            placeItems: "center",
           },
           "& .MuiDataGrid-row:hover": {
             backgroundColor: isDark ? "#3A3A3A" : "#F1F1F1",
@@ -211,12 +231,20 @@ const CustomDataGrid = ({ rows, columns }: DataGridProps) => {
             backgroundColor: isDark ? "#1E1E1E" : "#FFFFFF",
             color: isDark ? "#FFFFFF" : "#000000",
           },
-        }}
-        initialState={{
-          pagination: {
-            paginationModel: {
-              pageSize: 8,
-            },
+          "& .MuiTablePagination-displayedRows": {
+            color: isDark ? "#FFFFFF" : "#000000",
+          },
+          "& .MuiTablePagination-actions": {
+            color: isDark ? "#FFFFFF" : "#000000",
+          },
+          "& .MuiDataGrid-scrollbarFiller ": {
+            backgroundColor: isDark ? "#333333" : "#F5F5F5",
+          },
+          "& .MuiDataGrid-overlay": {
+            color: isDark ? "#FFFFFF" : "#000000",
+          },
+          "& .MuiCircularProgress-svg": {
+            color: isDark ? "#FFFFFF" : "#000000",
           },
         }}
       />
