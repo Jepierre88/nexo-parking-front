@@ -19,6 +19,30 @@ body {
 	overflow-x: hidden;
 }
 
+.not-found {
+	position: relative;
+	color: transparent; /* Texto transparente */
+	display: inline-block;
+	background: linear-gradient(90deg, red, blue, red);
+	background-size: 300% 100%; /* Aumenta el tamaño del gradiente para el desplazamiento */
+	background-clip: text;
+	-webkit-background-clip: text; /* Soporte para WebKit */
+	animation: colorAnimation 8s linear infinite; /* Movimiento suave y continuo */
+}
+
+/* Animación del fondo dinámico */
+@keyframes colorAnimation {
+	0% {
+		background-position: 0% 50%; /* Comienza desde la izquierda */
+	}
+	50% {
+		background-position: 150% 50%; /* Mueve hacia la derecha */
+	}
+	100% {
+		background-position: 0% 50%; /* Regresa al inicio suavemente */
+	}
+}
+
 .dropdown-link {
 	@apply block w-full px-4 py-2 text-left text-sm font-medium text-gray-700 hover:text-white hover:bg-primary-500 focus:outline-none focus:bg-primary-600 focus:text-white rounded-md transition;
 }

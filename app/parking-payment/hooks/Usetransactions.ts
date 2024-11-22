@@ -4,70 +4,71 @@ import { useEffect, useState } from "react";
 import { Transaction } from "@/types";
 
 export const UseTransactions = () => {
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
-  const [loading, setLoading] = useState(true);
+	const [transactions, setTransactions] = useState<Transaction[]>([]);
+	const [loading, setLoading] = useState(true);
 
-  const getTransactions = async (datetime?: Date, plate?: string) => {
-    const dateWeek = new Date();
+	const getTransactions = async (datetime?: Date, plate?: string) => {
+		const dateWeek = new Date();
 
-    dateWeek.setDate(dateWeek.getDate() - 1);
-    console.log(datetime);
-    const filter = {
-      where: {
-        datetime: {
-          gte: datetime?.toISOString() || dateWeek.toISOString(),
-        },
-        vehiclePlate: {
-          like: `%${plate || ""}%`,
-        },
-      },
-    };
+		dateWeek.setDate(dateWeek.getDate() - 1);
+		const filter = {
+			where: {
+				datetime: {
+					gte: datetime?.toISOString() || dateWeek.toISOString(),
+				},
+				vehiclePlate: {
+					like: `%${plate || ""}%`,
+				},
+			},
+		};
 
-    // Fetch transactions from API
-    // Replace 'http://your-api-url.com/transactions' with your actual API endpoint
-    try {
-      setLoading(true);
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/payments`,
-        {
-          params: {
-            filter: JSON.stringify(filter),
-          },
-        },
-      );
+		// Fetch transactions from API
+		// Replace 'http://your-api-url.com/transactions' with your actual API endpoint
+		try {
+			setLoading(true);
+			const response = await axios.get(
+				`${process.env.NEXT_PUBLIC_LOCAL_APIURL}/transactionPaymentPoint`,
+				{
+					params: {
+						startDateTime: datetime?.toISOString() || dateWeek.toISOString(),
+						endDateTime: new Date().toISOString(),
+						plate: plate,
+					},
+				}
+			);
 
-      setTransactions(response.data);
-    } catch (error) {
-      console.error("Error fetching transactions:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
+			setTransactions(response.data);
+		} catch (error) {
+			console.error("Error fetching transactions:", error);
+		} finally {
+			setLoading(false);
+		}
+	};
 
-  const getTransactionForPrint = async (id: number) => {
-    try {
-      setLoading(true);
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/printForId/${id}`,
-      );
-      const data = response.data;
+	const getTransactionForPrint = async (id: number) => {
+		try {
+			setLoading(true);
+			const response = await axios.get(
+				`${process.env.NEXT_PUBLIC_LOCAL_APIURL}/printForId/${id}`
+			);
+			const data = response.data;
 
-      return data;
-    } catch (error) {
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  };
+			return data;
+		} catch (error) {
+			return null;
+		} finally {
+			setLoading(false);
+		}
+	};
 
-  useEffect(() => {
-    getTransactions();
-  }, []);
+	useEffect(() => {
+		getTransactions();
+	}, []);
 
-  return {
-    transactions,
-    loading,
-    getTransactions,
-    getTransactionForPrint,
-  };
+	return {
+		transactions,
+		loading,
+		getTransactions,
+		getTransactionForPrint,
+	};
 };

@@ -18,14 +18,13 @@ module.exports = {
   darkMode: "class", // Asegúrate de tener esto bien configurado
   plugins: [nextui({
     themes:{
-
       light:{
         colors: {
           primary: {DEFAULT:'#2196F3', foreground:"#FFF"},
           primaryText: '#FFF',
           primaryHover: '#FFF',
           primaryActive: '#0D47A1',
-          secondary: '#4CAF50',
+          secondary: '#673AB7',
           tertiary: '#F44336',
           quaternary: '#FF9800',
           quinary: '#009688',
@@ -34,7 +33,8 @@ module.exports = {
           octonary: '#9C27B0',
           nonary: '#673AB7',
           tentary: '#3F51B5',
-          danger: '#09f'
+          danger: '#F44336',
+          background: "#FFF"
         },
         tabs: {
           color: '#fff', // Color de las tabs no seleccionadas en modo oscuro
@@ -45,11 +45,11 @@ module.exports = {
       },
       dark: {
         colors: {
-          primary: '#2196F3',
+          primary: {DEFAULT:'#33baff', foreground:"#FFF"},
           primaryHover: '#1976D2',
           primaryActive: '#0D47A1', 
           primaryText: '#FFF', // Un color más claro para texto en botones
-          secondary: '#81C784',
+          secondary: '#673AB7',
           tertiary: '#EF9A9A',
           quaternary: '#FFB74D',
           quinary: '#4DB6AC',
@@ -58,6 +58,7 @@ module.exports = {
           octonary: '#BA68C8',
           nonary: '#9575CD',
           tentary: '#7986CB',
+          background: "#212121"
         },
         tabs: {
           color: '#fff', // Color de las tabs no seleccionadas en modo oscuro
@@ -86,10 +87,6 @@ module.exports = {
         focus: "#FF1744",
         }
       },
-
-    
-
-      
     },
   }  
   )],
