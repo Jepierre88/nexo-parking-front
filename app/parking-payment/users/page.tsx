@@ -14,19 +14,19 @@ import {
 import { Input, Select, SelectItem } from "@nextui-org/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AxiosError } from "axios";
-
 import { title } from "@/components/primitives";
 import ICONOLAPIZ from "@/public/iconoLapiz.png";
 import ICONOOJO from "@/public/IconoOjo.png";
 import ICONOBASURERO from "@/public/iconoBasurero.png";
 import { Signup, User } from "@/types";
 import UseUsers from "@/app/parking-payment/hooks/UseUsers";
-import { roles } from "@/app/utils/data";
+import UseRol from "@/app/parking-payment/hooks/UseRol";
 import { ModalError, ModalExito } from "@/components/modales";
 import Loading from "@/app/loading";
 import { createUserSchema } from "@/app/validationSchemas";
 import MessageError from "@/components/menssageError";
 import CustomDataGrid from "@/components/customDataGrid";
+import { Preview } from "@mui/icons-material";
 const initialUserEdit: User = {
   cellPhoneNumber: "",
   departmentName: "",
@@ -55,6 +55,8 @@ const initialNewUser: Signup = {
 };
 
 const Users = () => {
+  const roles = UseRol();
+
   const {
     users,
     updateUser,
@@ -143,8 +145,12 @@ const Users = () => {
   };
 
   const handleButtonClick = (data: User) => {
+    const currentRole =
+      roles.find((rol) => rol.name === data.realm).name ||
+      roles[0]?.name ||
+      "Errorrrrrrrrrrrrrrrrrrr";
     console.log(data);
-    setUserEdit(data);
+    setUserEdit({ ...data, realm: currentRole });
     onOpenEdit();
   };
 
@@ -413,13 +419,25 @@ const Users = () => {
                           disabled={isView}
                           placeholder="Selecciona tu rol"
                           variant="faded"
-                          {...register("realm")}
+                          value={newUser.realm}
+                          onChange={(e) =>
+                            setNewUser((prev) => ({
+                              ...prev,
+                              realm: e.target.value,
+                            }))
+                          }
                         >
-                          {roles.map((rol) => (
-                            <SelectItem key={rol.key} value={rol.key}>
-                              {rol.label}
+                          {roles.length > 0 ? (
+                            roles.map((rol) => (
+                              <SelectItem key={rol.id} value={rol.name}>
+                                {rol.name}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <SelectItem key="cargando" value="">
+                              Cargando roles...
                             </SelectItem>
-                          ))}
+                          )}
                         </Select>
                       </div>
                       {errors.realm && (
@@ -528,18 +546,27 @@ const Users = () => {
                     <Select
                       className="ml-4 w-2/3"
                       disabled={isView}
-                      label="Selecciona tu rol"
-                      value={userEdit.realm}
+                      placeholder="Selecciona Tu Rol"
                       variant="faded"
-                      onChange={(e) =>
-                        setUserEdit({ ...userEdit, realm: e.target.value })
-                      }
+                      value={userEdit.realm || "Sin rol"}
+                      onChange={(e) => {
+                        setUserEdit((prev) => ({
+                          ...prev,
+                          realm: e.target.value,
+                        }));
+                      }}
                     >
-                      {roles.map((rol) => (
-                        <SelectItem key={rol.key} value={rol.key}>
-                          {rol.label}
+                      {roles.length > 0 ? (
+                        roles.map((rol) => (
+                          <SelectItem key={rol.name} value={rol.name}>
+                            {rol.name}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem key="cargando" value="" disableAnimation>
+                          Cargando roles...
                         </SelectItem>
-                      ))}
+                      )}
                     </Select>
                   </div>
                   <div

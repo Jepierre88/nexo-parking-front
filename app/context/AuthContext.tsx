@@ -20,6 +20,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     name: "",
     lastName: "",
     realm: "",
+    // permissions: [] as number [];
   });
 
   return (

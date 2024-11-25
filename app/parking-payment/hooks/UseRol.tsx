@@ -1,33 +1,23 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
-import { boolean } from "zod";
 
-export default function UseRol(id: number, name: string, eliminated: boolean) {
-  const [UseRol, setUseRol] = useState<any[]>([]);
-  const getRol = async () => {
+export default function UseRol() {
+  const [roles, setRoles] = useState<any[]>([]);
+
+  const getRoles = async () => {
     try {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/rol`,
-        {
-          params: {
-            id: id,
-            name: name,
-            eliminated: boolean,
-          },
-        }
+        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/rol`
       );
-      setUseRol(response.data);
+      setRoles(response.data);
     } catch (error) {
-      console.error(error);
+      console.error("Error obteniendo roles:", error);
     }
-    useEffect(() => {
-      getRol();
-    }, []);
   };
-  return {
-    setUseRol,
-    id,
-    name,
-    eliminated,
-  };
+
+  useEffect(() => {
+    getRoles();
+  }, []);
+
+  return roles;
 }
