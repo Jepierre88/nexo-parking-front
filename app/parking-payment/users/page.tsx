@@ -27,6 +27,7 @@ import { createUserSchema } from "@/app/validationSchemas";
 import MessageError from "@/components/menssageError";
 import CustomDataGrid from "@/components/customDataGrid";
 import { Preview } from "@mui/icons-material";
+
 const initialUserEdit: User = {
   cellPhoneNumber: "",
   departmentName: "",
@@ -65,7 +66,9 @@ const Users = () => {
     existingUsernames,
     existingUserEmails,
   } = UseUsers();
+
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+
   const {
     register,
     handleSubmit,
@@ -83,12 +86,14 @@ const Users = () => {
     onOpenChange: onOpenChangeEdit,
     onClose: onCloseEdit,
   } = useDisclosure();
+
   const {
     isOpen: isOpenDelete,
     onOpen: onOpenDelete,
     onOpenChange: onOpenChangeDelete,
     onClose: onCloseDelete,
   } = useDisclosure();
+
   const {
     isOpen: isOpenExitoModal,
     onOpen: onOpenExitoModal,
@@ -107,9 +112,9 @@ const Users = () => {
     pageSize: 5,
     page: 0,
   });
+
   const [userEdit, setUserEdit] = useState<User>(initialUserEdit);
   const [newUser, setNewUser] = useState<Signup>(initialNewUser);
-  //const [userDelete, setUserDelete] = useState<>();
   const [isView, setIsView] = useState(false);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
@@ -124,7 +129,6 @@ const Users = () => {
     if (userEdit.id) {
       try {
         const response = await updateUser(userEdit);
-
         console.log("Usuario actualizado:", response);
         getUsers();
         setMessage("Usuario actualizado con exito");
@@ -145,12 +149,7 @@ const Users = () => {
   };
 
   const handleButtonClick = (data: User) => {
-    const currentRole =
-      roles.find((rol) => rol.name === data.realm).name ||
-      roles[0]?.name ||
-      "Errorrrrrrrrrrrrrrrrrrr";
-    console.log(data);
-    setUserEdit({ ...data, realm: currentRole });
+    setUserEdit({ ...data });
     onOpenEdit();
   };
 
@@ -255,6 +254,7 @@ const Users = () => {
           >
             <Image alt="IconoOjo" src={ICONOOJO} width={20} />
           </Button>
+
           <Button
             color="primary"
             onPress={() => {
@@ -548,12 +548,12 @@ const Users = () => {
                       disabled={isView}
                       placeholder="Selecciona Tu Rol"
                       variant="faded"
-                      value={userEdit.realm || "Sin rol"}
+                      selectedKeys={new Set([userEdit.realm])}
                       onChange={(e) => {
-                        setUserEdit((prev) => ({
-                          ...prev,
+                        setUserEdit({
+                          ...userEdit,
                           realm: e.target.value,
-                        }));
+                        });
                       }}
                     >
                       {roles.length > 0 ? (
@@ -563,7 +563,7 @@ const Users = () => {
                           </SelectItem>
                         ))
                       ) : (
-                        <SelectItem key="cargando" value="" disableAnimation>
+                        <SelectItem key="cargando" value="">
                           Cargando roles...
                         </SelectItem>
                       )}
