@@ -15,20 +15,21 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [token, setToken] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [user, setUser] = useState<
-    { name: string; lastName: string; realm: string } | undefined
+    | { name: string; lastName: string; realm: string; permissions: number[] }
+    | undefined
   >({
     name: "",
     lastName: "",
     realm: "",
-    // permissions: [] as number [];
+    permissions: [] as number[],
   });
 
   return (
     <AuthContext.Provider
       value={{
-        isAuthenticated: isAuthenticated, // Replace with actual authentication logic
-        token: token,
-        user: user,
+        isAuthenticated,
+        token,
+        user,
         setUser,
         setToken: setToken,
         setIsAuthenticated,

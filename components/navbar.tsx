@@ -18,26 +18,30 @@ import { UseAuthContext } from "@/app/context/AuthContext";
 import { ChevronDown, Logo } from "@/components/icons";
 import COINSLOGO from "@/app/assets/img/LOGO.png";
 import Loading from "@/app/loading";
-import { barItems } from "@/config/views";
+import UseRelationPermissions from "@/app/parking-payment/hooks/UseRelationPermissions";
 
 export const Navbar = () => {
+  const { user } = UseAuthContext();
+  const { permissionsById } = UseRelationPermissions(user?.id);
+  const [loading, setLoading] = useState(false);
+
   const icons = {
     chevron: <ChevronDown fill="currentColor" size={16} />,
   };
 
-  const [loading, setLoading] = useState(false);
-  const [userPermissions, setUserPermissions] = useState<number[]>([]);
-
   const redirectWithLoading = (url: string): void => {
-    //setLoading(true);
+    setLoading(true);
     window.location.href = url;
   };
 
   const cerrarSesion = () => {
     setLoading(true);
     localStorage.removeItem("token");
-
     window.location.href = "/auth/login";
+  };
+
+  const hasPermission = (permissionId: number): boolean => {
+    return permissionsById.includes(permissionId);
   };
 
   return (

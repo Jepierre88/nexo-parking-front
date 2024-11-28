@@ -70,7 +70,6 @@ export default function Login() {
     setIsVisiblePassword3(!isVisiblePassword3);
 
   const onSubmit: SubmitHandler<any> = async (data: UserLogin) => {
-    console.log("ENtrando al submit");
     setLoading(true);
     try {
       console.log();

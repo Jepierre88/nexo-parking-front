@@ -56,7 +56,7 @@ const initialNewUser: Signup = {
 };
 
 const Users = () => {
-  const roles = UseRol();
+  const { roles } = UseRol();
 
   const {
     users,
@@ -545,7 +545,7 @@ const Users = () => {
                     </label>
                     <Select
                       className="ml-4 w-2/3"
-                      disabled={isView}
+                      isDisabled={isView}
                       placeholder="Selecciona Tu Rol"
                       variant="faded"
                       selectedKeys={new Set([userEdit.realm])}

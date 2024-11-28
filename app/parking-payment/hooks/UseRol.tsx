@@ -19,5 +19,5 @@ export default function UseRol() {
     getRoles();
   }, []);
 
-  return roles;
+  return { roles };
 }
