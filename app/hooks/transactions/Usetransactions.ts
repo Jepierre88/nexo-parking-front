@@ -11,19 +11,7 @@ export const UseTransactions = () => {
 		const dateWeek = new Date();
 
 		dateWeek.setDate(dateWeek.getDate() - 1);
-		const filter = {
-			where: {
-				datetime: {
-					gte: datetime?.toISOString() || dateWeek.toISOString(),
-				},
-				vehiclePlate: {
-					like: `%${plate || ""}%`,
-				},
-			},
-		};
 
-		// Fetch transactions from API
-		// Replace 'http://your-api-url.com/transactions' with your actual API endpoint
 		try {
 			setLoading(true);
 			const response = await axios.get(

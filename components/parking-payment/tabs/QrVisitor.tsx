@@ -1,25 +1,22 @@
 import { Input } from "@nextui-org/input";
 import { Select, SelectItem } from "@nextui-org/select";
 import axios from "axios";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Checkbox } from "@nextui-org/checkbox";
 
-import UseServices from "../hooks/UseServices";
+import UseServices from "../../../app/hooks/parking-payment/UseServices";
 
-import { UserData } from "@/types";
+import { PaymentData } from "@/types";
+import { usePaymentContext } from "@/app/context/PaymentContext";
 
-export default function VisitanteQr({
-	userData,
-	setUserData,
-}: {
-	userData: UserData;
-	setUserData: (userdata: UserData) => void;
-}) {
+export default function VisitanteQr() {
+	const { paymentData, setPaymentData } = usePaymentContext();
+
 	useEffect(() => {
-		if (userData.identificationCode.length > 15) {
+		if (paymentData.identificationCode.length > 15) {
 			searchDataValidate();
 		}
-	}, [userData.identificationCode]);
+	}, [paymentData.identificationCode]);
 
 	const { services, isLoading } = UseServices("Visitante");
 	const searchDataValidate = async () => {
@@ -28,12 +25,12 @@ export default function VisitanteQr({
 				`${process.env.NEXT_PUBLIC_LOCAL_APIURL}/access-control/visitor-service/validateNewPP`,
 				{
 					identificationType: "QR",
-					identificationCode: userData.identificationCode,
-					plate: userData.plate,
+					identificationCode: paymentData.identificationCode,
+					plate: paymentData.plate,
 				}
 			);
 
-			setUserData(response.data);
+			setPaymentData(response.data);
 		} catch (error) {
 			console.error(error);
 		}
@@ -41,22 +38,37 @@ export default function VisitanteQr({
 
 	return (
 		<article className="flex flex-col gap-2">
-			<h2 className="font-bold text-2xl text-center ">
-				Datos de visitante (QR)
-			</h2>
-			<form className="flex flex-col gap-2 px-4">
+			<h2 className="font-bold text-2xl text-center ">Datos de visitante</h2>
+			<form className="flex flex-col gap-2">
 				<div className="flex gap-4 justify-between">
 					<label
 						className="text-base font-bold text-nowrap my-auto"
 						htmlFor="services"
 					>
-						Tipo de visitante (QR)
+						Tipo de visitante
 					</label>
-					<Select className="w-52" label="Seleccionar" size="sm">
+					<Select
+						className="w-52 max-w-40"
+						value={paymentData.selectedService}
+						label="Seleccionar"
+						size="sm"
+						onChange={(e) => {
+							const service = services.find(
+								(item) => e.target.value == item.id
+							);
+
+							console.log(service);
+
+							setPaymentData({
+								...paymentData,
+								selectedService: service.id,
+							});
+						}}
+					>
 						{services &&
-							services.map((item, index) => {
+							services.map((item) => {
 								return (
-									<SelectItem key={index} color="primary" value={item.id}>
+									<SelectItem key={item.id} color="primary" value={item.id}>
 										{item.name}
 									</SelectItem>
 								);
@@ -74,7 +86,10 @@ export default function VisitanteQr({
 						className="w-1/2"
 						variant="underlined"
 						onChange={(e) => {
-							setUserData({ ...userData, identificationCode: e.target.value });
+							setPaymentData({
+								...paymentData,
+								identificationCode: e.target.value,
+							});
 						}}
 					/>
 				</div>
@@ -86,11 +101,14 @@ export default function VisitanteQr({
 						Placa
 					</label>
 					<Input
-						className="w-1"
-						value={userData.plate}
+						className="w-1/2"
+						value={paymentData.plate}
 						variant="underlined"
 						onChange={(e) =>
-							setUserData({ ...userData, plate: e.target.value.toUpperCase() })
+							setPaymentData({
+								...paymentData,
+								plate: e.target.value.toUpperCase(),
+							})
 						}
 					/>
 				</div>
@@ -110,22 +128,27 @@ export default function VisitanteQr({
 					</label>
 					<Input className="w-1/2" variant="underlined" />
 				</div>
-				<div className="flex gap-4 justify-between">
+				<div className="flex gap-4 justify-between w-full">
 					<label
 						className="text-base font-bold text-nowrap my-auto px-6"
 						htmlFor="startDatetime"
 					>
-						Fecha de entrada
+						Fecha de Entrada
 					</label>
+					<span>{paymentData.validationDetail.incomeDatetime}</span>
 				</div>
-				<div className="flex gap-4 justify-between">
+				{/* <div className="flex gap-4 justify-between">
 					<label
 						className="text-base font-bold text-nowrap my-auto px-9"
 						htmlFor="endDatetime"
 					>
 						Pago hasta
 					</label>
-				</div>
+					<span>
+						{paymentData?.validationDetail?.paidDatetime?.split("T")[0]}{" "}
+						{paymentData?.validationDetail?.paidDatetime}
+					</span>
+				</div> */}
 			</form>
 		</article>
 	);

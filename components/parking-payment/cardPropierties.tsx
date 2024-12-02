@@ -12,7 +12,7 @@ const CardPropierties: React.FC<CardPropertiesProps> = ({
 }) => {
 	return (
 		<Card
-			className={`flex min-w-[230px] lg:min-w-[300px] md:w-[600px] w-full py-2 border rounded-lg shadow-md transition-shadow duration-300 m-3 mb-8 md:mb-16 lg:mb-24 ${className} min-h-[35rem]`}
+			className={`flex min-w-[230px] lg:min-w-[300px] md:w-[600px] w-full py-2 border rounded-lg shadow-md transition-shadow duration-300 m-3 mb-8 md:mb-16 lg:mb-24 ${className} min-h-[36rem]`}
 		>
 			{children}
 		</Card>

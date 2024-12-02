@@ -163,6 +163,7 @@ export class Connector {
 		this.imprimir();
 	}
 	async imprimirIngreso(ingreso: Ingreso) {
+		const fechaIngreso = new Date(ingreso.datetime);
 		//Encabezado
 		this.operaciones.push({
 			accion: "textalign",
@@ -170,7 +171,7 @@ export class Connector {
 		});
 		this.operaciones.push({
 			accion: "text",
-			datos: `Fecha de ingreso: ${ingreso.datetime.toLocaleString()}`,
+			datos: `Fecha de ingreso: ${fechaIngreso.toLocaleString()}`,
 		});
 		this.operaciones.push({
 			accion: "text",

@@ -11,9 +11,8 @@ import {
 } from "@nextui-org/modal";
 import { DatePicker, DateValue, Input } from "@nextui-org/react";
 
-import UseIncomes from "@/app/parking-payment/hooks/UseIncomes";
+import UseIncomes from "@/app/hooks/incomes/UseIncomes";
 import { title } from "@/components/primitives";
-import Loading from "@/app/loading"; // Asegúrate de importar tu componente de carga
 import CustomDataGrid from "@/components/customDataGrid";
 import {
 	getLocalTimeZone,

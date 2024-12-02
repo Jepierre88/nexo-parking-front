@@ -16,10 +16,10 @@ import {
 import { DatePicker, DateValue, Input } from "@nextui-org/react";
 import { useTheme } from "next-themes";
 
-import { UseTransactions } from "../../hooks/Usetransactions";
+import { UseTransactions } from "../../../hooks/transactions/Usetransactions";
 
 import { Connector } from "@/app/libs/Printer";
-import { Factura } from "@/types";
+import Invoice from "@/types/Invoice";
 import { PrinterIcon } from "@/components/icons";
 import CustomDataGrid from "@/components/customDataGrid";
 import { title } from "@/components/primitives";
@@ -61,7 +61,7 @@ export default function Transaction() {
 
 	const handlePrint = async (id: number) => {
 		try {
-			const factura: Factura = await getTransactionForPrint(id);
+			const factura: Invoice = await getTransactionForPrint(id);
 
 			console.log("Factura:", factura);
 			const impresora = new Connector("EPSON");
