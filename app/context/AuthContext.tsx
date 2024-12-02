@@ -1,4 +1,5 @@
 "use client";
+import { User } from "@/types";
 import { createContext, useContext, useState } from "react";
 
 const AuthContext = createContext<any | undefined>(undefined);
@@ -14,15 +15,7 @@ export const UseAuthContext = () => {
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [token, setToken] = useState("");
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<
-    | { name: string; lastName: string; realm: string; permissions: number[] }
-    | undefined
-  >({
-    name: "",
-    lastName: "",
-    realm: "",
-    permissions: [] as number[],
-  });
+  const [user, setUser] = useState<User | undefined>();
 
   return (
     <AuthContext.Provider

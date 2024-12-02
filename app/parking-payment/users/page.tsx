@@ -24,6 +24,7 @@ import UseRol from "@/app/parking-payment/hooks/UseRol";
 import { ModalError, ModalExito } from "@/components/modales";
 import Loading from "@/app/loading";
 import { createUserSchema } from "@/app/validationSchemas";
+import { editUserSchema } from "@/app/validationSchemas";
 import MessageError from "@/components/menssageError";
 import CustomDataGrid from "@/components/customDataGrid";
 import { Preview } from "@mui/icons-material";
@@ -43,6 +44,7 @@ const initialUserEdit: User = {
   username: "",
   verificationToken: "",
   zoneId: 0,
+  permissions: [],
 };
 
 const initialNewUser: Signup = {
@@ -53,6 +55,7 @@ const initialNewUser: Signup = {
   lastName: "",
   cellPhoneNumber: "",
   realm: "",
+  permissions: [],
 };
 
 const Users = () => {
@@ -77,6 +80,16 @@ const Users = () => {
   } = useForm<UserData>({
     resolver: zodResolver(
       createUserSchema(existingUsernames, existingUserEmails)
+    ),
+  });
+
+  const {
+    register: editRegister,
+    handleSubmit: handleEditSubmit,
+    formState: { errors: editErrors },
+  } = useForm<UserData>({
+    resolver: zodResolver(
+      editUserSchema(existingUsernames, existingUserEmails)
     ),
   });
 
@@ -167,6 +180,7 @@ const Users = () => {
     lastName: string;
     cellPhoneNumber: string;
     realm: string;
+    permissions: [];
   }
   const onSubmit: SubmitHandler<UserData> = async (data) => {
     setLoading(true);
@@ -419,13 +433,14 @@ const Users = () => {
                           disabled={isView}
                           placeholder="Selecciona tu rol"
                           variant="faded"
-                          value={newUser.realm}
-                          onChange={(e) =>
-                            setNewUser((prev) => ({
-                              ...prev,
+                          selectedKeys={new Set([newUser.realm])}
+                          {...register("realm")}
+                          onChange={(e) => {
+                            setNewUser({
+                              ...newUser,
                               realm: e.target.value,
-                            }))
-                          }
+                            });
+                          }}
                         >
                           {roles.length > 0 ? (
                             roles.map((rol) => (
@@ -475,24 +490,33 @@ const Users = () => {
                 <h1 className={`text-2xl ${title()}`}>USUARIO</h1>
               </ModalHeader>
               <ModalBody className="flex w-full mt-4">
-                <form className="flex flex-grow flex-col items-start w-98">
-                  <div className="" />
+                <form
+                  className="flex flex-grow flex-col items-start w-98"
+                  onSubmit={handleEditSubmit(editUser)}
+                >
+                  <div className="flex-grow" />
 
                   {/* Campos para editar usuario */}
-                  <div className="flex items-center mt-2 mb-2 w-full">
-                    <label className="text-xl font-bold text-nowrap w-1/3">
-                      Nombre
-                    </label>
-                    <Input
-                      className="ml-4 w-2/3"
-                      disabled={isView}
-                      placeholder="Inserta aquí tu nombre"
-                      type="text"
-                      value={userEdit.name}
-                      onChange={(e) =>
-                        setUserEdit({ ...userEdit, name: e.target.value })
-                      }
-                    />
+                  <div className="flex flex-col itms-star w-98">
+                    <div className="flex items-center mt-2 mb-2 w-full">
+                      <label className="text-xl font-bold text-nowrap w-1/3">
+                        Nombre
+                      </label>
+                      <Input
+                        className="ml-4 w-2/3"
+                        disabled={isView}
+                        placeholder="Inserta aquí tu nombre"
+                        type="text"
+                        value={userEdit.name}
+                        {...editRegister("name")}
+                        onChange={(e) =>
+                          setUserEdit({ ...userEdit, name: e.target.value })
+                        }
+                      />
+                    </div>
+                    {editErrors.name && (
+                      <MessageError message={editErrors.name.message} />
+                    )}
                   </div>
                   <div className="flex items-center mt-2 mb-2 w-96">
                     <label className="text-xl font-bold text-nowrap w-1/3">
@@ -504,6 +528,7 @@ const Users = () => {
                       placeholder="Inserta aquí tu apellido"
                       type="text"
                       value={userEdit.lastName}
+                      {...editRegister("lastName")}
                       onChange={(e) =>
                         setUserEdit({ ...userEdit, lastName: e.target.value })
                       }
@@ -519,6 +544,7 @@ const Users = () => {
                       placeholder="Inserta aquí tu usuario"
                       type="text"
                       value={userEdit.username}
+                      {...editRegister("username")}
                       onChange={(e) =>
                         setUserEdit({ ...userEdit, username: e.target.value })
                       }
@@ -534,6 +560,7 @@ const Users = () => {
                       placeholder="Inserta aquí tu email"
                       type="email"
                       value={userEdit.email}
+                      {...editRegister("email")}
                       onChange={(e) =>
                         setUserEdit({ ...userEdit, email: e.target.value })
                       }
@@ -549,6 +576,7 @@ const Users = () => {
                       placeholder="Selecciona Tu Rol"
                       variant="faded"
                       selectedKeys={new Set([userEdit.realm])}
+                      {...editRegister("realm")}
                       onChange={(e) => {
                         setUserEdit({
                           ...userEdit,

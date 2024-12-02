@@ -86,7 +86,7 @@ export default function Login() {
           name: response.data.name,
           lastName: response.data.lastName,
           realm: response.data.realm,
-          Permissions: response.data.lastName,
+          permissions: response.data.permissions,
         });
         setIsAuthenticated(true);
 

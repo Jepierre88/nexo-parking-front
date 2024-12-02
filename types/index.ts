@@ -19,6 +19,7 @@ export interface User {
 	username: string;
 	verificationToken: string;
 	zoneId: number;
+	permissions: [];
 }
 export interface Signup {
 	password: string;
@@ -28,6 +29,7 @@ export interface Signup {
 	name: string;
 	realm: string;
 	username: string;
+	permissions: [];
 }
 
 export interface Email {
