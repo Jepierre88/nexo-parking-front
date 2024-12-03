@@ -1,7 +1,7 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 
-import { Transaction } from "@/types";
+import Transaction from "@/types/Transaction";
 
 export const UseTransactions = () => {
 	const [transactions, setTransactions] = useState<Transaction[]>([]);

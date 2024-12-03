@@ -14,7 +14,7 @@ import {
 	useDisclosure,
 } from "@nextui-org/modal";
 
-import OPERATIONLOGO from "@/app/assets/img/LOGO.png";
+import OPERATIONLOGO from "@/public/LOGO.png";
 import ICONOWHATSAPP from "@/public/iconoWhatsapp.png";
 import { UseNavigateContext } from "@/app/context/NavigateContext";
 import { UseAuthContext } from "@/app/context/AuthContext";

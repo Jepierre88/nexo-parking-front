@@ -10,17 +10,13 @@ import {
 import { createEmptyObject } from "../libs/utils";
 import { initialPaymentData } from "../libs/initialStates";
 
-//TODO ////////////////////////////////////
-//TODO ////////////////////////////////////
-//TODO ////Crear el tipado de los pagos////
-//TODO ////////////////////////////////////
-//TODO ////////////////////////////////////
-// Tipos para los pagos
+// Tipos para los pagos alineados con `extraServices`
 interface Payment {
-	id: number;
+	id: string; // Puede ser `code` en extraServices
 	name: string;
-	price: number;
+	price: number; // `unitPrice` en extraServices
 	quantity: number;
+	isLocked?: boolean; // Indica si el servicio puede modificarse
 }
 
 interface PaymentState {
@@ -30,11 +26,26 @@ interface PaymentState {
 
 interface PaymentContextType {
 	state: PaymentState;
-	dispatch: React.Dispatch<any>;
+	dispatch: React.Dispatch<PaymentAction>;
 	paymentData: PaymentData;
 	clearInputs: () => void;
 	setPaymentData: (paymentData: any) => void;
-	clearAll: () => void; // Ejemplo de función adicional
+	clearAll: () => void;
+}
+
+// Tipos para las acciones del reducer
+type PaymentAction =
+	| { type: "UPDATE_PAYMENT"; payload: PaymentUpdatePayload }
+	| { type: "CLEAR_PAYMENTS" };
+
+// Payload específico para actualizar pagos
+interface PaymentUpdatePayload {
+	id: string;
+	name?: string;
+	price: number;
+	quantityChange: number;
+	isLocked?: boolean;
+	ivaAmount: number;
 }
 
 // Estado inicial
@@ -43,11 +54,13 @@ const initialState: PaymentState = {
 	total: 0,
 };
 
-// Reducer
-const paymentReducer = (state: PaymentState, action: any): PaymentState => {
+// Reducer actualizado
+const paymentReducer = (
+	state: PaymentState,
+	action: PaymentAction
+): PaymentState => {
 	switch (action.type) {
 		case "UPDATE_PAYMENT":
-			// Buscar el servicio en el estado actual
 			const existingServiceIndex = state.payments.findIndex(
 				(payment) => payment.id === action.payload.id
 			);
@@ -56,11 +69,16 @@ const paymentReducer = (state: PaymentState, action: any): PaymentState => {
 
 			if (existingServiceIndex !== -1) {
 				// Si el servicio ya existe, actualizar su cantidad
+				const existingService = state.payments[existingServiceIndex];
+
+				// Verificar si está bloqueado
+				if (existingService.isLocked) {
+					return state; // No modificar si está bloqueado
+				}
+
 				const updatedService = {
-					...state.payments[existingServiceIndex],
-					quantity:
-						state.payments[existingServiceIndex].quantity +
-						action.payload.quantity,
+					...existingService,
+					quantity: existingService.quantity + action.payload.quantityChange,
 				};
 
 				// Si la cantidad llega a 0, eliminar el servicio
@@ -72,14 +90,19 @@ const paymentReducer = (state: PaymentState, action: any): PaymentState => {
 					updatedPayments = [...state.payments];
 					updatedPayments[existingServiceIndex] = updatedService;
 				}
-			} else if (action.payload.quantity > 0) {
+			} else if (action.payload.quantityChange > 0) {
 				// Si el servicio no existe, agregarlo
 				updatedPayments = [
 					...state.payments,
-					{ ...action.payload, quantity: action.payload.quantity },
+					{
+						id: action.payload.id,
+						name: action.payload.name || "",
+						price: action.payload.price,
+						quantity: action.payload.quantityChange,
+						isLocked: action.payload.isLocked || false,
+					},
 				];
 			} else {
-				// Si no existe y la cantidad es 0, no hacer nada
 				updatedPayments = [...state.payments];
 			}
 

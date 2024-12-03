@@ -8,17 +8,28 @@ import UseServices from "../../../app/hooks/parking-payment/UseServices";
 
 import { PaymentData } from "@/types";
 import { usePaymentContext } from "@/app/context/PaymentContext";
+import { initialPaymentData } from "@/app/libs/initialStates";
 
 export default function VisitanteQr() {
-	const { paymentData, setPaymentData } = usePaymentContext();
+	const { state, dispatch, paymentData, setPaymentData } = usePaymentContext();
+	const [hasValidated, setHasValidated] = useState(false); // Control de validación
 
+	// CUANDO SE ESCRIBA EL QR SE REINICIAN LOS CAMPOS Y SE VALIDA EL AGENDAMIENTO
 	useEffect(() => {
-		if (paymentData.identificationCode.length > 15) {
+		if (paymentData.identificationCode.length >= 15 && !hasValidated) {
+			setPaymentData({
+				...initialPaymentData,
+				identificationCode: paymentData.identificationCode,
+			});
+			dispatch({ type: "CLEAR_PAYMENTS" });
+			setHasValidated(true); // Marca como validado
 			searchDataValidate();
 		}
-	}, [paymentData.identificationCode]);
+	}, [paymentData.identificationCode, hasValidated]);
 
-	const { services, isLoading } = UseServices("Visitante");
+	const { services } = UseServices("Visitante");
+
+	// CONSUMO VALIDATE
 	const searchDataValidate = async () => {
 		try {
 			const response = await axios.post(
@@ -30,7 +41,40 @@ export default function VisitanteQr() {
 				}
 			);
 
-			setPaymentData(response.data);
+			// AGREGAR SERVICIOS ACTIVOS AL CARRITO SI VIENEN EN EL VALIDATE
+			let totalService = 0;
+
+			if (response.data.extraServices?.length > 0) {
+				response.data.extraServices.forEach((service: any) => {
+					const serviceTotal = service.unitPrice * (service.quantity || 1);
+					totalService += serviceTotal;
+
+					dispatch({
+						type: "UPDATE_PAYMENT",
+						payload: {
+							id: service.code, // Identificador único
+							name: service.name,
+							price: service.unitPrice,
+							quantityChange: service.quantity || 1, // Usar la cantidad o por defecto 1
+							ivaAmount: service.ivaAmount,
+							isLocked: true, // Bloquear modificaciones
+						},
+					});
+				});
+			}
+
+			setPaymentData({
+				...response.data,
+				total: totalService + response.data.total,
+				totalServices: totalService,
+				totalParking: response.data.total,
+				netTotal: totalService + response.data.total,
+				totalCost:
+					totalService +
+					response.data.total +
+					(totalService + response.data.total) *
+						(response.data.IVAPercentage / 100),
+			});
 		} catch (error) {
 			console.error(error);
 		}
@@ -57,8 +101,6 @@ export default function VisitanteQr() {
 								(item) => e.target.value == item.id
 							);
 
-							console.log(service);
-
 							setPaymentData({
 								...paymentData,
 								selectedService: service.id,
@@ -66,13 +108,11 @@ export default function VisitanteQr() {
 						}}
 					>
 						{services &&
-							services.map((item) => {
-								return (
-									<SelectItem key={item.id} color="primary" value={item.id}>
-										{item.name}
-									</SelectItem>
-								);
-							})}
+							services.map((item) => (
+								<SelectItem key={item.id} color="primary" value={item.id}>
+									{item.name}
+								</SelectItem>
+							))}
 					</Select>
 				</div>
 				<div className="flex gap-4 justify-between">
@@ -90,6 +130,7 @@ export default function VisitanteQr() {
 								...paymentData,
 								identificationCode: e.target.value,
 							});
+							setHasValidated(false); // Permitir nueva validación si cambia el QR
 						}}
 					/>
 				</div>
@@ -137,18 +178,6 @@ export default function VisitanteQr() {
 					</label>
 					<span>{paymentData.validationDetail.incomeDatetime}</span>
 				</div>
-				{/* <div className="flex gap-4 justify-between">
-					<label
-						className="text-base font-bold text-nowrap my-auto px-9"
-						htmlFor="endDatetime"
-					>
-						Pago hasta
-					</label>
-					<span>
-						{paymentData?.validationDetail?.paidDatetime?.split("T")[0]}{" "}
-						{paymentData?.validationDetail?.paidDatetime}
-					</span>
-				</div> */}
 			</form>
 		</article>
 	);

@@ -23,7 +23,7 @@ import {
 	getLocalTimeZone,
 	parseAbsoluteToLocal,
 } from "@internationalized/date";
-import { Ingreso } from "@/types";
+import Income from "@/types/Income";
 
 export default function Incomes() {
 	const { incomes, getIncomes, updatePlate, loading } = UseIncomes();
@@ -86,10 +86,10 @@ export default function Incomes() {
 		);
 	};
 
-	const handleClickPrint = async (row: Ingreso) => {
+	const handleClickPrint = async (row: Income) => {
 		try {
 			const impresora = new Connector("EPSON");
-			await impresora.imprimirIngreso(row);
+			await impresora.imprimirIngreso(row); // Llamada a la impresión
 		} catch (error) {
 			console.error("Error imprimiendo la factura:", error);
 		}

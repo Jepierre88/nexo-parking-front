@@ -21,7 +21,7 @@ import axios from "axios";
 import { usePaymentContext } from "../context/PaymentContext";
 import { formatDate } from "../libs/utils";
 import { Badge, Tooltip } from "@nextui-org/react";
-import { PencilIcon } from "@/components/icons";
+import { CartIcon, PencilIcon } from "@/components/icons";
 import ExtraServices from "@/components/parking-payment/ExtraServicesCard";
 
 export default function ParkingPayment() {
@@ -57,9 +57,10 @@ export default function ParkingPayment() {
 	useEffect(() => {
 		// Calcula la devolución automáticamente cuando cambia moneyReceived
 		if (paymentData?.total) {
-			setCashBack(Math.max(0, moneyReceived - paymentData.total));
+			let totalCost = paymentData?.totalCost ?? 0;
+			setCashBack(Math.max(0, moneyReceived - totalCost));
 		}
-	}, [moneyReceived, paymentData?.total]);
+	}, [moneyReceived, paymentData?.totalCost]);
 
 	const clearCart = () => {
 		dispatch({ type: "CLEAR_PAYMENTS" });
@@ -173,8 +174,16 @@ export default function ParkingPayment() {
 								{formatDate(new Date())}
 							</div>
 							<div className="text-base mb-1 flex gap-4 justify-between">
-								<strong>Valor a pagar:</strong>
-								{paymentData?.total && `$${paymentData.total}`}
+								<strong>Servicios extra:</strong>
+								{paymentData?.totalServices && `$${paymentData.totalServices}`}
+							</div>
+							<div className="text-base mb-1 flex gap-4 justify-between">
+								<strong>Parqueadero:</strong>
+								{paymentData?.totalParking && `$${paymentData.totalParking}`}
+							</div>
+							<div className="text-base mb-1 flex gap-4 justify-between">
+								<strong>Total sin IVA:</strong>
+								{paymentData?.netTotal && `$${paymentData.netTotal}`}
 							</div>
 						</div>
 					</form>
@@ -216,8 +225,7 @@ export default function ParkingPayment() {
 								</div>
 							)}
 							<div className="text-base mb-1 mt-2 flex gap-4 justify-between px-4">
-								<strong>TOTAL:</strong>
-								{paymentData?.total && `$${paymentData.total}`}
+								<strong>TOTAL:</strong>${paymentData.totalCost}
 							</div>
 
 							<div className="flex gap-4 justify-between px-4">
@@ -277,6 +285,8 @@ export default function ParkingPayment() {
 						color="primary"
 						size="lg"
 						onClick={() => {
+							console.log(state.payments);
+							console.log(paymentData);
 							if (!paymentMethod) {
 								// TODO Modal de error para decir que se seleccione el tipo de pago
 							} else {
@@ -327,16 +337,20 @@ export default function ParkingPayment() {
 					onCloseModalConfirmation();
 				}}
 			/>
-			<div className="fixed right-4 top-20 z-30">
+			<div className="fixed right-4 top-20 z-30 flex flex-col">
 				<div className="relative inline-block">
-					<Tooltip content="Carrito" placement="left" closeDelay={100}>
+					<Tooltip
+						content="Servicios adicionales"
+						placement="left"
+						closeDelay={100}
+					>
 						<Button
 							radius="full"
 							color="primary"
-							className="min-w-3 flex justify-center items-center -right-6"
+							className="min-w-1 flex justify-center items-center right-4 h-14 mx-auto"
 							onPress={() => setShowCart(true)}
 						>
-							<PencilIcon fill="#fff" stroke="#000" width={24} height={24} />
+							<CartIcon fill="#fff" stroke="#000" width={24} height={24} />
 						</Button>
 					</Tooltip>
 					{/* Badge */}

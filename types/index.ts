@@ -41,6 +41,10 @@ export interface PaymentData {
 	validationDetail: ValidationDetail;
 	vehicleKind: string;
 	selectedService?: number;
+	totalParking?: number;
+	totalServices?: number;
+	totalCost?: number;
+	netTotal?: number;
 }
 
 export interface ValidationDetail {

@@ -13,11 +13,11 @@ import Image from "next/image";
 import { useDisclosure } from "@nextui-org/react";
 import { parseAbsoluteToLocal } from "@internationalized/date";
 
-import { LoaderIcon } from "@/components/icons";
 import CardPropierties from "@/components/parking-payment/cardPropierties";
 import ICONOCARRO from "@/public/iconoCarroOscuro.png";
 import ICONOMOTO from "@/public/iconoMotoOscuro.png";
-import { Ingreso, PaymentData } from "@/types";
+import { PaymentData } from "@/types";
+import Income from "@/types/Income";
 import { UseAuthContext } from "@/app/context/AuthContext";
 import { ModalError, ModalExito } from "@/components/modales";
 import { vehicleEntrySchema } from "@/app/schemas/validationSchemas";
@@ -118,7 +118,7 @@ const Home = () => {
 		}
 	};
 
-	const handlePrint = async (row: Ingreso) => {
+	const handlePrint = async (row: Income) => {
 		try {
 			const impresora = new Connector("EPSON");
 			await impresora.imprimirIngreso(row);
