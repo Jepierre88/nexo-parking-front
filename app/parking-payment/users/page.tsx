@@ -76,6 +76,7 @@ const Users = () => {
     register,
     handleSubmit,
     reset,
+    setValue,
     formState: { errors },
   } = useForm<UserData>({
     resolver: zodResolver(
@@ -86,6 +87,7 @@ const Users = () => {
   const {
     register: editRegister,
     handleSubmit: handleEditSubmit,
+    reset: editReset,
     formState: { errors: editErrors },
   } = useForm<UserData>({
     resolver: zodResolver(
@@ -132,37 +134,33 @@ const Users = () => {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const clearInputs = () => {
-    setUserEdit(initialUserEdit);
-    reset();
-  };
-
-  const editUser = async () => {
+  const onEditSubmit: SubmitHandler<UserData> = async (data) => {
     setLoading(true);
-    if (userEdit.id) {
-      try {
-        const response = await updateUser(userEdit);
-        console.log("Usuario actualizado:", response);
-        getUsers();
-        setMessage("Usuario actualizado con exito");
+    try {
+      console.log("Editando usuario con datos:", data);
+      if (userEdit.id) {
+        await updateUser({ ...userEdit, ...data });
+        console.log("Usuario actualizado exitosamente:", data);
+        setMessage("Usuario actualizado con éxito");
         onOpenExitoModal();
+        await getUsers();
         onCloseEdit();
-      } catch (error) {
-        console.error("Error editando el usuario:", error);
-        setMessage("Erro al editar el usuario");
-        onOpenErrorModal();
-      } finally {
-        setLoading(false);
+      } else {
+        throw new Error("id no validoooooooooooo");
       }
-    } else {
-      console.error("Usuario no válido");
-      setMessage("Usuario no valido");
+    } catch (error) {
+      console.error("Error desconocidi:", error);
+      setMessage("Ocurrió un error desconocido. Inténtalo de nuevo.");
       onOpenErrorModal();
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleButtonClick = (data: User) => {
-    setUserEdit({ ...data });
+    setUserEdit(data);
+    editReset(data);
+    setIsView(false);
     onOpenEdit();
   };
 
@@ -327,7 +325,7 @@ const Users = () => {
                         <Input
                           className="ml-4 w-2/3"
                           disabled={isView}
-                          placeholder="Inserta aquí tu usuario"
+                          placeholder="Ej: jperez01"
                           type="text"
                           {...register("username")}
                         />
@@ -344,7 +342,7 @@ const Users = () => {
                         <Input
                           className="ml-4 w-2/3"
                           disabled={isView}
-                          placeholder="Inserta aquí tu contraseña"
+                          placeholder="Mínimo 8 caracteres"
                           type="password"
                           {...register("password")}
                         />
@@ -361,7 +359,7 @@ const Users = () => {
                         <Input
                           className="ml-4 w-2/3"
                           disabled={isView}
-                          placeholder="Inserta aquí tu email"
+                          placeholder="Ej: jperez01@gmail.com"
                           type="email"
                           {...register("email")}
                         />
@@ -378,7 +376,7 @@ const Users = () => {
                         <Input
                           className="ml-4 w-2/3"
                           disabled={isView}
-                          placeholder="Inserta aquí tu nombre"
+                          placeholder="Ej: Juan Felipe"
                           type="text"
                           {...register("name")}
                         />
@@ -395,7 +393,7 @@ const Users = () => {
                         <Input
                           className="ml-4 w-2/3"
                           disabled={isView}
-                          placeholder="Inserta aquí tu apellido"
+                          placeholder="Ej: Pérez"
                           type="text"
                           {...register("lastName")}
                         />
@@ -412,7 +410,7 @@ const Users = () => {
                         <Input
                           className="ml-4 w-2/3"
                           disabled={isView}
-                          placeholder="Inserta aquí tu celular"
+                          placeholder="Digite el número celular"
                           type="text"
                           {...register("cellPhoneNumber")}
                         />
@@ -431,20 +429,14 @@ const Users = () => {
                         <Select
                           className="ml-4 w-2/3"
                           disabled={isView}
-                          placeholder="Selecciona tu rol"
+                          placeholder="Seleccione el rol"
                           variant="faded"
-                          selectedKeys={new Set([newUser.realm])}
                           {...register("realm")}
-                          onChange={(e) => {
-                            setNewUser({
-                              ...newUser,
-                              realm: e.target.value,
-                            });
-                          }}
+                          onChange={(e) => setValue("realm", e.target.value)}
                         >
                           {roles.length > 0 ? (
                             roles.map((rol) => (
-                              <SelectItem key={rol.id} value={rol.name}>
+                              <SelectItem key={rol.name} value={rol.name}>
                                 {rol.name}
                               </SelectItem>
                             ))
@@ -461,12 +453,9 @@ const Users = () => {
                     </div>
 
                     {/* Botones de acción */}
-                    <div className="flex justify-between w-96 mt-4 ">
+                    <div className="flex justify-center w-96 mt-4 ">
                       <Button color="primary" type="submit">
                         Guardar datos
-                      </Button>
-                      <Button color="primary" onClick={clearInputs}>
-                        Limpiar Datos
                       </Button>
                     </div>
                   </div>
@@ -492,120 +481,109 @@ const Users = () => {
               <ModalBody className="flex w-full mt-4">
                 <form
                   className="flex flex-grow flex-col items-start w-98"
-                  onSubmit={handleEditSubmit(editUser)}
+                  onSubmit={handleEditSubmit(onEditSubmit)}
                 >
                   <div className="flex-grow" />
 
                   {/* Campos para editar usuario */}
                   <div className="flex flex-col itms-star w-98">
-                    <div className="flex items-center mt-2 mb-2 w-full">
+                    <div className="flex flex-col mt-2 mb-2 w-96">
+                      <div className="flex items-center mt-2 mb-2 w-96">
+                        <label className="text-xl font-bold text-nowrap w-1/3">
+                          Nombre
+                        </label>
+                        <Input
+                          className="ml-4 w-2/3"
+                          disabled={isView}
+                          placeholder="Digite aquí el nombre"
+                          type="text"
+                          {...editRegister("name")}
+                        />
+                      </div>
+                      {editErrors.name && (
+                        <MessageError message={editErrors.name.message} />
+                      )}
+                    </div>
+                    <div className="flex items-center mt-2 mb-2 w-96">
                       <label className="text-xl font-bold text-nowrap w-1/3">
-                        Nombre
+                        Apellido
                       </label>
                       <Input
                         className="ml-4 w-2/3"
                         disabled={isView}
-                        placeholder="Inserta aquí tu nombre"
+                        placeholder="Digite aquí el apellido"
                         type="text"
-                        value={userEdit.name}
-                        {...editRegister("name")}
-                        onChange={(e) =>
-                          setUserEdit({ ...userEdit, name: e.target.value })
-                        }
+                        {...editRegister("lastName")}
                       />
                     </div>
-                    {editErrors.name && (
-                      <MessageError message={editErrors.name.message} />
+                    {editErrors.lastName && (
+                      <MessageError message={editErrors.lastName.message} />
                     )}
-                  </div>
-                  <div className="flex items-center mt-2 mb-2 w-96">
-                    <label className="text-xl font-bold text-nowrap w-1/3">
-                      Apellido
-                    </label>
-                    <Input
-                      className="ml-4 w-2/3"
-                      disabled={isView}
-                      placeholder="Inserta aquí tu apellido"
-                      type="text"
-                      value={userEdit.lastName}
-                      {...editRegister("lastName")}
-                      onChange={(e) =>
-                        setUserEdit({ ...userEdit, lastName: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="flex items-center mt-2 mb-2 w-96">
-                    <label className="text-xl font-bold text-nowrap w-1/3">
-                      Usuario
-                    </label>
-                    <Input
-                      className="ml-4 w-2/3"
-                      disabled={isView}
-                      placeholder="Inserta aquí tu usuario"
-                      type="text"
-                      value={userEdit.username}
-                      {...editRegister("username")}
-                      onChange={(e) =>
-                        setUserEdit({ ...userEdit, username: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="flex items-center mt-2 mb-2 w-96">
-                    <label className="text-xl font-bold text-nowrap w-1/3">
-                      Email
-                    </label>
-                    <Input
-                      className="ml-4 w-2/3"
-                      disabled={isView}
-                      placeholder="Inserta aquí tu email"
-                      type="email"
-                      value={userEdit.email}
-                      {...editRegister("email")}
-                      onChange={(e) =>
-                        setUserEdit({ ...userEdit, email: e.target.value })
-                      }
-                    />
-                  </div>
-                  <div className="flex items-center mt-2 mb-2 w-96">
-                    <label className="text-xl font-bold text-nowrap w-1/3">
-                      Perfil
-                    </label>
-                    <Select
-                      className="ml-4 w-2/3"
-                      isDisabled={isView}
-                      placeholder="Selecciona Tu Rol"
-                      variant="faded"
-                      selectedKeys={new Set([userEdit.realm])}
-                      {...editRegister("realm")}
-                      onChange={(e) => {
-                        setUserEdit({
-                          ...userEdit,
-                          realm: e.target.value,
-                        });
-                      }}
-                    >
-                      {roles.length > 0 ? (
-                        roles.map((rol) => (
-                          <SelectItem key={rol.name} value={rol.name}>
-                            {rol.name}
+                    <div className="flex items-center mt-2 mb-2 w-96">
+                      <label className="text-xl font-bold text-nowrap w-1/3">
+                        Usuario
+                      </label>
+                      <Input
+                        className="ml-4 w-2/3"
+                        disabled={isView}
+                        placeholder="Digite aquí el usuario"
+                        type="text"
+                        {...editRegister("username")}
+                      />
+                    </div>
+                    {editErrors.username && (
+                      <MessageError message={editErrors.username.message} />
+                    )}
+                    <div className="flex items-center mt-2 mb-2 w-96">
+                      <label className="text-xl font-bold text-nowrap w-1/3">
+                        Email
+                      </label>
+                      <Input
+                        className="ml-4 w-2/3"
+                        disabled={isView}
+                        placeholder="Digite aquí el email"
+                        type="email"
+                        {...editRegister("email")}
+                      />
+                    </div>
+                    {editErrors.email && (
+                      <MessageError message={editErrors.email.message} />
+                    )}
+                    <div className="flex items-center mt-2 mb-2 w-96">
+                      <label className="text-xl font-bold text-nowrap w-1/3">
+                        Perfil
+                      </label>
+                      <Select
+                        className="ml-4 w-2/3"
+                        isDisabled={isView}
+                        placeholder="Seleccione el Rol"
+                        variant="faded"
+                        {...editRegister("realm")}
+                      >
+                        {roles.length > 0 ? (
+                          roles.map((rol) => (
+                            <SelectItem key={rol.name} value={rol.name}>
+                              {rol.name}
+                            </SelectItem>
+                          ))
+                        ) : (
+                          <SelectItem key="cargando" value="">
+                            Cargando roles...
                           </SelectItem>
-                        ))
-                      ) : (
-                        <SelectItem key="cargando" value="">
-                          Cargando roles...
-                        </SelectItem>
-                      )}
-                    </Select>
-                  </div>
-                  <div
-                    className={`flex justify-between w-96 mt-4 ${isView ? "hidden" : ""}`}
-                  >
-                    <Button color="primary" onClick={editUser}>
-                      Guardar datos
-                    </Button>
-                    <Button color="primary" onClick={clearInputs}>
-                      Limpiar Datos
-                    </Button>
+                        )}
+                      </Select>
+                    </div>
+                    {editErrors.realm && (
+                      <MessageError message={editErrors.realm.message} />
+                    )}
+
+                    <div
+                      className={`flex justify-center w-96 mt-4 ${isView ? "hidden" : ""}`}
+                    >
+                      <Button color="primary" type="submit">
+                        Guardar datos
+                      </Button>
+                    </div>
                   </div>
                 </form>
               </ModalBody>
