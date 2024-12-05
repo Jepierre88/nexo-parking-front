@@ -21,6 +21,7 @@ import { UseAuthContext } from "@/app/context/AuthContext";
 import { ModalError, ModalExito } from "@/components/modales";
 import UseResetPassword from "@/app/parking-payment/hooks/UseResetPassword";
 import { EyeFilledIcon, EyeSlashFilledIcon } from "@/components/icons";
+import Cookies from "js-cookie";
 
 export default function Login() {
   const { router } = UseNavigateContext();
@@ -69,17 +70,61 @@ export default function Login() {
   const toggleVisibilityPassword3 = () =>
     setIsVisiblePassword3(!isVisiblePassword3);
 
-  const onSubmit: SubmitHandler<any> = async (data: UserLogin) => {
+  // const onSubmit: SubmitHandler<any> = async (data: UserLogin) => {
+  //   setLoading(true);
+  //   try {
+  //     console.log();
+  //     const response = await axios.post(
+  //       `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/users/login`,
+  //       data
+  //     );
+
+  //     console.log(response.data);
+  //     localStorage.setItem("token", response.data.token);
+  //     if (response.data.token) {
+  //       setToken(response.data.token);
+  //       setUser({
+  //         name: response.data.name,
+  //         lastName: response.data.lastName,
+  //         realm: response.data.realm,
+  //         permissions: response.data.permissions,
+  //       });
+  //       setIsAuthenticated(true);
+
+  //       router.push("/parking-payment");
+  //     }
+  //   } catch (error) {
+  //     console.error(error);
+  //     setToken("");
+  //     setIsAuthenticated(false);
+  //     alert("Error en el inicio de sesión");
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
+
+  const onSubmit: SubmitHandler<any> = async (data) => {
     setLoading(true);
     try {
-      console.log();
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/users/login`,
         data
       );
 
       console.log(response.data);
-      localStorage.setItem("token", response.data.token);
+
+      // Guardar el token y lo permisos en una cookie
+      //Y el expires es para poner el tiempo de caducacion de la cookie
+      Cookies.set("auth_token", response.data.token, {
+        expires: 1,
+        secure: true,
+      });
+      Cookies.set("permissions", JSON.stringify(response.data.permissions), {
+        expires: 1,
+        secure: true,
+      });
+      console.log("Permissions from cookie:", Cookies.get("permissions"));
+
       if (response.data.token) {
         setToken(response.data.token);
         setUser({

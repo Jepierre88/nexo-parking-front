@@ -28,7 +28,9 @@ import { editUserSchema } from "@/app/validationSchemas";
 import MessageError from "@/components/menssageError";
 import CustomDataGrid from "@/components/customDataGrid";
 import { Preview } from "@mui/icons-material";
-
+import { match } from "assert";
+import { error } from "console";
+import withPermission from "@/app/withPermission";
 const initialUserEdit: User = {
   cellPhoneNumber: "",
   departmentName: "",
@@ -183,7 +185,6 @@ const Users = () => {
   const onSubmit: SubmitHandler<UserData> = async (data) => {
     setLoading(true);
     try {
-      console.log(data);
       await createUser(data);
       console.log("Usuario creado exitosamente:", data);
       setMessage("Usuario creado con exito");
@@ -642,4 +643,4 @@ const Users = () => {
   );
 };
 
-export default Users;
+export default withPermission(Users, 1);

@@ -69,22 +69,26 @@ export default function UseUsers() {
   };
 
   const createUser = async (signup: Signup) => {
-    const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/signup`,
-      {
-        username: signup.username,
-        password: signup.password,
-        email: signup.email,
-        name: signup.name,
-        lastName: signup.lastName,
-        cellPhoneNumber: signup.cellPhoneNumber,
-        realm: signup.realm,
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/signup`,
+        {
+          username: signup.username,
+          password: signup.password,
+          email: signup.email,
+          name: signup.name,
+          lastName: signup.lastName,
+          cellPhoneNumber: signup.cellPhoneNumber,
+          realm: signup.realm,
+        }
+      );
+    } catch (error: any) {
+      if (error.response) {
+        console.error("Error del servidor:", error.response.data);
+      } else {
+        console.error("Error creando el usuario:", error.message);
       }
-    );
-
-    console.log("Usuario creado:", response.data);
-
-    return response.data;
+    }
   };
 
   useEffect(() => {

@@ -13,6 +13,11 @@ export const createUserSchema = (
         /^[A-Za-z0-9\s]+$/,
         "El usuario solo puede contener letras, números y espacios"
       )
+      .transform((value) =>
+        value
+          .toLowerCase()
+          .replace(/(^\w|\s\w)/g, (match) => match.toUpperCase())
+      )
       .refine((value) => !existingUsernames.includes(value), {
         message: "Este usuario de usuario ya está en uso",
       }),
@@ -29,8 +34,24 @@ export const createUserSchema = (
       .min(8, "La contraseña debe tener al menos 8 caracteres"),
 
     realm: z.string().min(1, "El perfil es obligatorio"),
-    name: z.optional(z.string()),
-    lastName: z.optional(z.string()),
+    name: z
+      .optional(z.string())
+      .transform((value) =>
+        value
+          ? value
+              .toLowerCase()
+              .replace(/(^\w|\s\w)/g, (match) => match.toUpperCase())
+          : ""
+      ),
+    lastName: z
+      .optional(z.string())
+      .transform((value) =>
+        value
+          ? value
+              .toLowerCase()
+              .replace(/(^\w|\s\w)/g, (match) => match.toUpperCase())
+          : ""
+      ),
     cellPhoneNumber: z
       .string()
       .regex(/^\d*$/, "El número de celular solo puede contener números"),
@@ -65,11 +86,21 @@ export const editUserSchema = (
     name: z
       .string()
       .min(1, "El nombre es obligatorio")
-      .max(20, "Este campo no debe exceder lo 20 caracteres"),
+      .max(20, "Este campo no debe exceder lo 20 caracteres")
+      .transform((value) =>
+        value
+          .toLowerCase()
+          .replace(/(^\w|\s\w)/g, (match) => match.toUpperCase())
+      ),
     lastName: z
       .string()
       .min(1, "El apellido es obligatorio")
-      .max(20, "Este campo no debe exceder lo 20 caracteres"),
+      .max(20, "Este campo no debe exceder lo 20 caracteres")
+      .transform((value) =>
+        value
+          .toLowerCase()
+          .replace(/(^\w|\s\w)/g, (match) => match.toUpperCase())
+      ),
   });
 
 export const vehicleEntrySchema = z.object({
