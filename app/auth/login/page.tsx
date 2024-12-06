@@ -70,39 +70,6 @@ export default function Login() {
   const toggleVisibilityPassword3 = () =>
     setIsVisiblePassword3(!isVisiblePassword3);
 
-  // const onSubmit: SubmitHandler<any> = async (data: UserLogin) => {
-  //   setLoading(true);
-  //   try {
-  //     console.log();
-  //     const response = await axios.post(
-  //       `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/users/login`,
-  //       data
-  //     );
-
-  //     console.log(response.data);
-  //     localStorage.setItem("token", response.data.token);
-  //     if (response.data.token) {
-  //       setToken(response.data.token);
-  //       setUser({
-  //         name: response.data.name,
-  //         lastName: response.data.lastName,
-  //         realm: response.data.realm,
-  //         permissions: response.data.permissions,
-  //       });
-  //       setIsAuthenticated(true);
-
-  //       router.push("/parking-payment");
-  //     }
-  //   } catch (error) {
-  //     console.error(error);
-  //     setToken("");
-  //     setIsAuthenticated(false);
-  //     alert("Error en el inicio de sesión");
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
   const onSubmit: SubmitHandler<any> = async (data) => {
     setLoading(true);
     try {

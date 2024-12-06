@@ -1,7 +1,7 @@
 "use client";
 import { User } from "@/types";
-import { createContext, useContext, useState } from "react";
-
+import { createContext, useContext, useEffect, useState } from "react";
+import Cookies from "js-cookie";
 const AuthContext = createContext<any | undefined>(undefined);
 
 export const UseAuthContext = () => {
@@ -13,9 +13,41 @@ export const UseAuthContext = () => {
 };
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const [token, setToken] = useState("");
+  const [token, setToken] = useState<string | null>(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState<User | undefined>();
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const storedToken = Cookies.get("auth_token");
+    const storedUser = Cookies.get("user");
+    if (storedToken && storedUser) {
+      setToken(storedToken);
+      setUser(JSON.parse(storedUser));
+      setIsAuthenticated(true);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (token) {
+      Cookies.set("auth_token", token, { expires: 1, secure: true });
+    } else {
+      Cookies.remove("auth_token");
+    }
+
+    if (user) {
+      Cookies.set("user", JSON.stringify(user), { expires: 1, secure: true });
+    } else {
+      Cookies.remove("user");
+    }
+  }, [token, user]);
+
+  const logout = () => {
+    setToken(null);
+    setUser(null);
+    setIsAuthenticated(false);
+    Cookies.remove("auth_token");
+    Cookies.remove("user");
+  };
 
   return (
     <AuthContext.Provider
@@ -24,8 +56,9 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         token,
         user,
         setUser,
-        setToken: setToken,
+        setToken,
         setIsAuthenticated,
+        logout,
       }}
     >
       {children}
