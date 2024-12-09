@@ -1,5 +1,5 @@
 import { Button } from "@nextui-org/button";
-import UsePermissions from "@/app/parking-payment/hooks/UsePermissions";
+import UsePermissions from "@/app/hooks/UsePermissions";
 import React from "react";
 
 interface actionButtonProps {

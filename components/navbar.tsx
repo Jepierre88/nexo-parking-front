@@ -16,7 +16,7 @@ import {
 import { Button } from "@nextui-org/button";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
-import COINSLOGO from "@/app/assets/img/LOGO.png";
+import COINSLOGO from "@/public/LOGO.png";
 
 export const Navbar = () => {
   const [loading, setLoading] = useState(false);
