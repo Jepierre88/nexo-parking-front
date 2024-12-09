@@ -1,7 +1,6 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@nextui-org/button";
-import Image from "next/image";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { GridColDef } from "@mui/x-data-grid";
 import {
@@ -18,14 +17,15 @@ import { title } from "@/components/primitives";
 import ICONOLAPIZ from "@/public/iconoLapiz.png";
 import ICONOOJO from "@/public/IconoOjo.png";
 import ICONOBASURERO from "@/public/iconoBasurero.png";
-import { Signup, User } from "@/types";
+import Signup from "@/types/Auth";
+import User from "@/types/User";
 import UseUsers from "@/app/parking-payment/hooks/UseUsers";
-import UseRol from "@/app/parking-payment/hooks/UseRol";
+import UseRol from "@/app/hooks/UseRol";
 import { ModalError, ModalExito } from "@/components/modales";
 import Loading from "@/app/loading";
-import { createUserSchema } from "@/app/validationSchemas";
-import { editUserSchema } from "@/app/validationSchemas";
-import MessageError from "@/components/menssageError";
+import { createUserSchema } from "@/app/schemas/validationSchemas";
+import { editUserSchema } from "@/app/schemas/validationSchemas";
+
 import CustomDataGrid from "@/components/customDataGrid";
 import { Preview } from "@mui/icons-material";
 import { match } from "assert";
@@ -33,6 +33,8 @@ import { error } from "console";
 import withPermission from "@/app/withPermission";
 import ActionButton from "@/components/actionButtonProps";
 import { permissionsConfig } from "@/config/permissionsConfig";
+import MessageError from "@/components/menssageError";
+import Image from "next/image";
 const initialUserEdit: User = {
   cellPhoneNumber: "",
   departmentName: "",

@@ -241,58 +241,58 @@ export const ChevronDown: React.FC<IconSvgProps> = ({
   );
 };
 
-export const TrashIcon = (props: IconSvgProps) => (
-  <svg
-    aria-hidden="true"
-    fill="none"
-    focusable="false"
-    height="1em"
-    role="presentation"
-    viewBox="0 0 24 24"
-    width="1em"
-    {...props}
-  >
-    <path
-      d="M1 2h6"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M3 6h18M5 6l1 16h12l1-16H5z"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
+// export const TrashIcon = (props: IconSvgProps) => (
+// 	<svg
+// 		aria-hidden="true"
+// 		fill="none"
+// 		focusable="false"
+// 		height="1em"
+// 		role="presentation"
+// 		viewBox="0 0 24 24"
+// 		width="1em"
+// 		{...props}
+// 	>
+// 		<path
+// 			d="M1 2h6"
+// 			stroke="currentColor"
+// 			strokeLinecap="round"
+// 			strokeLinejoin="round"
+// 			strokeWidth="2"
+// 		/>
+// 		<path
+// 			d="M3 6h18M5 6l1 16h12l1-16H5z"
+// 			stroke="currentColor"
+// 			strokeLinecap="round"
+// 			strokeLinejoin="round"
+// 			strokeWidth="2"
+// 		/>
+// 	</svg>
+// );
 
 export const LoaderIcon = (props: IconSvgProps) => (
   <svg
     aria-hidden="true"
+    className="loader-icon"
     fill="none"
     focusable="false"
     height="1em"
-    width="1em"
     viewBox="0 0 24 24"
-    className="loader-icon"
+    width="1em"
     {...props}
   >
     <path
       d="M12 2v4"
       stroke="currentColor"
-      strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
+      strokeWidth="2"
     />
     <path
       d="M12 22v-4"
       stroke="currentColor"
-      strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
+      strokeWidth="2"
     />
   </svg>
 );
@@ -365,9 +365,9 @@ export const PrinterIcon = (props: IconSvgProps) => {
       <path
         d="M7 18H6.2C5.0799 18 4.51984 18 4.09202 17.782C3.71569 17.5903 3.40973 17.2843 3.21799 16.908C3 16.4802 3 15.9201 3 14.8V10.2C3 9.0799 3 8.51984 3.21799 8.09202C3.40973 7.71569 3.71569 7.40973 4.09202 7.21799C4.51984 7 5.0799 7 6.2 7H7M17 18H17.8C18.9201 18 19.4802 18 19.908 17.782C20.2843 17.5903 20.5903 17.2843 20.782 16.908C21 16.4802 21 15.9201 21 14.8V10.2C21 9.07989 21 8.51984 20.782 8.09202C20.5903 7.71569 20.2843 7.40973 19.908 7.21799C19.4802 7 18.9201 7 17.8 7H17M7 11H7.01M17 7V5.4V4.6C17 4.03995 17 3.75992 16.891 3.54601C16.7951 3.35785 16.6422 3.20487 16.454 3.10899C16.2401 3 15.9601 3 15.4 3H8.6C8.03995 3 7.75992 3 7.54601 3.10899C7.35785 3.20487 7.20487 3.35785 7.10899 3.54601C7 3.75992 7 4.03995 7 4.6V5.4V7M17 7H7M8.6 21H15.4C15.9601 21 16.2401 21 16.454 20.891C16.6422 20.7951 16.7951 20.6422 16.891 20.454C17 20.2401 17 19.9601 17 19.4V16.6C17 16.0399 17 15.7599 16.891 15.546C16.7951 15.3578 16.6422 15.2049 16.454 15.109C16.2401 15 15.9601 15 15.4 15H8.6C8.03995 15 7.75992 15 7.54601 15.109C7.35785 15.2049 7.20487 15.3578 7.10899 15.546C7 15.7599 7 16.0399 7 16.6V19.4C7 19.9601 7 20.2401 7.10899 20.454C7.20487 20.6422 7.35785 20.7951 7.54601 20.891C7.75992 21 8.03995 21 8.6 21Z"
         stroke={props.stroke ?? "#000"}
-        stroke-width="2"
         strokeLinecap="round"
         strokeLinejoin="round"
+        strokeWidth="2"
       />
     </svg>
   );
@@ -389,6 +389,160 @@ export const PencilIcon = (props: IconSvgProps) => {
         d="M1 1V15H15V9H13V13H3V3H7V1H1Z"
         fill={props.fill ? props.fill : "#000"}
       />
+    </svg>
+  );
+};
+
+export const TrashIcon = (props: IconSvgProps) => {
+  return (
+    <svg
+      fill={"#fff"}
+      height={props.size || props.height || 24}
+      viewBox="0 0 24 24"
+      width={props.size || props.height || 24}
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M10 12L14 16M14 12L10 16M4 6H20M16 6L15.7294 5.18807C15.4671 4.40125 15.3359 4.00784 15.0927 3.71698C14.8779 3.46013 14.6021 3.26132 14.2905 3.13878C13.9376 3 13.523 3 12.6936 3H11.3064C10.477 3 10.0624 3 9.70951 3.13878C9.39792 3.26132 9.12208 3.46013 8.90729 3.71698C8.66405 4.00784 8.53292 4.40125 8.27064 5.18807L8 6M18 6V16.2C18 17.8802 18 18.7202 17.673 19.362C17.3854 19.9265 16.9265 20.3854 16.362 20.673C15.7202 21 14.8802 21 13.2 21H10.8C9.11984 21 8.27976 21 7.63803 20.673C7.07354 20.3854 6.6146 19.9265 6.32698 19.362C6 18.7202 6 17.8802 6 16.2V6"
+        stroke={props.stroke ? props.stroke : "#000"}
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+};
+
+export const MagnifierIcon = (props: IconSvgProps) => {
+  return (
+    <svg
+      fill={props.fill ? props.fill : "#000"}
+      height={props.size || props.height || 24}
+      viewBox="0 0 32 32"
+      width={props.size || props.height || 24}
+      xml-space="preserve"
+      xmlns="http://www.w3.org/2000/svg"
+      xmlns-xlink="http://www.w3.org/1999/xlink"
+    >
+      <circle
+        cx="14"
+        cy="14"
+        fill="none"
+        id="XMLID_42_"
+        r="9"
+        stroke={props.stroke ?? "#000"}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeMiterlimit="10"
+        strokeWidth="2"
+      />
+      <line
+        fill="none"
+        id="XMLID_44_"
+        stroke={props.stroke ?? "#000"}
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        strokeMiterlimit="10"
+        strokeWidth="2"
+        x1="27"
+        x2="20.366"
+        y1="27"
+        y2="20.366"
+      />
+    </svg>
+  );
+};
+
+export const CartIcon = (props: IconSvgProps) => {
+  return (
+    <svg
+      width={props.size || props.height || 24}
+      height={props.size || props.height || 24}
+      viewBox="0 0 35 35"
+      fill={props.fill ? props.fill : "#000"}
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        d="M10.8817 27.4934C9.03071 27.4934 7.53312 29.0078 7.53312 30.8588C7.53312 32.7097 9.03071 34.2242 10.8817 34.2242C12.7326 34.2242 14.2471 32.7097 14.2471 30.8588C14.2471 29.0078 12.7326 27.4934 10.8817 27.4934ZM0.785522 0.570312V3.9357H4.15091L10.2086 16.7073L7.93696 20.8299C7.66773 21.3011 7.51629 21.8564 7.51629 22.4453C7.51629 24.2963 9.03071 25.8107 10.8817 25.8107H31.074V22.4453H11.5884C11.3528 22.4453 11.1677 22.2602 11.1677 22.0246L11.2182 21.8227L12.7326 19.0799H25.2687C26.5307 19.0799 27.6413 18.39 28.2134 17.3468L34.2374 6.42608C34.3763 6.16928 34.4461 5.88086 34.4402 5.58899C34.4342 5.29712 34.3527 5.01179 34.2035 4.76087C34.0543 4.50995 33.8425 4.30201 33.5889 4.15738C33.3354 4.01275 33.0486 3.93637 32.7567 3.9357H7.86966L6.28793 0.570312H0.785522ZM27.7086 27.4934C25.8576 27.4934 24.36 29.0078 24.36 30.8588C24.36 32.7097 25.8576 34.2242 27.7086 34.2242C29.5596 34.2242 31.074 32.7097 31.074 30.8588C31.074 29.0078 29.5596 27.4934 27.7086 27.4934Z"
+        fill={props.fill ? props.fill : "#000"}
+      />
+    </svg>
+  );
+};
+export const CancelIcon = (props: IconSvgProps) => {
+  return (
+    <svg
+      width={props.size || props.height || 21}
+      height={props.size || props.height || 21}
+      viewBox="0 0 21 21"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <path
+        fillRule="evenodd"
+        clipRule="evenodd"
+        d="M10.4999 13.2408L17.3496 20.0905C17.7131 20.4539 18.2061 20.6581 18.7201 20.6581C19.2341 20.6581 19.7271 20.4539 20.0906 20.0905C20.454 19.727 20.6582 19.234 20.6582 18.72C20.6582 18.206 20.454 17.713 20.0906 17.3495L13.2383 10.4998L20.0893 3.65013C20.2692 3.47016 20.4118 3.25652 20.5092 3.02141C20.6065 2.78629 20.6565 2.53432 20.6565 2.27986C20.6564 2.0254 20.6062 1.77345 20.5088 1.53838C20.4114 1.30332 20.2686 1.08974 20.0886 0.909858C19.9087 0.729972 19.695 0.587295 19.4599 0.489973C19.2248 0.392652 18.9728 0.342592 18.7184 0.342652C18.4639 0.342712 18.2119 0.392891 17.9769 0.490323C17.7418 0.587755 17.5282 0.730533 17.3484 0.910504L10.4999 7.76021L3.65023 0.910504C3.47159 0.725371 3.25786 0.577669 3.02153 0.476016C2.78519 0.374364 2.53098 0.320797 2.27372 0.318441C2.01647 0.316085 1.76132 0.364987 1.52316 0.462294C1.285 0.559601 1.06861 0.703364 0.886608 0.885194C0.704606 1.06702 0.560639 1.28328 0.463108 1.52135C0.365576 1.75941 0.316433 2.01452 0.318547 2.27178C0.32066 2.52904 0.373987 2.7833 0.475417 3.01973C0.576846 3.25616 0.724346 3.47002 0.909311 3.64884L7.7616 10.4998L0.910603 17.3508C0.725639 17.5297 0.578138 17.7435 0.476709 17.9799C0.375279 18.2164 0.321952 18.4706 0.319838 18.7279C0.317725 18.9852 0.366868 19.2403 0.464399 19.4783C0.561931 19.7164 0.705897 19.9326 0.8879 20.1145C1.0699 20.2963 1.28629 20.4401 1.52445 20.5374C1.76261 20.6347 2.01776 20.6836 2.27502 20.6812C2.53227 20.6789 2.78649 20.6253 3.02282 20.5237C3.25915 20.422 3.47288 20.2743 3.65152 20.0892L10.4999 13.2408Z"
+        fill="#FF0000"
+      />
+    </svg>
+  );
+};
+
+export const PlusIcon = (props: IconSvgProps) => {
+  return (
+    <svg
+      width={props.size || props.height || 21}
+      height={props.size || props.height || 21}
+      viewBox="0 0 24 24"
+      fill="none"
+    >
+      <g id="SVGRepo_bgCarrier" strokeWidth="0" />
+
+      <g
+        id="SVGRepo_tracerCarrier"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+
+      <g id="SVGRepo_iconCarrier">
+        <path
+          d="M4 12H20M12 4V20"
+          stroke={props.stroke ? props.stroke : "#fff"}
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+      </g>
+    </svg>
+  );
+};
+
+export const MinusIcon = (props: IconSvgProps) => {
+  return (
+    <svg
+      width={props.size || props.height || 21}
+      height={props.size || props.height || 21}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+    >
+      <g id="SVGRepo_bgCarrier" strokeWidth="0" />
+
+      <g
+        id="SVGRepo_tracerCarrier"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+
+      <g id="SVGRepo_iconCarrier">
+        <path
+          d="M6 12L18 12"
+          stroke={props.stroke ? props.stroke : "#fff"}
+          strokeWidth="2"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />{" "}
+      </g>
     </svg>
   );
 };

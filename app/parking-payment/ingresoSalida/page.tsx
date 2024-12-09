@@ -13,16 +13,17 @@ import Image from "next/image";
 import { useDisclosure } from "@nextui-org/react";
 import { parseAbsoluteToLocal } from "@internationalized/date";
 
-import { LoaderIcon } from "@/components/icons";
-import CardPropierties from "@/components/cardPropierties";
+import CardPropierties from "@/components/parking-payment/cardPropierties";
 import ICONOCARRO from "@/public/iconoCarroOscuro.png";
 import ICONOMOTO from "@/public/iconoMotoOscuro.png";
-import { UserData } from "@/types";
+import { PaymentData } from "@/types";
+import Income from "@/types/Income";
 import { UseAuthContext } from "@/app/context/AuthContext";
 import { ModalError, ModalExito } from "@/components/modales";
-import { vehicleEntrySchema } from "@/app/validationSchemas";
+import { vehicleEntrySchema } from "@/app/schemas/validationSchemas";
 import axios from "axios";
 import withPermission from "@/app/withPermission";
+import { Connector } from "@/app/libs/Printer";
 
 const ingresoSalida = () => {
   const [placaIn, setPlacaIn] = useState("");
@@ -32,7 +33,7 @@ const ingresoSalida = () => {
   const [message, setMessage] = useState("");
   const { user } = UseAuthContext();
   const [vehicleType, setVehicleType] = useState("CARRO");
-  const [userData, setUserData] = useState<UserData>({
+  const [paymentData, setPaymentData] = useState<PaymentData>({
     IVAPercentage: 0,
     IVATotal: 0,
     concept: "",
@@ -58,7 +59,7 @@ const ingresoSalida = () => {
       timeInParking: "",
       processId: 0,
       incomeDatetime: "- -",
-      paidDateTime: "",
+      paidDatetime: "",
       expectedOutComeDatetime: "",
     },
     vehicleKind: "",
@@ -117,7 +118,15 @@ const ingresoSalida = () => {
       setVehicleType(isNaN(Number(lastChar)) ? "MOTO" : "CARRO");
       validatePlaca(placa, false);
     }
-    setIsLoading(true);
+  };
+
+  const handlePrint = async (row: Income) => {
+    try {
+      const impresora = new Connector("EPSON");
+      await impresora.imprimirIngreso(row);
+    } catch (error) {
+      console.error("Error imprimiendo la factura:", error);
+    }
   };
 
   const handleGenerateEntry = async () => {
@@ -125,6 +134,7 @@ const ingresoSalida = () => {
       return;
     }
     try {
+      setIsLoading(true);
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/access-control/visitor-service/generateContingency`,
         {
@@ -135,32 +145,33 @@ const ingresoSalida = () => {
           incomeConditionType: INCOME_CONDITION_TYPE.visitor,
         }
       );
+      handlePrint(response.data);
       setMessage("Vehículo registrado exitosamente.");
       onOpenExitoModal();
       setPlacaIn("");
       console.log("Entrada generada:", placaIn);
-    } catch (error) {}
+    } catch (error) {
+    } finally {
+      setIsLoading(false);
+    }
   };
   const handleCloseErrorModal = () => {
     onCloseErrorModal();
   };
 
   return (
-    <NextUIProvider>
-      <div className="flex flex-col md:flex-row justify-between p-4 space-y-4 md:space-y-0">
+    <section className="h-full">
+      <div className="flex justify-between items-center h-full flex-row overflow-hidden">
         <CardPropierties className="flex-1 md:mr-2">
           <CardHeader className="flex flex-col gap-2">
             <h1 className="font-bold text-3xl text-center md:text-3xl">
-              Ingresos
+              Ingreso
             </h1>
           </CardHeader>
           <form className="flex flex-col p-4">
             <div className="flex flex-col items-center justify-center gap-4 mb-4">
               <Input
                 className="w-full md:w-3/4"
-                endContent={
-                  <LoaderIcon className="text-2xl text-default-400 pointer-events-none flex-shrink-0" />
-                }
                 label="Registro/Consulta de placa vehícular:"
                 labelPlacement="outside"
                 placeholder="Placa"
@@ -215,6 +226,7 @@ const ingresoSalida = () => {
                 size="lg"
                 style={{ width: "250px" }}
                 onClick={handleGenerateEntry}
+                isLoading={isLoading}
               >
                 Registrar Vehículo
               </Button>
@@ -225,7 +237,7 @@ const ingresoSalida = () => {
         <CardPropierties className="flex-1 md:mr-2">
           <CardHeader className="flex flex-col gap-2">
             <h1 className="font-bold text-3xl text-center md:text-3xl">
-              Salidas De Vehículos
+              Salida
             </h1>
           </CardHeader>
           <form className="flex flex-col items-center p-4">
@@ -233,15 +245,16 @@ const ingresoSalida = () => {
               {[
                 {
                   label: "Punto de pago:",
-                  value: userData?.validationDetail.incomeDatetime.split("")[0],
+                  value:
+                    paymentData?.validationDetail.incomeDatetime.split("")[0],
                 },
                 { label: "Cajero:", value: `${user.name} ${user.lastName}` },
-                { label: "Placa:", value: userData?.plate },
-                { label: "Tipo de vehículo:", value: userData?.vehicleKind },
+                { label: "Placa:", value: paymentData?.plate },
+                { label: "Tipo de vehículo:", value: paymentData?.vehicleKind },
                 {
                   label: "Fecha de entrada:",
                   value:
-                    userData?.validationDetail.incomeDatetime.split(" ")[0],
+                    paymentData?.validationDetail.incomeDatetime.split(" ")[0],
                 },
                 {
                   label: "Fecha de salida:",
@@ -249,7 +262,7 @@ const ingresoSalida = () => {
                 },
                 {
                   label: "Valor a pagar:",
-                  value: userData?.total && `$${userData.total}`,
+                  value: paymentData?.total && `$${paymentData.total}`,
                 },
               ].map((item, index) => (
                 <div
@@ -284,7 +297,7 @@ const ingresoSalida = () => {
           }}
         />
       </div>
-    </NextUIProvider>
+    </section>
   );
 };
 

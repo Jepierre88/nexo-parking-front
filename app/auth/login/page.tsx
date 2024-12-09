@@ -14,12 +14,12 @@ import {
   useDisclosure,
 } from "@nextui-org/modal";
 
-import OPERATIONLOGO from "@/app/assets/img/LOGO.png";
+import OPERATIONLOGO from "@/public/LOGO.png";
 import ICONOWHATSAPP from "@/public/iconoWhatsapp.png";
 import { UseNavigateContext } from "@/app/context/NavigateContext";
 import { UseAuthContext } from "@/app/context/AuthContext";
 import { ModalError, ModalExito } from "@/components/modales";
-import UseResetPassword from "@/app/parking-payment/hooks/UseResetPassword";
+import UseResetPassword from "@/app/hooks/UseResetPassword";
 import { EyeFilledIcon, EyeSlashFilledIcon } from "@/components/icons";
 import Cookies from "js-cookie";
 
@@ -150,7 +150,7 @@ export default function Login() {
         <header className="flex justify-center w-full my-3">
           <Image alt="..." src={OPERATIONLOGO} width={400} />
         </header>
-        <Card className="flex flex-col justify-center w-3/6 h-4/6">
+        <Card className="flex flex-col justify-center h-4/6 w-full max-w-xl">
           <CardHeader className="h-1/3">
             <h1 className="font-bold text-4xl mx-auto">Iniciar sesión</h1>
           </CardHeader>
@@ -193,6 +193,7 @@ export default function Login() {
                 size="lg"
                 type="submit"
                 variant="ghost"
+                isLoading={loading}
               >
                 Continuar
               </Button>

@@ -1,71 +1,62 @@
 "use client";
-import { CardBody, CardHeader } from "@nextui-org/card";
+
+// Importación de componentes de UI y hooks
+import { CardBody, CardFooter, CardHeader } from "@nextui-org/card";
 import { Tab, Tabs } from "@nextui-org/tabs";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Checkbox } from "@nextui-org/checkbox";
 import { Button } from "@nextui-org/button";
 import { Select, SelectItem } from "@nextui-org/select";
 import { Input } from "@nextui-org/input";
 import { useDisclosure } from "@nextui-org/modal";
 
+// Importación de contextos y hooks personalizados
 import { UseAuthContext } from "../context/AuthContext";
-import { printInvoice } from "../libs/utils";
+import UseListsPaymentMethods from "../hooks/parking-payment/UseListsPaymentMethods";
+import { usePaymentContext } from "../context/PaymentContext";
 
-import UseListsPaymentMethods from "./hooks/UseListsPaymentMethods";
-import QrPerdido from "./views/QrLost";
-import Mensualidad from "./views/MontlySubscription";
-import VisitanteQr from "./views/QrVisitor";
-
+// Importación de componentes específicos
+import QrPerdido from "../../components/parking-payment/tabs/QrLost";
+import Mensualidad from "../../components/parking-payment/tabs/MontlySubscription";
+import VisitanteQr from "../../components/parking-payment/tabs/QrVisitor";
 import { ModalConfirmation } from "@/components/modales";
-import { UserData } from "@/types";
-import CardPropierties from "@/components/cardPropierties";
+import CardPropierties from "@/components/parking-payment/cardPropierties";
+import ExtraServices from "@/components/parking-payment/ExtraServicesCard";
+
+// Librerías auxiliares
+import axios from "axios";
+import { formatDate } from "../libs/utils";
+import { Tooltip } from "@nextui-org/react";
+import { CartIcon } from "@/components/icons";
 import withPermission from "../withPermission";
 
 function ParkingPayment() {
+  // Contexto de autenticación para obtener el usuario actual
   const { user } = UseAuthContext();
+
+  // Lista de métodos de pago disponibles desde un hook personalizado
   const { namePaymentType } = UseListsPaymentMethods("namePaymentType");
-  const [subHeaderTitle, setSubHeaderTitle] = useState("Visitante (QR)");
 
-  const [isVisible, setIsVisible] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState("");
-  const [userData, setUserData] = useState<UserData>({
-    IVAPercentage: 0,
-    IVATotal: 0,
-    concept: "",
-    datetime: "",
-    deviceId: 0,
-    discountCode: "",
-    discountTotal: 0,
-    grossTotal: 0,
-    identificationCode: "",
-    identificationType: "",
-    isSuccess: false,
-    messageBody: "",
-    messageTitle: "",
-    optionalFields: [],
-    plate: "",
-    plateImage: "",
-    requiredFields: [],
-    status: 0,
-    subtotal: 0,
-    total: 0,
-    validationDetail: {
-      validationDatetime: "- -",
-      timeInParking: "",
-      processId: 0,
-      incomeDatetime: "- -",
-      paidDateTime: "",
-      expectedOutComeDatetime: "",
-    },
-    vehicleKind: "",
-  });
+  // Estados principales del componente
+  const [subHeaderTitle, setSubHeaderTitle] = useState("Visitante (QR)"); // Controla el subtítulo según la pestaña activa
+  const [isVisible, setIsVisible] = useState(false); // Controla la visibilidad del campo de facturación electrónica
+  const [paymentMethod, setPaymentMethod] = useState(""); // Método de pago seleccionado
+  const [moneyReceived, setMoneyReceived] = useState<number>(0); // Monto recibido del cliente
+  const [cashBack, setCashBack] = useState<number>(0); // Monto de devolución
+  const [showCart, setShowCart] = useState<boolean>(false); // Controla la visibilidad del carrito de servicios adicionales
+  const [loadingPayment, setLoadingPayment] = useState(false); // Indica si se está procesando un pago
 
+  // Contexto de pago, incluye estado del carrito y datos del pago
+  const { state, dispatch, paymentData, setPaymentData } = usePaymentContext();
+
+  // Hooks para manejar la apertura/cierre de modales
   const {
     isOpen: isOpenModalConfirmation,
     onOpen: onOpenModalConfirmation,
     onClose: onCloseModalConfirmation,
     onOpenChange: onOpenChangeModalConfirmation,
   } = useDisclosure();
+
   const {
     isOpen: isOpenModalConfirmationDos,
     onOpen: onOpenModalConfirmationDos,
@@ -73,28 +64,130 @@ function ParkingPayment() {
     onOpenChange: onOpenChangeModalConfirmationDos,
   } = useDisclosure();
 
-  const onConfirmAction = () => {
-    try {
-      printInvoice();
-    } catch (error) {
-      console.error(error);
+  // useEffect para calcular automáticamente la devolución
+  useEffect(() => {
+    if (paymentData?.totalCost) {
+      const totalCost = paymentData?.totalCost ?? 0;
+      setCashBack(Math.max(0, moneyReceived - totalCost)); // Calcula devolución si es positiva
     }
+  }, [moneyReceived, paymentData?.totalCost]);
+
+  // Función para limpiar el carrito de pagos
+  const clearCart = () => {
+    dispatch({ type: "CLEAR_PAYMENTS" });
   };
 
+  // Función para confirmar la acción de pago
+  const onConfirmAction = async () => {
+    const services = [];
+
+    // Recopila servicios adicionales del carrito
+    if (state?.payments) {
+      state.payments.forEach((service) => {
+        services.push({
+          name: service.name,
+          quantity: service.quantity,
+          price: service.price,
+          total: service.quantity * service.price,
+        });
+      });
+      // Agrega el servicio principal (parqueadero)
+      services.push({
+        name: "parqueadero",
+        quantity: 1,
+        price: paymentData.totalParking,
+        total: paymentData.totalParking,
+      });
+    }
+
+    // Actualiza los datos de pago con los servicios recopilados
+    const updatedPaymentData = { ...paymentData, services };
+    setPaymentData(updatedPaymentData);
+
+    // Estructura los datos del pago para enviarlos al backend
+    const dataToPay = {
+      deviceId: paymentData.deviceId,
+      identificationType: paymentData.identificationType,
+      identificationCode: paymentData.identificationCode,
+      concept: paymentData.concept,
+      cashier: user.name,
+      plate: paymentData.plate,
+      datetime: paymentData.datetime,
+      subtotal: paymentData.subtotal,
+      IVAPercentage: paymentData.IVAPercentage,
+      IVATotal: paymentData.IVATotal,
+      total: paymentData.totalCost,
+      processId: paymentData.validationDetail.processId,
+      generationDetail: {
+        internalId: 1,
+        internalConsecutive: "1",
+        paymentType: paymentMethod,
+      },
+    };
+
+    // Envía el pago al backend
+    savePayment(dataToPay);
+  };
+
+  // Función para cancelar la acción de pago
+  // TODO organizar datos de parqueadero
+  const onCancelAction = async () => {
+    const dataToPay = {
+      deviceId: paymentData.deviceId,
+      identificationType: paymentData.identificationType,
+      identificationCode: paymentData.identificationCode,
+      concept: paymentData.concept,
+      cashier: user.name,
+      plate: paymentData.plate,
+      datetime: paymentData.datetime,
+      subtotal: paymentData.subtotal,
+      IVAPercentage: paymentData.IVAPercentage,
+      IVATotal: paymentData.IVATotal,
+      total: paymentData.total,
+      processId: paymentData.validationDetail.processId,
+      generationDetail: {
+        internalId: 1,
+        internalConsecutive: "1",
+        paymentType: paymentMethod,
+      },
+    };
+
+    // Envía el pago al backend sin marcar como impreso
+    savePayment(dataToPay);
+  };
+
+  // Función para guardar el pago en el backend
+  const savePayment = async (data: any) => {
+    try {
+      setLoadingPayment(true); // Activa el indicador de carga
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/access-control/visitor-service/generate`,
+        data
+      );
+      console.log("Pago registrado:", response.data);
+    } catch (error) {
+      console.error("Error al registrar el pago:", error);
+    } finally {
+      setLoadingPayment(false); // Desactiva el indicador de carga
+      onCloseModalConfirmationDos(); // Cierra el modal de confirmación
+    }
+  };
   return (
-    <section className="flex flex-col lg:flex-row gap-1 justify-center items-center h-full">
+    <section className="flex flex-col lg:flex-row flex-grow flex-1 gap-1 justify-center items-center h-full w-full">
+      {/* Sección de procesos */}
       <CardPropierties>
         <CardHeader className="flex flex-col gap-1">
           <h1 className="font-bold text-3xl text-center my-3">Procesos</h1>
         </CardHeader>
         <CardBody className="my-auto">
+          {/* Tabs para diferentes tipos de procesos */}
           <Tabs
             className="mx-auto"
             color="primary"
             onSelectionChange={(key) => setSubHeaderTitle(key.toString())}
           >
-            <Tab key="Visitante QR" title={"Visitante QR"}>
-              <VisitanteQr setUserData={setUserData} userData={userData} />
+            <Tab key="Visitante" title={"Visitante"}>
+              <VisitanteQr />
             </Tab>
             <Tab key="Mensualidad" title={"Mensualidad"}>
               <Mensualidad />
@@ -105,55 +198,102 @@ function ParkingPayment() {
           </Tabs>
         </CardBody>
       </CardPropierties>
-
       <CardPropierties>
         <CardHeader className="flex flex-col gap-2">
           <h1 className="font-bold text-3xl text-center">Datos de cobro</h1>
           <h1 className="font-bold text-xl text-center">{subHeaderTitle}</h1>
         </CardHeader>
-        <CardBody>
-          <form className="flex flex-col">
-            <div className="items-start m-4">
-              <div className="text-base mb-1 flex gap-4 justify-between">
-                <strong>Punto de pago:</strong>
-                {userData?.validationDetail?.incomeDatetime.split(" ")[0]}
+        <CardBody className="flex">
+          <form className="flex flex-col w-full">
+            <div className="items-start m-1">
+              <div className="text-base text-start mb-1 flex gap-4 justify-between">
+                <span className="w-full">
+                  <strong>Punto de pago:</strong>
+                </span>
+                <span className="w-full">{paymentData?.deviceId}</span>
               </div>
-              <div className="text-base mb-1 flex gap-4 justify-between">
-                <strong>Cajero:</strong>
-                {user.name} - {user.lastName}
+              <div className="text-base text-start mb-1 flex gap-4 justify-between">
+                <span className="w-full">
+                  <strong>Cajero:</strong>
+                </span>
+                <span className="w-full">
+                  {user.name} {user.lastName}
+                </span>
               </div>
-              <div className="text-base mb-1 flex gap-4 justify-between">
-                <strong>Placa:</strong>
-                {userData?.plate}
+              <hr className="border-t-1 border-neutral-300 my-3" />
+              <div className="text-base text-start mb-1 flex gap-4 justify-between">
+                <span className="w-full">
+                  <strong>Placa:</strong>
+                </span>
+                <span className="w-full">{paymentData?.plate}</span>
               </div>
-              <div className="text-base mb-1 flex gap-4 justify-between">
-                <strong>Tipo de vehículo:</strong>
-                {userData?.vehicleKind}
+              <div className="text-base text-start mb-1 flex gap-4 justify-between">
+                <span className="w-full">
+                  <strong>Tipo de vehículo:</strong>
+                </span>
+                <span className="w-full">{paymentData?.vehicleKind}</span>
               </div>
-              <div className="text-base mb-1 flex gap-4 justify-between">
-                <strong>Fecha de entrada:</strong>
-                {userData?.validationDetail?.incomeDatetime.split(" ")[0]}
+              <div className="text-base text-start mb-1 flex gap-4 justify-between">
+                <span className="w-full">
+                  <strong>Fecha de entrada:</strong>
+                </span>
+                <span className="w-full">
+                  {paymentData?.validationDetail?.incomeDatetime}
+                </span>
               </div>
-              <div className="text-base mb-1 flex gap-4 justify-between">
-                <strong>Fecha de salida:</strong>
-                {new Date().toISOString().split("T")[0]}
+              <div className="text-base text-start mb-1 flex gap-4 justify-between">
+                <span className="w-full">
+                  <strong>Fecha de salida:</strong>
+                </span>
+                <span className="w-full">{formatDate(new Date())}</span>
               </div>
-              <div className="text-base mb-1 flex gap-4 justify-between">
-                <strong>Valor a pagar:</strong>
-                {userData?.total && `$${userData.total}`}
+              <hr className="border-t-1 border-neutral-300 my-3" />
+              <div className="text-base text-start mb-1 flex gap-4 justify-between">
+                <span className="w-full">
+                  <strong>Descuento parqueadero:</strong>
+                </span>
+                <span className="w-full">TO DO</span>
+              </div>
+              <div className="text-base text-start mb-1 flex gap-4 justify-between">
+                <span className="w-full">
+                  <strong>Valor parqueadero:</strong>
+                </span>
+                <span className="w-full">
+                  {paymentData?.totalParking &&
+                    `$${paymentData.totalParking.toLocaleString("es-CO")}`}
+                </span>
+              </div>
+              <div className="text-base text-start mb-1 flex gap-4 justify-between">
+                <span className="w-full">
+                  <strong>Total sin IVA:</strong>
+                </span>
+                <span className="w-full">
+                  {paymentData?.subtotal &&
+                    `$${paymentData.subtotal.toLocaleString("es-CO")}`}
+                </span>
+              </div>
+              <hr className="border-t-1 border-neutral-300 my-3" />
+              <div className="text-base text-start mb-1 flex gap-4 justify-between">
+                <span className="w-full">
+                  <strong>Servicios adicionales:</strong>
+                </span>
+                <span className="w-full">
+                  {/** //TODO A MEJORAR */}
+                  {paymentData?.totalServices &&
+                    `$${(paymentData.totalServices + (paymentData.IVAPercentage || 0.19) * paymentData.totalServices).toLocaleString("es-CO")}`}
+                </span>
               </div>
             </div>
           </form>
         </CardBody>
       </CardPropierties>
-
       <CardPropierties>
         <CardHeader className="flex flex-col gap-2">
           <h1 className="font-bold text-3xl text-center">Datos de pago</h1>
           <h1 className="font-bold text-xl text-center">{subHeaderTitle}</h1>
         </CardHeader>
-        <CardBody>
-          <form className="flex flex-col">
+        <CardBody className="flex justify-center items-center">
+          <form className="flex flex-col items-center justify-center">
             <div className="flex flex-col place-items-end mb-1 my-2 gap-2">
               <Checkbox
                 className="-mt-5"
@@ -173,17 +313,16 @@ function ParkingPayment() {
                     className="w-1/1"
                     variant="underlined"
                     onChange={(e) => {
-                      setUserData((prev) => ({
-                        ...prev,
-                        identificationCode: e.target.value,
+                      setPaymentData((prev: any) => ({
+                        ...prev, // Incluye todas las propiedades previas
+                        identificationCode: e.target.value, // Sobrescribe identificationCode
                       }));
                     }}
                   />
                 </div>
               )}
               <div className="text-base mb-1 mt-2 flex gap-4 justify-between px-4">
-                <strong>TOTAL:</strong>
-                {userData?.total && `$${userData.total}`}
+                <strong>TOTAL:</strong>${paymentData.totalCost ?? 0}
               </div>
 
               <div className="flex gap-4 justify-between px-4">
@@ -194,17 +333,21 @@ function ParkingPayment() {
                   className="w-52"
                   label="Seleccionar"
                   size="sm"
-                  onChange={(value) => {
+                  onChange={(e) => {
                     const selectedPaymentMethod = namePaymentType.find(
-                      (item) => item.namePaymentType === value
-                    )?.namePaymentType;
+                      (item) => e.target.value == item.id
+                    );
 
-                    setPaymentMethod(selectedPaymentMethod || "");
+                    console.log(selectedPaymentMethod);
+
+                    setPaymentMethod(
+                      selectedPaymentMethod?.namePaymentType || ""
+                    );
                   }}
                 >
-                  {namePaymentType.map((item, index) => (
+                  {namePaymentType.map((item) => (
                     <SelectItem
-                      key={index}
+                      key={item.id}
                       color="primary"
                       value={item.namePaymentType}
                     >
@@ -217,37 +360,49 @@ function ParkingPayment() {
                 <label className="text-lg font-bold my-auto">Recibido</label>
                 <Input
                   className="w-1/1"
+                  value={moneyReceived.toString()}
                   variant="underlined"
+                  type="number"
                   onChange={(e) => {
-                    setUserData((prev) => ({
-                      ...prev,
-                      identificationCode: e.target.value,
-                    }));
+                    const value = parseInt(e.target.value) || 0;
+                    setMoneyReceived(value);
                   }}
                 />
               </div>
               <div className="flex gap-4 justify-between px-4">
-                <label className="text-lg font-bold my-auto">Devolución</label>
-                <span> </span>
+                <label className="text-lg font-bold my-auto">
+                  Devolución: ${cashBack}
+                </label>
               </div>
-            </div>
-            <div className="flex justify-center items-center">
-              <Button
-                color="primary"
-                size="lg"
-                onClick={() => onOpenModalConfirmation()}
-              >
-                Realizar pago
-              </Button>
             </div>
           </form>
         </CardBody>
+        <CardFooter className="flex justify-center items-center">
+          <Button
+            color="primary"
+            size="lg"
+            onClick={() => {
+              console.log(state.payments);
+              console.log(paymentData);
+              if (!paymentMethod) {
+                // TODO Modal de error para decir que se seleccione el tipo de pago
+              } else {
+                console.log(state.payments);
+                onOpenModalConfirmation();
+              }
+            }}
+            // onClick={() => {
+            // 	addItem(2);
+            // 	console.log(state.payments, state.total);
+            // }}
+            isLoading={loadingPayment}
+          >
+            Realizar pago
+          </Button>
+        </CardFooter>
       </CardPropierties>
-
       <ModalConfirmation
-        message={
-          "Su pago se va a realizar en *****, ¿esta seguro de realizar el pago?"
-        }
+        message={`Su pago se va a realizar en ${paymentMethod} ¿esta seguro de realizar el pago?`}
         modalControl={{
           isOpen: isOpenModalConfirmation,
           onOpen: onOpenModalConfirmation,
@@ -259,7 +414,6 @@ function ParkingPayment() {
           onOpenModalConfirmationDos();
         }}
       />
-
       <ModalConfirmation
         message={"¿Desea imprimir factura?"}
         modalControl={{
@@ -273,7 +427,39 @@ function ParkingPayment() {
           onConfirmAction();
           onCloseModalConfirmation();
         }}
+        onCancel={() => {
+          onCancelAction();
+          onCloseModalConfirmation();
+        }}
       />
+      <div className="fixed right-4 top-20 z-30 flex flex-col">
+        <div className="relative inline-block">
+          <Tooltip
+            content="Servicios adicionales"
+            placement="left"
+            closeDelay={100}
+          >
+            <Button
+              radius="full"
+              color="primary"
+              className="min-w-1 flex justify-center items-center right-4 h-14 mx-auto"
+              onPress={() => setShowCart(true)}
+            >
+              <CartIcon fill="#fff" stroke="#000" width={24} height={24} />
+            </Button>
+          </Tooltip>
+          {/* Badge */}
+          {state.payments.length > 0 && (
+            <span className="absolute top-0 left-2 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full transform translate-x-2 -translate-y-2">
+              {state.payments.reduce(
+                (acc, payment) => acc + payment.quantity,
+                0
+              )}
+            </span>
+          )}
+        </div>
+      </div>
+      <ExtraServices showCart={showCart} setShowCart={setShowCart} />
     </section>
   );
 }

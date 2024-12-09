@@ -1,7 +1,8 @@
 // Printer.js
 import axios from "axios";
 
-import { Factura, Ingreso } from "@/types";
+import Invoice from "@/types/Invoice";
+import Income from "@/types/Income";
 const DEFAULT_PLUGIN_URL = "http://localhost:8080";
 
 class Operation {
@@ -41,7 +42,7 @@ export class Connector {
 		}
 	}
 
-	async imprimirFacturaTransaccion(factura: Factura) {
+	async imprimirFacturaTransaccion(factura: Invoice) {
 		// Encabezado de la factura
 		this.operaciones.push({ accion: "textalign", datos: "center" });
 		this.operaciones.push({ accion: "text", datos: factura.empresa });
@@ -162,7 +163,8 @@ export class Connector {
 		// Llamar al backend
 		this.imprimir();
 	}
-	async imprimirIngreso(ingreso: Ingreso) {
+	async imprimirIngreso(ingreso: Income) {
+		const fechaIngreso = new Date(ingreso.datetime);
 		//Encabezado
 		this.operaciones.push({
 			accion: "textalign",
@@ -170,7 +172,7 @@ export class Connector {
 		});
 		this.operaciones.push({
 			accion: "text",
-			datos: `Fecha de ingreso: ${ingreso.datetime.toLocaleString()}`,
+			datos: `Fecha de ingreso: ${fechaIngreso.toLocaleString()}`,
 		});
 		this.operaciones.push({
 			accion: "text",
@@ -185,6 +187,6 @@ export class Connector {
 			accion: `qr`,
 			datos: `${ingreso.identificationId}`,
 		});
-		this.imprimir();
+		await this.imprimir();
 	}
 }

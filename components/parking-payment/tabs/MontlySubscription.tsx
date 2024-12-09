@@ -61,7 +61,11 @@ export default function Mensualidad() {
 					<label className="text-base font-bold text-nowrap my-auto">
 						Válido hasta
 					</label>
-					<DateInput className="w-1/2" variant="underlined" />
+					<DateInput
+						className="w-1/2"
+						variant="underlined"
+						aria-label="Fecha"
+					/>
 				</div>
 				<h2 className="font-bold text-2xl text-center">Última mensualidad</h2>
 				<div className="flex gap-4 justify-between px-4 ">

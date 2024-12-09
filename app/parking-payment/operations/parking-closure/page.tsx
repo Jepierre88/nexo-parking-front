@@ -12,11 +12,11 @@ import {
 } from "@nextui-org/modal";
 import { Input } from "@nextui-org/react";
 
-import UseIncomes from "@/app/parking-payment/hooks/UseIncomes";
+import UseIncomes from "@/app/hooks/incomes/UseIncomes";
 import ICONOIMPRESORA from "@/public/IconoImpresora.png";
 import { title } from "@/components/primitives";
 import CustomDataGrid from "@/components/customDataGrid";
-import Loading from "@/app/loading";
+
 import withPermission from "@/app/withPermission";
 
 function parkingClosure() {

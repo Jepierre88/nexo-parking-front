@@ -90,6 +90,7 @@ const CustomDataGrid = (props: DataGridProps) => {
         <DataGrid
           pagination
           columns={props.columns}
+          // pageSizeOptions={[8]}
           initialState={{
             pagination: {
               paginationModel: {

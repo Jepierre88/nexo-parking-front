@@ -14,7 +14,7 @@ import { DatePicker, DateValue, Input } from "@nextui-org/react";
 import { useTheme } from "next-themes";
 
 import { title } from "@/components/primitives";
-import UseIncomes from "@/app/parking-payment/hooks/UseIncomes";
+import UseIncomes from "@/app/hooks/incomes/UseIncomes";
 import { ModalError, ModalExito } from "@/components/modales";
 import CustomDataGrid from "@/components/customDataGrid";
 import { Connector } from "@/app/libs/Printer";
@@ -23,15 +23,12 @@ import {
   getLocalTimeZone,
   parseAbsoluteToLocal,
 } from "@internationalized/date";
-import { Ingreso } from "@/types";
+import Income from "@/types/Income";
 import withPermission from "@/app/withPermission";
 
 function Incomes() {
   const { incomes, getIncomes, updatePlate, loading } = UseIncomes();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-
-  const { resolvedTheme } = useTheme();
-  const [isDark, setIsDark] = useState(false);
 
   let [startDatetime, setStartDatetime] = useState<DateValue>(
     parseAbsoluteToLocal(
@@ -53,6 +50,9 @@ function Incomes() {
   const [plate, setPlate] = useState("");
   const [id, setVehicleId] = useState<string | null>(null);
   const [plateImg, setPlateImg] = useState("");
+
+  const { resolvedTheme } = useTheme();
+  const [isDark, setIsDark] = useState(false);
 
   useEffect(() => {
     setIsDark(resolvedTheme === "dark");
@@ -87,10 +87,10 @@ function Incomes() {
     );
   };
 
-  const handleClickPrint = async (row: Ingreso) => {
+  const handleClickPrint = async (row: Income) => {
     try {
       const impresora = new Connector("EPSON");
-      await impresora.imprimirIngreso(row);
+      await impresora.imprimirIngreso(row); // Llamada a la impresión
     } catch (error) {
       console.error("Error imprimiendo la factura:", error);
     }
@@ -190,9 +190,9 @@ function Incomes() {
         <div className="flex h-full justify-center items-center w-full overflow-hidden">
           <Button
             className="w-1 h-full p-1 flex items-center" // Controla ancho y alto
-            color="default"
             disabled={loading}
             radius="none"
+            color="default"
             variant="light"
             onPress={() =>
               handleButtonClick(
