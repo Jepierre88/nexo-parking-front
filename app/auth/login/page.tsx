@@ -181,6 +181,7 @@ export default function Login() {
 								size="lg"
 								type="submit"
 								variant="ghost"
+								isLoading={loading}
 							>
 								Continuar
 							</Button>

@@ -4,6 +4,7 @@ import { title } from "../primitives";
 import { usePaymentContext } from "@/app/context/PaymentContext";
 import UseExtraServices from "@/app/hooks/parking-payment/UseExtraServices";
 import { CancelIcon } from "../icons";
+import { toast } from "sonner";
 
 export default function ExtraServices(props: {
 	showCart: boolean;
@@ -153,7 +154,10 @@ export default function ExtraServices(props: {
 					<Button
 						color="primary"
 						size="lg"
-						onPress={() => props.setShowCart(false)}
+						onPress={() => {
+							props.setShowCart(false);
+							toast.success("Hola");
+						}}
 					>
 						Agregar servicios
 					</Button>

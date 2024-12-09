@@ -1,6 +1,11 @@
 {
-	"name": "next-app-template",
+	"name": "nuevo-punto-de-pago",
 	"version": "0.0.1",
+	"author": {
+		"email": "jeanpierre.ortiz@coins-colombia.com",
+		"name": "Jean Pierre Ortiz Arango",
+		"url": "https://jepierre88.github.io/Portfolio-Jean/"
+	},
 	"private": true,
 	"scripts": {
 		"dev": "next dev --turbo",
@@ -52,6 +57,7 @@
 		"react-css-spinners": "^4.0.2",
 		"react-dom": "18.3.1",
 		"react-hook-form": "^7.53.0",
+		"sonner": "^1.7.0",
 		"styled-components": "^6.1.13",
 		"xlsx": "^0.18.5",
 		"zod": "^3.23.8"

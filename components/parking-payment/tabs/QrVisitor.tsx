@@ -43,12 +43,13 @@ export default function VisitanteQr() {
 
 			// AGREGAR SERVICIOS ACTIVOS AL CARRITO SI VIENEN EN EL VALIDATE
 			let totalService = 0;
+			let totalServiceWithIVA = 0;
 
 			if (response.data.extraServices?.length > 0) {
 				response.data.extraServices.forEach((service: any) => {
 					const serviceTotal = service.unitPrice * (service.quantity || 1);
 					totalService += serviceTotal;
-
+					totalServiceWithIVA += service.totalPrice;
 					dispatch({
 						type: "UPDATE_PAYMENT",
 						payload: {
@@ -65,16 +66,12 @@ export default function VisitanteQr() {
 
 			setPaymentData({
 				...response.data,
-				total: totalService + response.data.total,
 				totalServices: totalService,
 				totalParking: response.data.total,
 				netTotal: totalService + response.data.total,
-				totalCost:
-					totalService +
-					response.data.total +
-					(totalService + response.data.total) *
-						(response.data.IVAPercentage / 100),
+				totalCost: totalServiceWithIVA + response.data.total,
 			});
+			console.log(paymentData);
 		} catch (error) {
 			console.error(error);
 		}
@@ -176,7 +173,7 @@ export default function VisitanteQr() {
 					>
 						Fecha de Entrada
 					</label>
-					<span>{paymentData.validationDetail.incomeDatetime}</span>
+					<span>{paymentData?.validationDetail?.incomeDatetime}</span>
 				</div>
 			</form>
 		</article>

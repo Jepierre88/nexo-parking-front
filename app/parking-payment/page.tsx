@@ -1,4 +1,6 @@
 "use client";
+
+// Importación de componentes de UI y hooks
 import { CardBody, CardFooter, CardHeader } from "@nextui-org/card";
 import { Tab, Tabs } from "@nextui-org/tabs";
 import { useEffect, useState } from "react";
@@ -8,45 +10,52 @@ import { Select, SelectItem } from "@nextui-org/select";
 import { Input } from "@nextui-org/input";
 import { useDisclosure } from "@nextui-org/modal";
 
+// Importación de contextos y hooks personalizados
 import { UseAuthContext } from "../context/AuthContext";
-
 import UseListsPaymentMethods from "../hooks/parking-payment/UseListsPaymentMethods";
+import { usePaymentContext } from "../context/PaymentContext";
+
+// Importación de componentes específicos
 import QrPerdido from "../../components/parking-payment/tabs/QrLost";
 import Mensualidad from "../../components/parking-payment/tabs/MontlySubscription";
 import VisitanteQr from "../../components/parking-payment/tabs/QrVisitor";
-
 import { ModalConfirmation } from "@/components/modales";
 import CardPropierties from "@/components/parking-payment/cardPropierties";
-import axios from "axios";
-import { usePaymentContext } from "../context/PaymentContext";
-import { formatDate } from "../libs/utils";
-import { Badge, Tooltip } from "@nextui-org/react";
-import { CartIcon, PencilIcon } from "@/components/icons";
 import ExtraServices from "@/components/parking-payment/ExtraServicesCard";
 
+// Librerías auxiliares
+import axios from "axios";
+import { formatDate } from "../libs/utils";
+import { Tooltip } from "@nextui-org/react";
+import { CartIcon } from "@/components/icons";
+
 export default function ParkingPayment() {
+	// Contexto de autenticación para obtener el usuario actual
 	const { user } = UseAuthContext();
+
+	// Lista de métodos de pago disponibles desde un hook personalizado
 	const { namePaymentType } = UseListsPaymentMethods("namePaymentType");
-	const [subHeaderTitle, setSubHeaderTitle] = useState("Visitante (QR)");
 
-	const [isVisible, setIsVisible] = useState(false);
-	const [paymentMethod, setPaymentMethod] = useState("");
-	const [moneyReceived, setMoneyReceived] = useState<number>(0);
-	const [cashBack, setCashBack] = useState<number>(0);
+	// Estados principales del componente
+	const [subHeaderTitle, setSubHeaderTitle] = useState("Visitante (QR)"); // Controla el subtítulo según la pestaña activa
+	const [isVisible, setIsVisible] = useState(false); // Controla la visibilidad del campo de facturación electrónica
+	const [paymentMethod, setPaymentMethod] = useState(""); // Método de pago seleccionado
+	const [moneyReceived, setMoneyReceived] = useState<number>(0); // Monto recibido del cliente
+	const [cashBack, setCashBack] = useState<number>(0); // Monto de devolución
+	const [showCart, setShowCart] = useState<boolean>(false); // Controla la visibilidad del carrito de servicios adicionales
+	const [loadingPayment, setLoadingPayment] = useState(false); // Indica si se está procesando un pago
 
-	const [showCart, setShowCart] = useState<boolean>(false);
+	// Contexto de pago, incluye estado del carrito y datos del pago
+	const { state, dispatch, paymentData, setPaymentData } = usePaymentContext();
 
-	// TODO Implementacion de carrito con state y dispatch
-	const { state, dispatch, clearAll, paymentData, setPaymentData } =
-		usePaymentContext();
-	const [loadingPayment, setLoadingPayment] = useState(false);
-
+	// Hooks para manejar la apertura/cierre de modales
 	const {
 		isOpen: isOpenModalConfirmation,
 		onOpen: onOpenModalConfirmation,
 		onClose: onCloseModalConfirmation,
 		onOpenChange: onOpenChangeModalConfirmation,
 	} = useDisclosure();
+
 	const {
 		isOpen: isOpenModalConfirmationDos,
 		onOpen: onOpenModalConfirmationDos,
@@ -54,75 +63,123 @@ export default function ParkingPayment() {
 		onOpenChange: onOpenChangeModalConfirmationDos,
 	} = useDisclosure();
 
+	// useEffect para calcular automáticamente la devolución
 	useEffect(() => {
-		// Calcula la devolución automáticamente cuando cambia moneyReceived
-		if (paymentData?.total) {
-			let totalCost = paymentData?.totalCost ?? 0;
-			setCashBack(Math.max(0, moneyReceived - totalCost));
+		if (paymentData?.totalCost) {
+			const totalCost = paymentData?.totalCost ?? 0;
+			setCashBack(Math.max(0, moneyReceived - totalCost)); // Calcula devolución si es positiva
 		}
 	}, [moneyReceived, paymentData?.totalCost]);
 
+	// Función para limpiar el carrito de pagos
 	const clearCart = () => {
 		dispatch({ type: "CLEAR_PAYMENTS" });
 	};
 
-	let print = false;
+	// Función para confirmar la acción de pago
 	const onConfirmAction = async () => {
-		print = true;
+		const services = [];
+
+		// Recopila servicios adicionales del carrito
+		if (state?.payments) {
+			state.payments.forEach((service) => {
+				services.push({
+					name: service.name,
+					quantity: service.quantity,
+					price: service.price,
+					total: service.quantity * service.price,
+				});
+			});
+			// Agrega el servicio principal (parqueadero)
+			services.push({
+				name: "parqueadero",
+				quantity: 1,
+				price: paymentData.totalParking,
+				total: paymentData.totalParking,
+			});
+		}
+
+		// Actualiza los datos de pago con los servicios recopilados
+		const updatedPaymentData = { ...paymentData, services };
+		setPaymentData(updatedPaymentData);
+
+		// Estructura los datos del pago para enviarlos al backend
 		const dataToPay = {
 			deviceId: paymentData.deviceId,
 			identificationType: paymentData.identificationType,
 			identificationCode: paymentData.identificationCode,
 			concept: paymentData.concept,
+			cashier: user.name,
+			plate: paymentData.plate,
+			datetime: paymentData.datetime,
+			subtotal: paymentData.subtotal,
+			IVAPercentage: paymentData.IVAPercentage,
+			IVATotal: paymentData.IVATotal,
+			total: paymentData.totalCost,
+			processId: paymentData.validationDetail.processId,
+			generationDetail: {
+				internalId: 1,
+				internalConsecutive: "1",
+				paymentType: paymentMethod,
+			},
+		};
+
+		// Envía el pago al backend
+		savePayment(dataToPay);
+	};
+
+	// Función para cancelar la acción de pago
+	// TODO organizar datos de parqueadero
+	const onCancelAction = async () => {
+		const dataToPay = {
+			deviceId: paymentData.deviceId,
+			identificationType: paymentData.identificationType,
+			identificationCode: paymentData.identificationCode,
+			concept: paymentData.concept,
+			cashier: user.name,
 			plate: paymentData.plate,
 			datetime: paymentData.datetime,
 			subtotal: paymentData.subtotal,
 			IVAPercentage: paymentData.IVAPercentage,
 			IVATotal: paymentData.IVATotal,
 			total: paymentData.total,
-			generationDetail: paymentData.validationDetail,
 			processId: paymentData.validationDetail.processId,
+			generationDetail: {
+				internalId: 1,
+				internalConsecutive: "1",
+				paymentType: paymentMethod,
+			},
 		};
-		//TODO Operaciones con el back para impresion: SI
+
+		// Envía el pago al backend sin marcar como impreso
 		savePayment(dataToPay);
 	};
 
-	const onCancelAction = async () => {
-		print = false;
-		const dataToPay = {
-			paymentMethod,
-			moneyReceived,
-			cashBack,
-			processId: paymentData.validationDetail.processId,
-		};
-		//TODO Operaciones con el back para impresion: NO
-		savePayment(dataToPay);
-	};
-
+	// Función para guardar el pago en el backend
 	const savePayment = async (data: any) => {
 		try {
-			setLoadingPayment(true);
-			console.log(data);
+			setLoadingPayment(true); // Activa el indicador de carga
 			const response = await axios.post(
 				`${process.env.NEXT_PUBLIC_LOCAL_APIURL}/access-control/visitor-service/generate`,
 				data
 			);
 			console.log("Pago registrado:", response.data);
 		} catch (error) {
-			console.error(error);
+			console.error("Error al registrar el pago:", error);
 		} finally {
-			setLoadingPayment(false);
-			onCloseModalConfirmationDos();
+			setLoadingPayment(false); // Desactiva el indicador de carga
+			onCloseModalConfirmationDos(); // Cierra el modal de confirmación
 		}
 	};
-
 	return (
 		<section className="flex flex-col lg:flex-row gap-1 justify-center items-center h-full">
+			{/* Sección de procesos */}
 			<CardPropierties>
 				<CardHeader className="flex flex-col gap-1">
 					<h1 className="font-bold text-3xl text-center my-3">Procesos</h1>
 				</CardHeader>
 				<CardBody className="my-auto">
+					{/* Tabs para diferentes tipos de procesos */}
 					<Tabs
 						className="mx-auto"
 						color="primary"
@@ -140,7 +197,6 @@ export default function ParkingPayment() {
 					</Tabs>
 				</CardBody>
 			</CardPropierties>
-
 			<CardPropierties>
 				<CardHeader className="flex flex-col gap-2">
 					<h1 className="font-bold text-3xl text-center">Datos de cobro</h1>
@@ -189,7 +245,6 @@ export default function ParkingPayment() {
 					</form>
 				</CardBody>
 			</CardPropierties>
-
 			<CardPropierties>
 				<CardHeader className="flex flex-col gap-2">
 					<h1 className="font-bold text-3xl text-center">Datos de pago</h1>
@@ -304,7 +359,6 @@ export default function ParkingPayment() {
 					</Button>
 				</CardFooter>
 			</CardPropierties>
-
 			<ModalConfirmation
 				message={`Su pago se va a realizar en ${paymentMethod} ¿esta seguro de realizar el pago?`}
 				modalControl={{
@@ -318,7 +372,6 @@ export default function ParkingPayment() {
 					onOpenModalConfirmationDos();
 				}}
 			/>
-
 			<ModalConfirmation
 				message={"¿Desea imprimir factura?"}
 				modalControl={{
@@ -364,7 +417,6 @@ export default function ParkingPayment() {
 					)}
 				</div>
 			</div>
-
 			<ExtraServices showCart={showCart} setShowCart={setShowCart} />
 		</section>
 	);

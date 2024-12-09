@@ -41,5 +41,5 @@ interface Header {
 
 interface InfoCufe {
 	CUFE: string;
-	URL: string;
+	URL?: string;
 }

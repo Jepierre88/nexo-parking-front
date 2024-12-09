@@ -43,8 +43,9 @@ export interface PaymentData {
 	selectedService?: number;
 	totalParking?: number;
 	totalServices?: number;
-	totalCost?: number;
+	services?: any[];
 	netTotal?: number;
+	totalCost?: number;
 }
 
 export interface ValidationDetail {
