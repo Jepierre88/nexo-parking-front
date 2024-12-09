@@ -487,3 +487,62 @@ export const CancelIcon = (props: IconSvgProps) => {
 		</svg>
 	);
 };
+
+export const PlusIcon = (props: IconSvgProps) => {
+	return (
+		<svg
+			width={props.size || props.height || 21}
+			height={props.size || props.height || 21}
+			viewBox="0 0 24 24"
+			fill="none"
+		>
+			<g id="SVGRepo_bgCarrier" strokeWidth="0" />
+
+			<g
+				id="SVGRepo_tracerCarrier"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+
+			<g id="SVGRepo_iconCarrier">
+				<path
+					d="M4 12H20M12 4V20"
+					stroke={props.stroke ? props.stroke : "#fff"}
+					strokeWidth="2"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				/>
+			</g>
+		</svg>
+	);
+};
+
+export const MinusIcon = (props: IconSvgProps) => {
+	return (
+		<svg
+			width={props.size || props.height || 21}
+			height={props.size || props.height || 21}
+			viewBox="0 0 24 24"
+			fill="none"
+			xmlns="http://www.w3.org/2000/svg"
+		>
+			<g id="SVGRepo_bgCarrier" strokeWidth="0" />
+
+			<g
+				id="SVGRepo_tracerCarrier"
+				strokeLinecap="round"
+				strokeLinejoin="round"
+			/>
+
+			<g id="SVGRepo_iconCarrier">
+				<path
+					d="M6 12L18 12"
+					stroke={props.stroke ? props.stroke : "#fff"}
+					strokeWidth="2"
+					strokeLinecap="round"
+					strokeLinejoin="round"
+				/>{" "}
+			</g>
+		</svg>
+	);
+};

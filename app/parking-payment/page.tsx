@@ -172,7 +172,7 @@ export default function ParkingPayment() {
 		}
 	};
 	return (
-		<section className="flex flex-col lg:flex-row gap-1 justify-center items-center h-full">
+		<section className="flex flex-col lg:flex-row flex-grow flex-1 gap-1 justify-center items-center h-full w-full">
 			{/* Sección de procesos */}
 			<CardPropierties>
 				<CardHeader className="flex flex-col gap-1">
@@ -202,44 +202,85 @@ export default function ParkingPayment() {
 					<h1 className="font-bold text-3xl text-center">Datos de cobro</h1>
 					<h1 className="font-bold text-xl text-center">{subHeaderTitle}</h1>
 				</CardHeader>
-				<CardBody className="flex items-center justify-center">
+				<CardBody className="flex">
 					<form className="flex flex-col w-full">
 						<div className="items-start m-1">
-							<div className="text-base mb-1 flex gap-4 justify-between">
-								<strong>Punto de pago:</strong>
-								{paymentData?.deviceId}
+							<div className="text-base text-start mb-1 flex gap-4 justify-between">
+								<span className="w-full">
+									<strong>Punto de pago:</strong>
+								</span>
+								<span className="w-full">{paymentData?.deviceId}</span>
 							</div>
-							<div className="text-base mb-1 flex gap-4 justify-between">
-								<strong>Cajero:</strong>
-								{user.name} {user.lastName}
+							<div className="text-base text-start mb-1 flex gap-4 justify-between">
+								<span className="w-full">
+									<strong>Cajero:</strong>
+								</span>
+								<span className="w-full">
+									{user.name} {user.lastName}
+								</span>
 							</div>
-							<div className="text-base mb-1 flex gap-4 justify-between">
-								<strong>Placa:</strong>
-								{paymentData?.plate}
+							<hr className="border-t-1 border-neutral-300 my-3" />
+							<div className="text-base text-start mb-1 flex gap-4 justify-between">
+								<span className="w-full">
+									<strong>Placa:</strong>
+								</span>
+								<span className="w-full">{paymentData?.plate}</span>
 							</div>
-							<div className="text-base mb-1 flex gap-4 justify-between">
-								<strong>Tipo de vehículo:</strong>
-								{paymentData?.vehicleKind}
+							<div className="text-base text-start mb-1 flex gap-4 justify-between">
+								<span className="w-full">
+									<strong>Tipo de vehículo:</strong>
+								</span>
+								<span className="w-full">{paymentData?.vehicleKind}</span>
 							</div>
-							<div className="text-base mb-1 flex gap-4 justify-between">
-								<strong>Fecha de entrada:</strong>
-								{paymentData?.validationDetail?.incomeDatetime}
+							<div className="text-base text-start mb-1 flex gap-4 justify-between">
+								<span className="w-full">
+									<strong>Fecha de entrada:</strong>
+								</span>
+								<span className="w-full">
+									{paymentData?.validationDetail?.incomeDatetime}
+								</span>
 							</div>
-							<div className="text-base mb-1 flex gap-4 justify-between">
-								<strong>Fecha de salida:</strong>
-								{formatDate(new Date())}
+							<div className="text-base text-start mb-1 flex gap-4 justify-between">
+								<span className="w-full">
+									<strong>Fecha de salida:</strong>
+								</span>
+								<span className="w-full">{formatDate(new Date())}</span>
 							</div>
-							<div className="text-base mb-1 flex gap-4 justify-between">
-								<strong>Servicios extra:</strong>
-								{paymentData?.totalServices && `$${paymentData.totalServices}`}
+							<hr className="border-t-1 border-neutral-300 my-3" />
+							<div className="text-base text-start mb-1 flex gap-4 justify-between">
+								<span className="w-full">
+									<strong>Descuento parqueadero:</strong>
+								</span>
+								<span className="w-full">TO DO</span>
 							</div>
-							<div className="text-base mb-1 flex gap-4 justify-between">
-								<strong>Parqueadero:</strong>
-								{paymentData?.totalParking && `$${paymentData.totalParking}`}
+							<div className="text-base text-start mb-1 flex gap-4 justify-between">
+								<span className="w-full">
+									<strong>Valor parqueadero:</strong>
+								</span>
+								<span className="w-full">
+									{paymentData?.totalParking &&
+										`$${paymentData.totalParking.toLocaleString("es-CO")}`}
+								</span>
 							</div>
-							<div className="text-base mb-1 flex gap-4 justify-between">
-								<strong>Total sin IVA:</strong>
-								{paymentData?.netTotal && `$${paymentData.netTotal}`}
+							<div className="text-base text-start mb-1 flex gap-4 justify-between">
+								<span className="w-full">
+									<strong>Total sin IVA:</strong>
+								</span>
+								<span className="w-full">
+									{paymentData?.subtotal &&
+										`$${paymentData.subtotal.toLocaleString("es-CO")}`}
+								</span>
+							</div>
+							<hr className="border-t-1 border-neutral-300 my-3" />
+							<div className="text-base text-start mb-1 flex gap-4 justify-between">
+								<span className="w-full">
+									<strong>Servicios adicionales:</strong>
+								</span>
+								<span className="w-full">
+									{/** //TODO A MEJORAR */}
+									{paymentData?.totalServices &&
+										`$${(paymentData.totalServices + (paymentData.IVAPercentage || 0.19) * paymentData.totalServices).toLocaleString("es-CO")}`}
+								</span>
 							</div>
 						</div>
 					</form>
@@ -280,7 +321,7 @@ export default function ParkingPayment() {
 								</div>
 							)}
 							<div className="text-base mb-1 mt-2 flex gap-4 justify-between px-4">
-								<strong>TOTAL:</strong>${paymentData.totalCost}
+								<strong>TOTAL:</strong>${paymentData.totalCost ?? 0}
 							</div>
 
 							<div className="flex gap-4 justify-between px-4">

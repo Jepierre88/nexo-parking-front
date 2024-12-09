@@ -83,15 +83,17 @@ export default function VisitanteQr() {
 			<form className="flex flex-col gap-2">
 				<div className="flex gap-4 justify-between">
 					<label
-						className="text-base font-bold text-nowrap my-auto"
+						className="text-base font-bold text-nowrap my-auto w-1/2 text-end"
 						htmlFor="services"
 					>
 						Tipo de visitante
 					</label>
 					<Select
-						className="w-52 max-w-40"
+						className="w-1/2"
 						value={paymentData.selectedService}
+						variant="bordered"
 						label="Seleccionar"
+						radius="lg"
 						size="sm"
 						onChange={(e) => {
 							const service = services.find(
@@ -114,14 +116,15 @@ export default function VisitanteQr() {
 				</div>
 				<div className="flex gap-4 justify-between">
 					<label
-						className="text-base font-bold text-nowrap my-auto"
+						className="text-base font-bold text-nowrap my-auto w-1/2 text-end"
 						htmlFor="QR"
 					>
 						QR
 					</label>
 					<Input
 						className="w-1/2"
-						variant="underlined"
+						variant="bordered"
+						required
 						onChange={(e) => {
 							setPaymentData({
 								...paymentData,
@@ -133,7 +136,7 @@ export default function VisitanteQr() {
 				</div>
 				<div className="flex gap-4 justify-between">
 					<label
-						className="text-base  font-bold text-nowrap my-auto "
+						className="text-base  font-bold text-nowrap my-auto w-1/2 text-end"
 						htmlFor="plate"
 					>
 						Placa
@@ -141,7 +144,7 @@ export default function VisitanteQr() {
 					<Input
 						className="w-1/2"
 						value={paymentData.plate}
-						variant="underlined"
+						variant="bordered"
 						onChange={(e) =>
 							setPaymentData({
 								...paymentData,
@@ -164,7 +167,7 @@ export default function VisitanteQr() {
 					>
 						Código de descuento
 					</label>
-					<Input className="w-1/2" variant="underlined" />
+					<Input className="w-1/2" variant="bordered" />
 				</div>
 				<div className="flex gap-4 justify-between w-full">
 					<label

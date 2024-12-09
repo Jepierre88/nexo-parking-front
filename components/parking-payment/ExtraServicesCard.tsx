@@ -3,7 +3,7 @@ import { Card, CardBody, CardFooter, CardHeader } from "@nextui-org/card";
 import { title } from "../primitives";
 import { usePaymentContext } from "@/app/context/PaymentContext";
 import UseExtraServices from "@/app/hooks/parking-payment/UseExtraServices";
-import { CancelIcon } from "../icons";
+import { CancelIcon, MinusIcon, PlusIcon } from "../icons";
 import { toast } from "sonner";
 
 export default function ExtraServices(props: {
@@ -11,7 +11,7 @@ export default function ExtraServices(props: {
 	setShowCart: (show: boolean) => void;
 }) {
 	// Contexto de pagos
-	const { state, dispatch } = usePaymentContext();
+	const { state, dispatch, setPaymentData } = usePaymentContext();
 
 	// Lista de servicios adicionales del hook
 	const { extraServices } = UseExtraServices();
@@ -33,9 +33,17 @@ export default function ExtraServices(props: {
 		const service = combinedServices.find((s) => s.name === serviceName);
 		if (!service) return;
 
-		const newQuantity = service.quantity + quantityChange;
+		const currentQuantity = service.quantity || 0; // Obtiene la cantidad actual
+		const newQuantity = currentQuantity + quantityChange; // Calcula la nueva cantidad
+
 		if (newQuantity < 0) return; // Evita cantidades negativas
 
+		// Calcula el total actualizado del servicio y el IVA
+		const updatedServiceTotal = service.value * newQuantity;
+		const updatedIvaAmount =
+			updatedServiceTotal * (service.IVAPercentage / 100);
+
+		// Actualiza el contexto del estado
 		dispatch({
 			type: "UPDATE_PAYMENT",
 			payload: {
@@ -44,9 +52,46 @@ export default function ExtraServices(props: {
 				price: service.value,
 				quantityChange,
 				isLocked: service.isLocked,
-				ivaAmount: service.value * (service.IVAPercentage / 100),
+				ivaAmount: updatedIvaAmount,
 			},
 		});
+
+		// Recalcula todos los totales desde cero
+		const updatedPayments = [
+			...state.payments.filter((payment) => payment.id !== service.name), // Excluye el servicio actual
+			...(newQuantity > 0
+				? [
+						{
+							id: service.name,
+							name: service.name,
+							price: service.value,
+							quantity: newQuantity, // Nueva cantidad exacta
+						},
+					]
+				: []), // Solo agrega si la cantidad es mayor que 0
+		];
+
+		const recalculatedTotals = updatedPayments.reduce(
+			(acc, payment) => {
+				const totalService = payment.price * payment.quantity;
+				const ivaService = totalService * (service.IVAPercentage / 100);
+
+				return {
+					totalServices: acc.totalServices + totalService,
+					totalIVA: acc.totalIVA + ivaService,
+				};
+			},
+			{ totalServices: 0, totalIVA: 0 }
+		);
+
+		// Actualiza el estado de paymentData
+		setPaymentData((prevPaymentData: any) => ({
+			...prevPaymentData,
+			totalServices: recalculatedTotals.totalServices,
+			totalCost: recalculatedTotals.totalServices + recalculatedTotals.totalIVA,
+			netTotal:
+				recalculatedTotals.totalServices + (prevPaymentData.totalParking || 0),
+		}));
 	};
 
 	// Calcular costos
@@ -105,29 +150,31 @@ export default function ExtraServices(props: {
 										<tr key={i} className="border-b">
 											<td className="p-2">{service.name}</td>
 											<td className="text-right p-2">
-												${service.value.toLocaleString()}
+												${service.value.toLocaleString("es-CO")}
 											</td>
 											<td className="flex justify-center items-center gap-2 p-2">
 												<Button
 													color="danger"
 													size="sm"
 													radius="full"
-													className="text-white min-w-0"
+													className="text-white min-w-0 h-10 w-10"
 													onPress={() => updateQuantity(service.name, -1)}
 													isDisabled={service.isLocked}
 												>
-													-
+													<MinusIcon />
 												</Button>
-												<span>{service.quantity}</span>
+												<span className="min-w-5 max-w-5">
+													{service.quantity}
+												</span>
 												<Button
 													color="success"
 													size="sm"
 													radius="full"
-													className="text-white min-w-0"
+													className="text-white min-w-0 h-10 w-10"
 													onPress={() => updateQuantity(service.name, 1)}
 													isDisabled={service.isLocked}
 												>
-													+
+													<PlusIcon />
 												</Button>
 											</td>
 										</tr>
@@ -141,15 +188,21 @@ export default function ExtraServices(props: {
 					<hr className="border-t-4 border-primary-300 my-4 w-full" />
 					<div className="grid grid-cols-2 gap-5">
 						<p className="text-end">Total sin IVA:</p>
-						<span className="text-start">${netCost}</span>
+						<span className="text-start">
+							${netCost.toLocaleString("es-CO")}
+						</span>
 					</div>
 					<div className="grid grid-cols-2 gap-5">
 						<p className="text-end">Valor IVA:</p>
-						<span className="text-start">${ivaAmount}</span>
+						<span className="text-start">
+							${ivaAmount.toLocaleString("es-CO")}
+						</span>
 					</div>
 					<div className="grid grid-cols-2 gap-5 text-2xl">
 						<strong className="text-end">Total:</strong>
-						<span className="text-start">${totalCost.toLocaleString()}</span>
+						<span className="text-start">
+							${totalCost.toLocaleString("es-CO")}
+						</span>
 					</div>
 					<Button
 						color="primary"
