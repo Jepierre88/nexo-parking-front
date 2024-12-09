@@ -39,8 +39,6 @@ export default function UseIncomes() {
           },
         }
       );
-
-      console.log(response.data);
       const arrayfilter: Income[] = response.data;
 
       setIncomes(

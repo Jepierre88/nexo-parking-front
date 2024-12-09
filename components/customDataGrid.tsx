@@ -10,7 +10,6 @@ const CustomDataGrid = (props: DataGridProps) => {
 
   useEffect(() => {
     setIsDark(resolvedTheme === "dark");
-    console.log(resolvedTheme);
   }, [resolvedTheme]);
 
   const customLocaleText: Partial<GridLocaleText> = {

@@ -1,24 +1,26 @@
 "use client";
-import axios from "axios";
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
+import Cookies from "js-cookie";
 
-export default function UsePermissions() {
-  const [permissions, setPermissions] = useState<any[]>([]);
-
-  const getPermissions = async () => {
-    try {
-      const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/permissions`
-      );
-      setPermissions(response.data);
-    } catch (error) {
-      console.error("Error obteniendo roles:", error);
-    }
-  };
+const UsePermissions = () => {
+  const [permissions, setPermissions] = useState<number[] | null>(null);
 
   useEffect(() => {
-    getPermissions();
+    const storedPermissions = Cookies.get("permissions")
+      ? JSON.parse(Cookies.get("permissions")!)
+      : [];
+    setPermissions(storedPermissions);
   }, []);
 
-  return { permissions };
-}
+  const hasPermission = (requiredPermission: number) => {
+    if (permissions === null) {
+      console.log("No tienes permiso para esta acción");
+      return false;
+    }
+    return permissions.includes(requiredPermission);
+  };
+
+  return { permissions, hasPermission };
+};
+
+export default UsePermissions;

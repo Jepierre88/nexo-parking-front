@@ -25,7 +25,6 @@ export default function UseUsers() {
       setUsers(filteredUsers);
       setExistingUsernames(filteredUsers.map((user) => user.username));
       setExistingEmails(filteredUsers.map((user) => user.email));
-      console.log(users);
     } catch (error) {
       console.error("Error al obtener los usuarios:", error);
       setUsers([]);

@@ -31,6 +31,8 @@ import { Preview } from "@mui/icons-material";
 import { match } from "assert";
 import { error } from "console";
 import withPermission from "@/app/withPermission";
+import ActionButton from "@/components/actionButtonProps";
+import { permissionsConfig } from "@/config/permissionsConfig";
 const initialUserEdit: User = {
   cellPhoneNumber: "",
   departmentName: "",
@@ -62,7 +64,11 @@ const initialNewUser: Signup = {
 
 const Users = () => {
   const { roles } = UseRol();
-
+  const [userEdit, setUserEdit] = useState<User>(initialUserEdit);
+  const [newUser, setNewUser] = useState<Signup>(initialNewUser);
+  const [isView, setIsView] = useState(false);
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
   const {
     users,
     updateUser,
@@ -93,7 +99,12 @@ const Users = () => {
     formState: { errors: editErrors },
   } = useForm<UserData>({
     resolver: zodResolver(
-      editUserSchema(existingUsernames, existingUserEmails)
+      editUserSchema(
+        existingUsernames,
+        existingUserEmails,
+        userEdit.username,
+        userEdit.email
+      )
     ),
   });
 
@@ -129,12 +140,6 @@ const Users = () => {
     pageSize: 5,
     page: 0,
   });
-
-  const [userEdit, setUserEdit] = useState<User>(initialUserEdit);
-  const [newUser, setNewUser] = useState<Signup>(initialNewUser);
-  const [isView, setIsView] = useState(false);
-  const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
 
   const onEditSubmit: SubmitHandler<UserData> = async (data) => {
     setLoading(true);
@@ -249,34 +254,31 @@ const Users = () => {
       align: "center",
       renderCell: (params) => (
         <div className="flex justify-center items-center">
-          <Button
-            color="primary"
-            onPress={() => {
+          <ActionButton
+            permission={9}
+            label={<Image alt="IconoLapiz" src={ICONOLAPIZ} width={20} />}
+            onClick={() => {
               handleButtonClick(params.row);
               setIsView(false);
             }}
-          >
-            <Image alt="IconoLapiz" src={ICONOLAPIZ} width={20} />
-          </Button>
-          <Button
-            color="primary"
-            onPress={() => {
+          />
+          <ActionButton
+            permission={10}
+            label={<Image alt="IconoOjo" src={ICONOOJO} width={20} />}
+            onClick={() => {
               handleButtonClick(params.row);
               setIsView(true);
             }}
-          >
-            <Image alt="IconoOjo" src={ICONOOJO} width={20} />
-          </Button>
+          />
 
-          <Button
-            color="primary"
-            onPress={() => {
+          <ActionButton
+            permission={11}
+            label={<Image alt="iconoBasurero" src={ICONOBASURERO} width={20} />}
+            onClick={() => {
               buttonDelete(params.row);
               setIsView(true);
             }}
-          >
-            <Image alt="iconoBasurero" src={ICONOBASURERO} width={20} />
-          </Button>
+          />
         </div>
       ),
     },
@@ -291,9 +293,11 @@ const Users = () => {
       {loading && <Loading />}{" "}
       <div className="flex justify-between">
         <h1 className={title()}>Usuarios</h1>
-        <Button className="bg-primary text-white" onPress={onOpen}>
-          +Agregar usuario
-        </Button>
+        <ActionButton
+          permission={8}
+          label={permissionsConfig[8]?.label || "+Agregar usuario"}
+          onClick={onOpen}
+        />
       </div>
       <CustomDataGrid columns={columns} rows={users || []} />
       <Modal
@@ -520,6 +524,7 @@ const Users = () => {
                     {editErrors.lastName && (
                       <MessageError message={editErrors.lastName.message} />
                     )}
+
                     <div className="flex items-center mt-2 mb-2 w-96">
                       <label className="text-xl font-bold text-nowrap w-1/3">
                         Usuario
@@ -535,6 +540,7 @@ const Users = () => {
                     {editErrors.username && (
                       <MessageError message={editErrors.username.message} />
                     )}
+
                     <div className="flex items-center mt-2 mb-2 w-96">
                       <label className="text-xl font-bold text-nowrap w-1/3">
                         Email

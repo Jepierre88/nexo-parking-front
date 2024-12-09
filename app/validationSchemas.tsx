@@ -59,29 +59,11 @@ export const createUserSchema = (
 
 export const editUserSchema = (
   existingUsernames: string[],
-  existingUserEmails: string[]
+  existingUserEmails: string[],
+  currentUsername: string,
+  currentEmail: string
 ) =>
   z.object({
-    // username: z
-    //   .string()
-    //   .min(1, "El usuario es obligatorio")
-    //   .max(20, "Este campo no debe exceder lo 20 caracteres")
-    //   .regex(
-    //     /^[A-Za-z0-9\s]+$/,
-    //     "El nombre de usuario solo puede contener letras, números y espacios"
-    //   )
-    //   .refine((value) => !existingUsernames.includes(value), {
-    //     message: "Este nombre de usuario ya está en uso",
-    //   }),
-
-    // email: z
-    //   .string()
-    //   .min(1, "El email es obligatorio")
-    //   .email("El email no es válido")
-    //   .refine((value) => !existingUserEmails.includes(value), {
-    //     message: "Este email ya está en uso",
-    //   }),
-
     realm: z.string().min(1, "El perfil es obligatorio"),
     name: z
       .string()
@@ -100,6 +82,26 @@ export const editUserSchema = (
         value
           .toLowerCase()
           .replace(/(^\w|\s\w)/g, (match) => match.toUpperCase())
+      ),
+    username: z
+      .string()
+      .min(1, "El usuario es obligatorio")
+      .refine(
+        (username) =>
+          username === currentUsername || !existingUsernames.includes(username),
+        {
+          message: "El usuario ya existe",
+        }
+      ),
+    email: z
+      .string()
+      .email("El formato del email es inválido")
+      .refine(
+        (email) =>
+          email === currentEmail || !existingUserEmails.includes(email),
+        {
+          message: "El email ya está registrado",
+        }
       ),
   });
 
