@@ -66,7 +66,7 @@ export default function VisitanteQr() {
 
 			setPaymentData({
 				...response.data,
-				totalServices: totalService,
+				totalServices: totalServiceWithIVA,
 				totalParking: response.data.total,
 				netTotal: totalService + response.data.total,
 				totalCost: totalServiceWithIVA + response.data.total,
@@ -90,7 +90,7 @@ export default function VisitanteQr() {
 					</label>
 					<Select
 						className="w-1/2"
-						value={paymentData.selectedService}
+						value={paymentData.selectedService?.id}
 						variant="bordered"
 						label="Seleccionar"
 						radius="lg"
@@ -102,7 +102,7 @@ export default function VisitanteQr() {
 
 							setPaymentData({
 								...paymentData,
-								selectedService: service.id,
+								selectedService: service,
 							});
 						}}
 					>

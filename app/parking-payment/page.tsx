@@ -28,6 +28,7 @@ import axios from "axios";
 import { formatDate } from "../libs/utils";
 import { Tooltip } from "@nextui-org/react";
 import { CartIcon } from "@/components/icons";
+import PaymentGenerate from "@/types/PaymentGenerate";
 
 export default function ParkingPayment() {
 	// Contexto de autenticación para obtener el usuario actual
@@ -103,25 +104,44 @@ export default function ParkingPayment() {
 		const updatedPaymentData = { ...paymentData, services };
 		setPaymentData(updatedPaymentData);
 
+		console.log(paymentData);
+
 		// Estructura los datos del pago para enviarlos al backend
-		const dataToPay = {
-			deviceId: paymentData.deviceId,
-			identificationType: paymentData.identificationType,
-			identificationCode: paymentData.identificationCode,
-			concept: paymentData.concept,
+		const dataToPay: PaymentGenerate = {
 			cashier: user.name,
-			plate: paymentData.plate,
-			datetime: paymentData.datetime,
-			subtotal: paymentData.subtotal,
+			cashValue: moneyReceived,
+			concept: paymentData.concept,
+			discountCode: "",
+			datetime: new Date().toISOString(),
+			discountTotal: 0,
+			extraServices: [
+				...paymentData.extraServices,
+				{
+					code: paymentData.selectedService?.name,
+					name: paymentData.selectedService?.name,
+					quantity: 1,
+					unitPrice: paymentData.subtotal,
+					totalPrice: paymentData.total,
+					iva: paymentData.IVAPercentage,
+					ivaAmmount: paymentData.IVATotal,
+					netTotal: paymentData.subtotal,
+					identificationMethod: paymentData.identificationType,
+					identificationId: paymentData.identificationCode,
+				},
+			],
+			identificationCode: paymentData.identificationCode,
+			identificationType: paymentData.identificationType,
 			IVAPercentage: paymentData.IVAPercentage,
-			IVATotal: paymentData.IVATotal,
-			total: paymentData.totalCost,
+			IVATotal: Number(paymentData.subtotal.toFixed(2)),
+			paymentType: namePaymentType.find(
+				(e) => e.namePaymentType === paymentMethod
+			).id,
+			plate: paymentData.plate,
 			processId: paymentData.validationDetail.processId,
-			generationDetail: {
-				internalId: 1,
-				internalConsecutive: "1",
-				paymentType: paymentMethod,
-			},
+			processPaidDatetime: paymentData.validationDetail.expectedOutcomeDatetime,
+			total: paymentData.totalCost ?? 0,
+			vehicleKind: paymentData.vehicleKind,
+			vehicleParkingTime: paymentData.validationDetail.timeInParking,
 		};
 
 		// Envía el pago al backend
@@ -160,7 +180,7 @@ export default function ParkingPayment() {
 		try {
 			setLoadingPayment(true); // Activa el indicador de carga
 			const response = await axios.post(
-				`${process.env.NEXT_PUBLIC_LOCAL_APIURL}/access-control/visitor-service/generate`,
+				`${process.env.NEXT_PUBLIC_LOCAL_APIURL}/access-control/visitor-service/generateNewPP`,
 				data
 			);
 			console.log("Pago registrado:", response.data);
@@ -268,7 +288,7 @@ export default function ParkingPayment() {
 								</span>
 								<span className="w-full">
 									{paymentData?.subtotal &&
-										`$${paymentData.subtotal.toLocaleString("es-CO")}`}
+										`$${paymentData.subtotal.toLocaleString("es-CO").split(",")[0]}`}
 								</span>
 							</div>
 							<hr className="border-t-1 border-neutral-300 my-3" />
@@ -277,9 +297,9 @@ export default function ParkingPayment() {
 									<strong>Servicios adicionales:</strong>
 								</span>
 								<span className="w-full">
-									{/** //TODO A MEJORAR */}
+									{/** TODO: Mejora en el cálculo del IVA */}
 									{paymentData?.totalServices &&
-										`$${(paymentData.totalServices + (paymentData.IVAPercentage || 0.19) * paymentData.totalServices).toLocaleString("es-CO")}`}
+										`$${paymentData.totalServices.toLocaleString("es-CO")}`}
 								</span>
 							</div>
 						</div>

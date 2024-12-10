@@ -209,7 +209,7 @@ export default function ExtraServices(props: {
 						size="lg"
 						onPress={() => {
 							props.setShowCart(false);
-							toast.success("Hola");
+							toast.success("Servicios agregados correctamente");
 						}}
 					>
 						Agregar servicios
