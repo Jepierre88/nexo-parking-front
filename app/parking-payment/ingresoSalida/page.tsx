@@ -24,6 +24,7 @@ import { vehicleEntrySchema } from "@/app/schemas/validationSchemas";
 import axios from "axios";
 import withPermission from "@/app/withPermission";
 import { Connector } from "@/app/libs/Printer";
+import ActionButton from "@/components/actionButtonProps";
 
 const ingresoSalida = () => {
   const [placaIn, setPlacaIn] = useState("");
@@ -220,16 +221,11 @@ const ingresoSalida = () => {
                 value={currentDate}
                 onChange={setCurrentDate}
               />
-
-              <Button
-                color="primary"
-                size="lg"
-                style={{ width: "250px" }}
+              <ActionButton
+                permission={28}
+                label="Registrar vehiculo"
                 onClick={handleGenerateEntry}
-                isLoading={isLoading}
-              >
-                Registrar Vehículo
-              </Button>
+              />
             </div>
           </form>
         </CardPropierties>

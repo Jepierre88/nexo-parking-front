@@ -3,6 +3,7 @@ import { Button } from "@nextui-org/button";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
+import ActionButton from "./actionButtonProps";
 
 const CustomDataGrid = (props: DataGridProps) => {
   const { resolvedTheme } = useTheme();
@@ -78,15 +79,13 @@ const CustomDataGrid = (props: DataGridProps) => {
   return (
     <div className="relative">
       <div className="flex flex-col min-h-[35rem]">
-        <Button
-          className="mb-4 w-40"
-          size="lg"
-          color="primary"
-          variant="shadow"
-          onClick={exportToExcel}
-        >
-          Exportar a Excel
-        </Button>
+        <div style={{ height: "50px", display: "flex", alignItems: "center" }}>
+          <ActionButton
+            permission={14} // Permiso necesario para el botón
+            label="Exportar a Excel"
+            onClick={exportToExcel}
+          />
+        </div>
         <DataGrid
           pagination
           columns={props.columns}

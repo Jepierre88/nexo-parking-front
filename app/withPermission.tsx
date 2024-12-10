@@ -27,7 +27,7 @@ const withPermission = (Component: React.FC, requiredPermission: number) => {
     }, [window.location.href]);
 
     if (isLoading) {
-      return <p>Cargando...</p>; // Mostrar un mensaje o spinner mientras se valida
+      return <p>Cargando...</p>; // Mostrar un mensaje mientras se valida
     }
 
     return isAllowed ? <Component {...props} /> : null; // Renderizar el componente si está permitido

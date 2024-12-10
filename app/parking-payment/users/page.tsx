@@ -19,7 +19,7 @@ import ICONOOJO from "@/public/IconoOjo.png";
 import ICONOBASURERO from "@/public/iconoBasurero.png";
 import Signup from "@/types/Auth";
 import User from "@/types/User";
-import UseUsers from "@/app/parking-payment/hooks/UseUsers";
+import UseUsers from "@/app/hooks/users/UseUsers";
 import UseRol from "@/app/hooks/UseRol";
 import { ModalError, ModalExito } from "@/components/modales";
 import Loading from "@/app/loading";
@@ -35,6 +35,7 @@ import ActionButton from "@/components/actionButtonProps";
 import { permissionsConfig } from "@/config/permissionsConfig";
 import MessageError from "@/components/menssageError";
 import Image from "next/image";
+import SelectPermission from "@/app/selectPermission";
 const initialUserEdit: User = {
   cellPhoneNumber: "",
   departmentName: "",
@@ -433,6 +434,7 @@ const Users = () => {
                         <label className="text-xl font-bold text-nowrap w-1/3">
                           Perfil
                         </label>
+
                         <Select
                           className="ml-4 w-2/3"
                           disabled={isView}

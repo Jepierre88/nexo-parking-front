@@ -25,6 +25,7 @@ import {
 } from "@internationalized/date";
 import Income from "@/types/Income";
 import withPermission from "@/app/withPermission";
+import ActionButton from "@/components/actionButtonProps";
 
 function Incomes() {
   const { incomes, getIncomes, updatePlate, loading } = UseIncomes();
@@ -188,44 +189,16 @@ function Incomes() {
       align: "center",
       renderCell: (params) => (
         <div className="flex h-full justify-center items-center w-full overflow-hidden">
-          <Button
-            className="w-1 h-full p-1 flex items-center" // Controla ancho y alto
-            disabled={loading}
-            radius="none"
-            color="default"
-            variant="light"
-            onPress={() =>
-              handleButtonClick(
-                params.row.id,
-                params.row.plate,
-                params.row.plateImage
-              )
-            }
-          >
-            <PencilIcon fill={isDark ? "#FFF" : "#000"} size={24} />
-          </Button>
-          <Button
-            className="w-1 h-full p-1 flex items-center" // Controla ancho y alto
-            color="default"
-            radius="none"
-            variant="light"
+          <ActionButton
+            permission={13}
+            label={<PrinterIcon fill={isDark ? "#000" : "#FFF"} size={28} />}
             onClick={() => handleClickPrint(params.row)}
-          >
-            <PrinterIcon
-              fill={isDark ? "#000" : "#FFF"}
-              size={28}
-              stroke={isDark ? "#FFF" : "#000"}
-            />
-          </Button>
-          <Button
-            className="w-1 h-full p-1" // Controla ancho y alto
-            color="default"
-            radius="none"
-            variant="light"
+          />
+          <ActionButton
+            permission={15}
+            label={<PencilIcon fill={isDark ? "#FFF" : "#000"} size={24} />}
             onClick={() => buttonDelete()}
-          >
-            <PencilIcon fill={isDark ? "#FFF" : "#000"} size={24} />
-          </Button>
+          />
         </div>
       ),
     },
