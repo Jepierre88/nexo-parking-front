@@ -43,6 +43,7 @@ export interface PaymentData {
 	selectedService?: any;
 	totalParking?: number;
 	totalServices?: number;
+	netTotalServices?: number;
 	services?: any[];
 	netTotal?: number;
 	totalCost?: number;

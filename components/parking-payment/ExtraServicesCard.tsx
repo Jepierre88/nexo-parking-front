@@ -5,93 +5,198 @@ import { usePaymentContext } from "@/app/context/PaymentContext";
 import UseExtraServices from "@/app/hooks/parking-payment/UseExtraServices";
 import { CancelIcon, MinusIcon, PlusIcon } from "../icons";
 import { toast } from "sonner";
+import { PaymentData } from "@/types";
 
 export default function ExtraServices(props: {
 	showCart: boolean;
 	setShowCart: (show: boolean) => void;
 }) {
 	// Contexto de pagos
-	const { state, dispatch, setPaymentData } = usePaymentContext();
+	const { state, dispatch, setPaymentData, paymentData } = usePaymentContext();
 
 	// Lista de servicios adicionales del hook
 	const { extraServices } = UseExtraServices();
 
-	// Combinar servicios actuales y servicios adicionales
+	// const combinedServices = extraServices.map((service) => {
+	// 	// Busca si el servicio ya está en `paymentData.extraServices`
+	// 	const existingService = paymentData.extraServices.find(
+	// 		(extra) => extra.code === service.name
+	// 	);
+
+	// 	console.log(existingService);
+	// 	return {
+	// 		...service,
+	// 		quantity: existingService?.quantity || 0, // Usa la cantidad actualizada de `extraServices`
+	// 		isLocked: false, // Puedes ajustarlo según la lógica requerida
+	// 	};
+	// });
+	// console.log(combinedServices);
+
+	// // Actualizar cantidad
+	// const updateQuantity = (serviceName: string, quantityChange: number) => {
+	// 	const service = combinedServices.find((s) => s.name === serviceName);
+	// 	if (!service) return;
+
+	// 	const currentQuantity = service.quantity || 0;
+	// 	const newQuantity = currentQuantity + quantityChange;
+
+	// 	if (newQuantity < 0) return; // Evitar cantidades negativas
+
+	// 	setPaymentData((prevPaymentData: PaymentData) => {
+	// 		// Copia de los servicios existentes
+	// 		const updatedExtraServices = [...prevPaymentData.extraServices];
+
+	// 		// Buscar si el servicio ya existe en `extraServices`
+	// 		const existingServiceIndex = updatedExtraServices.findIndex(
+	// 			(s) => s.code === service.name
+	// 		);
+
+	// 		if (existingServiceIndex !== -1) {
+	// 			if (newQuantity === 0) {
+	// 				// Si la cantidad llega a 0, eliminar el servicio
+	// 				updatedExtraServices.splice(existingServiceIndex, 1);
+	// 			} else {
+	// 				// Actualizar el servicio existente
+	// 				updatedExtraServices[existingServiceIndex] = {
+	// 					...updatedExtraServices[existingServiceIndex],
+	// 					quantity: newQuantity,
+	// 					totalPrice:
+	// 						newQuantity * service.value * (1 + service.IVAPercentage / 100),
+	// 					ivaAmount:
+	// 						newQuantity * service.value * (service.IVAPercentage / 100),
+	// 					netTotal: newQuantity * service.value, // Sin IVA
+	// 				};
+	// 			}
+	// 		} else if (quantityChange > 0) {
+	// 			// Si no existe y la cantidad es mayor que 0, agregar el servicio
+	// 			updatedExtraServices.push({
+	// 				code: service.name,
+	// 				name: service.name,
+	// 				quantity: quantityChange,
+	// 				unitPrice: service.value,
+	// 				totalPrice:
+	// 					quantityChange * service.value * (1 + service.IVAPercentage / 100),
+	// 				iva: service.IVAPercentage,
+	// 				ivaAmount:
+	// 					quantityChange * service.value * (service.IVAPercentage / 100),
+	// 				netTotal: quantityChange * service.value, // Sin IVA
+	// 			});
+	// 		}
+
+	// 		// Recalcular totales
+	// 		const recalculatedTotals = updatedExtraServices.reduce(
+	// 			(acc, s) => {
+	// 				acc.netTotalServices += s.netTotal; // Suma neta sin IVA
+	// 				acc.totalServices += s.totalPrice; // Suma total con IVA
+	// 				acc.totalIVA += s.ivaAmount; // IVA acumulado
+	// 				return acc;
+	// 			},
+	// 			{ netTotalServices: 0, totalServices: 0, totalIVA: 0 }
+	// 		);
+
+	// 		const totalCost =
+	// 			recalculatedTotals.totalServices + (prevPaymentData.totalParking || 0);
+
+	// 		// Actualizar el estado de `paymentData`
+	// 		return {
+	// 			...prevPaymentData,
+	// 			extraServices: updatedExtraServices,
+	// 			netTotalServices: recalculatedTotals.netTotalServices,
+	// 			totalServices: recalculatedTotals.totalServices,
+	// 			totalCost,
+	// 		};
+	// 	});
+	// };
+
 	const combinedServices = extraServices.map((service) => {
-		const existingPayment = state.payments.find(
-			(payment) => payment.id === service.name
+		// Busca si el servicio ya está en `paymentData.extraServices`
+		const existingService = paymentData.extraServices.find(
+			(extra) => extra.code === service.name
 		);
+
 		return {
 			...service,
-			quantity: existingPayment?.quantity || 0,
-			isLocked: existingPayment?.isLocked || false,
+			quantity: existingService?.quantity || 0, // Usa la cantidad actualizada de `extraServices`
+			isLocked: existingService?.isLocked || false, // Preserva el bloqueo si ya estaba marcado
 		};
 	});
 
 	// Actualizar cantidad
 	const updateQuantity = (serviceName: string, quantityChange: number) => {
 		const service = combinedServices.find((s) => s.name === serviceName);
-		if (!service) return;
+		if (!service || service.isLocked) return; // Evita modificar servicios bloqueados
 
-		const currentQuantity = service.quantity || 0; // Obtiene la cantidad actual
-		const newQuantity = currentQuantity + quantityChange; // Calcula la nueva cantidad
+		const currentQuantity = service.quantity || 0;
+		const newQuantity = currentQuantity + quantityChange;
 
-		if (newQuantity < 0) return; // Evita cantidades negativas
+		if (newQuantity < 0) return; // Evitar cantidades negativas
 
-		// Calcula el total actualizado del servicio y el IVA
-		const updatedServiceTotal = service.value * newQuantity;
-		const updatedIvaAmount =
-			updatedServiceTotal * (service.IVAPercentage / 100);
+		setPaymentData((prevPaymentData: PaymentData) => {
+			// Copia de los servicios existentes
+			const updatedExtraServices = [...prevPaymentData.extraServices];
 
-		// Actualiza el contexto del estado
-		dispatch({
-			type: "UPDATE_PAYMENT",
-			payload: {
-				id: service.name,
-				name: service.name,
-				price: service.value,
-				quantityChange,
-				isLocked: service.isLocked,
-				ivaAmount: updatedIvaAmount,
-			},
+			// Buscar si el servicio ya existe en `extraServices`
+			const existingServiceIndex = updatedExtraServices.findIndex(
+				(s) => s.code === service.name
+			);
+
+			if (existingServiceIndex !== -1) {
+				if (newQuantity === 0) {
+					// Si la cantidad llega a 0, eliminar el servicio
+					updatedExtraServices.splice(existingServiceIndex, 1);
+				} else {
+					// Actualizar el servicio existente
+					updatedExtraServices[existingServiceIndex] = {
+						...updatedExtraServices[existingServiceIndex],
+						quantity: newQuantity,
+						totalPrice:
+							newQuantity * service.value * (1 + service.IVAPercentage / 100),
+						ivaAmount:
+							newQuantity * service.value * (service.IVAPercentage / 100),
+						netTotal: newQuantity * service.value, // Sin IVA
+					};
+				}
+			} else if (quantityChange > 0) {
+				// Si no existe y la cantidad es mayor que 0, agregar el servicio
+				updatedExtraServices.push({
+					code: service.name,
+					name: service.name,
+					quantity: quantityChange,
+					unitPrice: service.value,
+					totalPrice:
+						quantityChange * service.value * (1 + service.IVAPercentage / 100),
+					iva: service.IVAPercentage,
+					ivaAmount:
+						quantityChange * service.value * (service.IVAPercentage / 100),
+					netTotal: quantityChange * service.value, // Sin IVA
+					isLocked: false, // Por defecto no bloqueado
+				});
+			}
+
+			// Recalcular totales
+			const recalculatedTotals = updatedExtraServices.reduce(
+				(acc, s) => {
+					acc.netTotalServices += s.netTotal; // Suma neta sin IVA
+					acc.totalServices += s.totalPrice; // Suma total con IVA
+					acc.totalIVA += s.ivaAmount; // IVA acumulado
+					return acc;
+				},
+				{ netTotalServices: 0, totalServices: 0, totalIVA: 0 }
+			);
+
+			const totalCost =
+				recalculatedTotals.totalServices + (prevPaymentData.totalParking || 0);
+
+			// Actualizar el estado de `paymentData`
+			return {
+				...prevPaymentData,
+				extraServices: updatedExtraServices,
+				netTotalServices: recalculatedTotals.netTotalServices,
+				totalServices: recalculatedTotals.totalServices,
+				totalCost,
+			};
 		});
-
-		// Recalcula todos los totales desde cero
-		const updatedPayments = [
-			...state.payments.filter((payment) => payment.id !== service.name), // Excluye el servicio actual
-			...(newQuantity > 0
-				? [
-						{
-							id: service.name,
-							name: service.name,
-							price: service.value,
-							quantity: newQuantity, // Nueva cantidad exacta
-						},
-					]
-				: []), // Solo agrega si la cantidad es mayor que 0
-		];
-
-		const recalculatedTotals = updatedPayments.reduce(
-			(acc, payment) => {
-				const totalService = payment.price * payment.quantity;
-				const ivaService = totalService * (service.IVAPercentage / 100);
-
-				return {
-					totalServices: acc.totalServices + totalService,
-					totalIVA: acc.totalIVA + ivaService,
-				};
-			},
-			{ totalServices: 0, totalIVA: 0 }
-		);
-
-		// Actualiza el estado de paymentData
-		setPaymentData((prevPaymentData: any) => ({
-			...prevPaymentData,
-			totalServices: recalculatedTotals.totalServices,
-			totalCost: recalculatedTotals.totalServices + recalculatedTotals.totalIVA,
-			netTotal:
-				recalculatedTotals.totalServices + (prevPaymentData.totalParking || 0),
-		}));
+		console.log(paymentData.extraServices);
 	};
 
 	// Calcular costos
@@ -189,19 +294,23 @@ export default function ExtraServices(props: {
 					<div className="grid grid-cols-2 gap-5">
 						<p className="text-end">Total sin IVA:</p>
 						<span className="text-start">
-							${netCost.toLocaleString("es-CO")}
+							${paymentData.netTotalServices?.toLocaleString("es-CO")}
 						</span>
 					</div>
 					<div className="grid grid-cols-2 gap-5">
 						<p className="text-end">Valor IVA:</p>
 						<span className="text-start">
-							${ivaAmount.toLocaleString("es-CO")}
+							$
+							{(
+								(paymentData.totalServices || 0) -
+								(paymentData.netTotalServices || 0)
+							).toLocaleString("es-CO")}
 						</span>
 					</div>
 					<div className="grid grid-cols-2 gap-5 text-2xl">
 						<strong className="text-end">Total:</strong>
 						<span className="text-start">
-							${totalCost.toLocaleString("es-CO")}
+							${(paymentData.totalServices || 0).toLocaleString("es-CO")}
 						</span>
 					</div>
 					<Button

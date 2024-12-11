@@ -59,9 +59,10 @@ const Home = () => {
 			processId: 0,
 			incomeDatetime: "- -",
 			paidDatetime: "",
-			expectedOutComeDatetime: "",
+			expectedOutcomeDatetime: "",
 		},
 		vehicleKind: "",
+		extraServices: [],
 	});
 
 	const INCOME_CONDITION_TYPE = {

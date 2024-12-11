@@ -8,7 +8,7 @@ export default function ParkingLayout({ children }: { children: ReactNode }) {
 		<>
 			<Navbar />
 			<main className="container mx-auto max-w-7xl px-6 flex-grow">
-				<Toaster richColors />
+				<Toaster richColors duration={2000} />
 				{children}
 			</main>
 		</>

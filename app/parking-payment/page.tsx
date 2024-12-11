@@ -29,6 +29,8 @@ import { formatDate } from "../libs/utils";
 import { Tooltip } from "@nextui-org/react";
 import { CartIcon } from "@/components/icons";
 import PaymentGenerate from "@/types/PaymentGenerate";
+import { initialPaymentData } from "../libs/initialStates";
+import { toast } from "sonner";
 
 export default function ParkingPayment() {
 	// Contexto de autenticación para obtener el usuario actual
@@ -114,21 +116,10 @@ export default function ParkingPayment() {
 			discountCode: "",
 			datetime: new Date().toISOString(),
 			discountTotal: 0,
-			extraServices: [
-				...paymentData.extraServices,
-				{
-					code: paymentData.selectedService?.name,
-					name: paymentData.selectedService?.name,
-					quantity: 1,
-					unitPrice: paymentData.subtotal,
-					totalPrice: paymentData.total,
-					iva: paymentData.IVAPercentage,
-					ivaAmmount: paymentData.IVATotal,
-					netTotal: paymentData.subtotal,
-					identificationMethod: paymentData.identificationType,
-					identificationId: paymentData.identificationCode,
-				},
-			],
+			// extraServices: [...paymentData.extraServices],
+			extraServices: paymentData.extraServices.map(
+				({ isLocked, ...rest }) => rest
+			),
 			identificationCode: paymentData.identificationCode,
 			identificationType: paymentData.identificationType,
 			IVAPercentage: paymentData.IVAPercentage,
@@ -144,6 +135,18 @@ export default function ParkingPayment() {
 			vehicleParkingTime: paymentData.validationDetail.timeInParking,
 		};
 
+		if (paymentData.concept !== "Servicios varios") {
+			dataToPay.extraServices.push({
+				code: paymentData.concept,
+				name: paymentData.concept,
+				quantity: 1,
+				unitPrice: paymentData.subtotal,
+				totalPrice: paymentData.total,
+				iva: paymentData.IVAPercentage,
+				ivaAmount: paymentData.IVATotal,
+				netTotal: paymentData.subtotal,
+			});
+		}
 		// Envía el pago al backend
 		savePayment(dataToPay);
 	};
@@ -177,19 +180,33 @@ export default function ParkingPayment() {
 
 	// Función para guardar el pago en el backend
 	const savePayment = async (data: any) => {
-		try {
-			setLoadingPayment(true); // Activa el indicador de carga
-			const response = await axios.post(
+		setLoadingPayment(true); // Activa el indicador de carga
+
+		toast.promise(
+			axios.post(
 				`${process.env.NEXT_PUBLIC_LOCAL_APIURL}/access-control/visitor-service/generateNewPP`,
 				data
-			);
-			console.log("Pago registrado:", response.data);
-		} catch (error) {
-			console.error("Error al registrar el pago:", error);
-		} finally {
-			setLoadingPayment(false); // Desactiva el indicador de carga
-			onCloseModalConfirmationDos(); // Cierra el modal de confirmación
-		}
+			),
+			{
+				loading: "Procesando el pago...",
+				success: (response: any) => {
+					console.log("Pago registrado:", response.data);
+					setPaymentData(initialPaymentData);
+
+					return "Pago registrado correctamente";
+				},
+				error: (error) => {
+					setPaymentData(initialPaymentData);
+					console.error("Error al registrar el pago:", error);
+					return "Error al registrar el pago. Por favor, inténtalo de nuevo.";
+				},
+				finally: () => {
+					console.log(initialPaymentData);
+					setLoadingPayment(false); // Desactiva el indicador de carga
+					onCloseModalConfirmationDos(); // Cierra el modal de confirmación
+				},
+			}
+		);
 	};
 	return (
 		<section className="flex flex-col lg:flex-row flex-grow flex-1 gap-1 justify-center items-center h-full w-full">
@@ -404,7 +421,12 @@ export default function ParkingPayment() {
 							console.log(state.payments);
 							console.log(paymentData);
 							if (!paymentMethod) {
+								toast.error("Porfavor, selecciona un medio de pago válido");
 								// TODO Modal de error para decir que se seleccione el tipo de pago
+							} else if (moneyReceived < (paymentData.totalCost || 0)) {
+								toast.error(
+									"Porfavor, ingrese el dinero para realizar el pago"
+								);
 							} else {
 								console.log(state.payments);
 								onOpenModalConfirmation();
@@ -468,10 +490,19 @@ export default function ParkingPayment() {
 						</Button>
 					</Tooltip>
 					{/* Badge */}
-					{state.payments.length > 0 && (
+					{/* {state.payments.length > 0 && (
 						<span className="absolute top-0 left-2 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full transform translate-x-2 -translate-y-2">
 							{state.payments.reduce(
 								(acc, payment) => acc + payment.quantity,
+								0
+							)}
+						</span>
+					)}
+				</div> */}
+					{paymentData.extraServices.length > 0 && (
+						<span className="absolute top-0 left-2 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full transform translate-x-2 -translate-y-2">
+							{paymentData.extraServices.reduce(
+								(acc, service) => acc + service.quantity,
 								0
 							)}
 						</span>

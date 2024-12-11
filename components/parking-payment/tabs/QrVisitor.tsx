@@ -9,6 +9,7 @@ import UseServices from "../../../app/hooks/parking-payment/UseServices";
 import { PaymentData } from "@/types";
 import { usePaymentContext } from "@/app/context/PaymentContext";
 import { initialPaymentData } from "@/app/libs/initialStates";
+import { toast } from "sonner";
 
 export default function VisitanteQr() {
 	const { state, dispatch, paymentData, setPaymentData } = usePaymentContext();
@@ -30,51 +31,126 @@ export default function VisitanteQr() {
 	const { services } = UseServices("Visitante");
 
 	// CONSUMO VALIDATE
+	// const searchDataValidate = async () => {
+	// 	try {
+	// 		const response = await axios.post(
+	// 			`${process.env.NEXT_PUBLIC_LOCAL_APIURL}/access-control/visitor-service/validateNewPP`,
+	// 			{
+	// 				identificationType: "QR",
+	// 				identificationCode: paymentData.identificationCode,
+	// 				plate: paymentData.plate,
+	// 			}
+	// 		);
+
+	// 		// Procesar servicios recibidos del backend
+	// 		const updatedExtraServices =
+	// 			response.data.extraServices?.map((service: any) => ({
+	// 				code: service.code,
+	// 				name: service.name,
+	// 				quantity: service.quantity || 1,
+	// 				unitPrice: service.unitPrice,
+	// 				totalPrice:
+	// 					service.unitPrice *
+	// 					(service.quantity || 1) *
+	// 					(1 + service.iva / 100),
+	// 				iva: service.iva,
+	// 				ivaAmount:
+	// 					service.unitPrice * (service.quantity || 1) * (service.iva / 100),
+	// 				netTotal: service.unitPrice * (service.quantity || 1),
+	// 			})) || [];
+
+	// 		// Recalcular totales
+	// 		const recalculatedTotals = updatedExtraServices.reduce(
+	// 			(acc: any, service: any) => {
+	// 				acc.netTotalServices += service.netTotal;
+	// 				acc.totalServices += service.totalPrice;
+	// 				acc.totalIVA += service.ivaAmount;
+	// 				return acc;
+	// 			},
+	// 			{ netTotalServices: 0, totalServices: 0, totalIVA: 0 }
+	// 		);
+
+	// 		// Calcular total final, incluyendo totalParking
+	// 		const totalParking = response.data.total || 0; // Valor de totalParking proporcionado por el backend
+	// 		const totalCost = recalculatedTotals.totalServices + totalParking;
+
+	// 		// Actualizar paymentData
+	// 		setPaymentData({
+	// 			...response.data,
+	// 			extraServices: updatedExtraServices,
+	// 			netTotalServices: recalculatedTotals.netTotalServices,
+	// 			totalServices: recalculatedTotals.totalServices,
+	// 			totalParking, // Actualizamos totalParking directamente
+	// 			totalCost, // Incluye totalParking y servicios adicionales
+	// 		});
+	// 	} catch (error) {
+	// 		console.error("Error al validar el QR:", error);
+	// 	}
+	// };
+
 	const searchDataValidate = async () => {
-		try {
-			const response = await axios.post(
+		toast.promise(
+			axios.post(
 				`${process.env.NEXT_PUBLIC_LOCAL_APIURL}/access-control/visitor-service/validateNewPP`,
 				{
 					identificationType: "QR",
 					identificationCode: paymentData.identificationCode,
 					plate: paymentData.plate,
 				}
-			);
-
-			// AGREGAR SERVICIOS ACTIVOS AL CARRITO SI VIENEN EN EL VALIDATE
-			let totalService = 0;
-			let totalServiceWithIVA = 0;
-
-			if (response.data.extraServices?.length > 0) {
-				response.data.extraServices.forEach((service: any) => {
-					const serviceTotal = service.unitPrice * (service.quantity || 1);
-					totalService += serviceTotal;
-					totalServiceWithIVA += service.totalPrice;
-					dispatch({
-						type: "UPDATE_PAYMENT",
-						payload: {
-							id: service.code, // Identificador único
+			),
+			{
+				loading: "Validando datos del visitante...",
+				success: (response) => {
+					// Procesar servicios recibidos del backend
+					const updatedExtraServices =
+						response.data.extraServices?.map((service: any) => ({
+							code: service.code,
 							name: service.name,
-							price: service.unitPrice,
-							quantityChange: service.quantity || 1, // Usar la cantidad o por defecto 1
-							ivaAmount: service.ivaAmount,
-							isLocked: true, // Bloquear modificaciones
-						},
-					});
-				});
-			}
+							quantity: service.quantity || 1,
+							unitPrice: service.unitPrice,
+							totalPrice:
+								service.unitPrice *
+								(service.quantity || 1) *
+								(1 + service.iva / 100),
+							iva: service.iva,
+							ivaAmount:
+								service.unitPrice *
+								(service.quantity || 1) *
+								(service.iva / 100),
+							netTotal: service.unitPrice * (service.quantity || 1),
+							isLocked: true,
+						})) || [];
 
-			setPaymentData({
-				...response.data,
-				totalServices: totalServiceWithIVA,
-				totalParking: response.data.total,
-				netTotal: totalService + response.data.total,
-				totalCost: totalServiceWithIVA + response.data.total,
-			});
-			console.log(paymentData);
-		} catch (error) {
-			console.error(error);
-		}
+					// Recalcular totales
+					const recalculatedTotals = updatedExtraServices.reduce(
+						(acc: any, service: any) => {
+							acc.netTotalServices += service.netTotal;
+							acc.totalServices += service.totalPrice;
+							acc.totalIVA += service.ivaAmount;
+							return acc;
+						},
+						{ netTotalServices: 0, totalServices: 0, totalIVA: 0 }
+					);
+
+					// Calcular total final, incluyendo totalParking
+					const totalParking = response.data.total || 0; // Valor de totalParking proporcionado por el backend
+					const totalCost = recalculatedTotals.totalServices + totalParking;
+
+					// Actualizar paymentData
+					setPaymentData({
+						...response.data,
+						extraServices: updatedExtraServices,
+						netTotalServices: recalculatedTotals.netTotalServices,
+						totalServices: recalculatedTotals.totalServices,
+						totalParking, // Actualizamos totalParking directamente
+						totalCost, // Incluye totalParking y servicios adicionales
+					});
+
+					return "Datos validados correctamente";
+				},
+				error: "Error al validar los datos. Por favor, intente de nuevo.",
+			}
+		);
 	};
 
 	return (
@@ -125,6 +201,7 @@ export default function VisitanteQr() {
 						className="w-1/2"
 						variant="bordered"
 						required
+						value={paymentData.identificationCode}
 						onChange={(e) => {
 							setPaymentData({
 								...paymentData,
