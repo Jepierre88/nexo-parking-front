@@ -39,10 +39,10 @@ export const Navbar = () => {
   // Verificar si el usuario tiene un permiso específico
   const hasPermission = (permissionId: number): boolean =>
     permissions.includes(permissionId);
-
+  //con hover y negrilla y que quede seleccionado que estoy en la interface
   const navbarOptions = [
     {
-      label: "ADMINISTRADOR",
+      label: "Administrador",
       key: 1,
       items: [
         {
@@ -54,35 +54,35 @@ export const Navbar = () => {
       ],
     },
     {
-      label: "OPERACIÓN",
+      label: "Operación",
       key: 2,
       items: [
         {
-          label: "INGRESOS",
+          label: "Ingreso",
           key: 2,
           href: "/parking-payment/operations/incomes",
           permission: 2,
         },
         {
-          label: "SALIDAS",
+          label: "Salidas",
           key: 3,
           href: "/parking-payment/operations/outcomes",
           permission: 3,
         },
         {
-          label: "PROCESOS DE PAGO",
+          label: "Procesos De Pago",
           key: 4,
           href: "/parking-payment",
           permission: 4,
         },
         {
-          label: "TRANSACCIONES",
+          label: "Transacciones",
           key: 5,
           href: "/parking-payment/operations/transaction",
           permission: 5,
         },
         {
-          label: "REALIZAR CIERRE",
+          label: "Realizar Cierre",
           key: 6,
           href: "/parking-payment/operations/parkingClosure",
           permission: 6,
@@ -90,11 +90,11 @@ export const Navbar = () => {
       ],
     },
     {
-      label: "INGRESO POR PLACA",
+      label: "Ingreso Por Placa",
       key: 3,
       items: [
         {
-          label: "INGRESO MANUAL POR PLACA",
+          label: "Ingreso Manual Por Placa",
           key: 7,
           href: "/parking-payment/ingresoSalida",
           permission: 7,
@@ -167,7 +167,7 @@ export const Navbar = () => {
               variant="light"
               onClick={cerrarSesion}
             >
-              CERRAR SESIÓN
+              Cerrar Sesión
             </Button>
           </ul>
         </div>

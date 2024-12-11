@@ -333,7 +333,7 @@ const Users = () => {
                         <Input
                           className="ml-4 w-2/3"
                           disabled={isView}
-                          placeholder="Ej: jperez01"
+                          placeholder="Digite el usuario"
                           type="text"
                           {...register("username")}
                         />
@@ -350,7 +350,7 @@ const Users = () => {
                         <Input
                           className="ml-4 w-2/3"
                           disabled={isView}
-                          placeholder="Mínimo 8 caracteres"
+                          placeholder="Digite la contraeña"
                           type="password"
                           {...register("password")}
                         />
@@ -367,7 +367,7 @@ const Users = () => {
                         <Input
                           className="ml-4 w-2/3"
                           disabled={isView}
-                          placeholder="Ej: jperez01@gmail.com"
+                          placeholder="Digite el email"
                           type="email"
                           {...register("email")}
                         />
@@ -384,7 +384,7 @@ const Users = () => {
                         <Input
                           className="ml-4 w-2/3"
                           disabled={isView}
-                          placeholder="Ej: Juan Felipe"
+                          placeholder="Digite el nombre"
                           type="text"
                           {...register("name")}
                         />
@@ -401,7 +401,7 @@ const Users = () => {
                         <Input
                           className="ml-4 w-2/3"
                           disabled={isView}
-                          placeholder="Ej: Pérez"
+                          placeholder="Digite el apellido"
                           type="text"
                           {...register("lastName")}
                         />
@@ -504,7 +504,7 @@ const Users = () => {
                         <Input
                           className="ml-4 w-2/3"
                           disabled={isView}
-                          placeholder="Digite aquí el nombre"
+                          placeholder="Digite el nombre"
                           type="text"
                           {...editRegister("name")}
                         />
@@ -520,7 +520,7 @@ const Users = () => {
                       <Input
                         className="ml-4 w-2/3"
                         disabled={isView}
-                        placeholder="Digite aquí el apellido"
+                        placeholder="Digite el apellido"
                         type="text"
                         {...editRegister("lastName")}
                       />
@@ -536,7 +536,7 @@ const Users = () => {
                       <Input
                         className="ml-4 w-2/3"
                         disabled={isView}
-                        placeholder="Digite aquí el usuario"
+                        placeholder="Digite el usuario"
                         type="text"
                         {...editRegister("username")}
                       />
@@ -552,7 +552,7 @@ const Users = () => {
                       <Input
                         className="ml-4 w-2/3"
                         disabled={isView}
-                        placeholder="Digite aquí el email"
+                        placeholder="Digite el email"
                         type="email"
                         {...editRegister("email")}
                       />
