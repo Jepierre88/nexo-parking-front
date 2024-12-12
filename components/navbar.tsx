@@ -17,6 +17,8 @@ import { Button } from "@nextui-org/button";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import COINSLOGO from "@/public/LOGO.png";
+import { UserIcon } from "./icons";
+import { Avatar } from "@nextui-org/react";
 
 export const Navbar = () => {
   const [loading, setLoading] = useState(false);
@@ -39,7 +41,7 @@ export const Navbar = () => {
   // Verificar si el usuario tiene un permiso específico
   const hasPermission = (permissionId: number): boolean =>
     permissions.includes(permissionId);
-  //con hover y negrilla y que quede seleccionado que estoy en la interface
+
   const navbarOptions = [
     {
       label: "Administrador",
@@ -78,7 +80,7 @@ export const Navbar = () => {
         {
           label: "Transacciones",
           key: 5,
-          href: "/parking-payment/operations/transaction",
+          href: "/parking-payment/operations/transactions",
           permission: 5,
         },
         {
@@ -125,61 +127,73 @@ export const Navbar = () => {
 
   return (
     <NextUINavbar
-      className="flex flex-col gap-1 justify-center items-center"
+      className="flex flex-row justify-between items-center"
       maxWidth="xl"
       position="sticky"
     >
-      <NavbarContent className="flex flex-col lg:flex-row gap-4 justify-start">
-        <div className="flex gap-4 flex-grow justify-end">
-          {filteredNavbarOptions.map((option) => (
-            <ul className="flex gap-5 justify-start ml-2" key={option.key}>
-              <Dropdown>
-                <NavbarItem>
-                  <DropdownTrigger>
-                    <Button
-                      disableRipple
-                      className="p-0 bg-transparent data-[hover=true]:bg-transparent"
-                      radius="sm"
-                      variant="light"
-                    >
-                      {option.label}
-                    </Button>
-                  </DropdownTrigger>
-                </NavbarItem>
-                <DropdownMenu
-                  aria-label={option.label}
-                  className="w-full p-0 -mx-0"
-                >
-                  {option.items.map((item) => (
-                    <DropdownItem key={item.key} href={item.href}>
-                      {item.label}
-                    </DropdownItem>
-                  ))}
-                </DropdownMenu>
-              </Dropdown>
-            </ul>
-          ))}
-          <ul className="flex gap-4 justify-start ml-2">
-            <Button
-              disableRipple
-              className="p-0 bg-transparent data-[hover=true]:bg-transparent"
-              radius="sm"
-              variant="light"
-              onClick={cerrarSesion}
-            >
-              Cerrar Sesión
-            </Button>
+      <NavbarBrand
+        as="li"
+        className="gap-3 my-auto self-start max-w-md flex justify-start"
+      >
+        <Image alt="Logo" className="my-auto" height={65} src={COINSLOGO} />
+      </NavbarBrand>
+
+      <NavbarContent className="flex flex-row gap-4 justify-center">
+        {filteredNavbarOptions.map((option) => (
+          <ul className="flex gap-5 " key={option.key}>
+            <Dropdown>
+              <NavbarItem>
+                <DropdownTrigger>
+                  <Button
+                    disableRipple
+                    className="p-0 bg-transparent data-[hover=true]:bg-transparent"
+                    radius="sm"
+                    variant="light"
+                  >
+                    {option.label}
+                  </Button>
+                </DropdownTrigger>
+              </NavbarItem>
+              <DropdownMenu
+                aria-label={option.label}
+                className="w-full p-0 -mx-0"
+              >
+                {option.items.map((item) => (
+                  <DropdownItem key={item.key} href={item.href}>
+                    {item.label}
+                  </DropdownItem>
+                ))}
+              </DropdownMenu>
+            </Dropdown>
           </ul>
-        </div>
+        ))}
       </NavbarContent>
-      <NavbarContent className="" justify="end">
-        <NavbarBrand
-          as="li"
-          className="gap-3 my-auto self-end max-w-md flex justify-end"
-        >
-          <Image alt="..." className="my-auto" height={65} src={COINSLOGO} />
-        </NavbarBrand>
-      </NavbarContent>
+
+      <ul className="flex  justify-end">
+        <Dropdown>
+          <NavbarItem>
+            <DropdownTrigger>
+              <Button
+                disableRipple
+                className="p-0 bg-transparent data-[hover=true]:bg-transparent"
+                radius="sm"
+                variant="light"
+              >
+                <Avatar color="primary"></Avatar>
+                Perfil
+              </Button>
+            </DropdownTrigger>
+          </NavbarItem>
+          <DropdownMenu aria-label="Usuario" className="w-full p-0 -mx-0">
+            <DropdownItem key="perfil" onClick={() => router.push("/perfil")}>
+              Perfil
+            </DropdownItem>
+            <DropdownItem key="cerrarSesion" onClick={cerrarSesion}>
+              Cerrar Sesión
+            </DropdownItem>
+          </DropdownMenu>
+        </Dropdown>
+      </ul>
     </NextUINavbar>
   );
 };

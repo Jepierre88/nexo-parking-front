@@ -25,7 +25,6 @@ import { ModalError, ModalExito } from "@/components/modales";
 import Loading from "@/app/loading";
 import { createUserSchema } from "@/app/schemas/validationSchemas";
 import { editUserSchema } from "@/app/schemas/validationSchemas";
-
 import CustomDataGrid from "@/components/customDataGrid";
 import { Preview } from "@mui/icons-material";
 import { match } from "assert";
@@ -35,6 +34,7 @@ import ActionButton from "@/components/actionButtonProps";
 import { permissionsConfig } from "@/config/permissionsConfig";
 import MessageError from "@/components/menssageError";
 import Image from "next/image";
+
 import SelectPermission from "@/app/selectPermission";
 const initialUserEdit: User = {
   cellPhoneNumber: "",
