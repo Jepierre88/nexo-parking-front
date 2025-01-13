@@ -107,6 +107,7 @@ const ingresoSalida = () => {
 
     return true;
   };
+
   const handleInputChangeIn = (e: any) => {
     const placa = e.target.value.toUpperCase();
 

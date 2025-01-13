@@ -9,12 +9,14 @@ const UsePermissions = () => {
     const storedPermissions = Cookies.get("permissions")
       ? JSON.parse(Cookies.get("permissions")!)
       : [];
+    if (storedPermissions.length === 0) {
+      console.warn("No se encontraron permisos en las cookies");
+    }
     setPermissions(storedPermissions);
   }, []);
 
   const hasPermission = (requiredPermission: number) => {
     if (permissions === null) {
-      console.log("No tienes permiso para esta acción");
       return false;
     }
     return permissions.includes(requiredPermission);

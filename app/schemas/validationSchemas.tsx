@@ -124,3 +124,17 @@ export const resetPasswordSchema = (existingUserEmails: string[]) => {
       }),
   });
 };
+
+export const montleSubscription = z.object({
+  placa: z
+    .string()
+    .max(6, "La placa debe tener exactamente 6 caracteres")
+    .regex(/^[A-Za-z0-9]*$/, "Digite la placa sin caracteres especiales"),
+});
+
+export const validateIdentificationCode = z.object({
+  identificationCode: z
+    .string()
+    .min(1, "La cédula es obligatoria")
+    .regex(/^\d+$/, "Digite la cédula sin caracteres especiales"),
+});

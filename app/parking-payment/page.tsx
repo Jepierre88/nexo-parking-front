@@ -172,6 +172,13 @@ function ParkingPayment() {
       onCloseModalConfirmationDos(); // Cierra el modal de confirmación
     }
   };
+
+  useEffect(() => {
+    const totalCost = paymentData?.totalCost ?? 0;
+    const received = isNaN(moneyReceived) ? 0 : moneyReceived;
+
+    setCashBack(received - totalCost);
+  }, [moneyReceived, paymentData?.totalCost]);
   return (
     <section className="flex flex-col lg:flex-row flex-grow flex-1 gap-1 justify-center items-center h-full w-full">
       {/* Sección de procesos */}
@@ -179,7 +186,7 @@ function ParkingPayment() {
         <CardHeader className="flex flex-col gap-1">
           <h1 className="font-bold text-3xl text-center my-3">Procesos</h1>
         </CardHeader>
-        <CardBody className="my-auto">
+        <CardBody className="-my-5">
           {/* Tabs para diferentes tipos de procesos */}
           <Tabs
             className="mx-auto"
@@ -231,7 +238,15 @@ function ParkingPayment() {
                 <span className="w-full">
                   <strong>Tipo de vehículo:</strong>
                 </span>
-                <span className="w-full">{paymentData?.vehicleKind}</span>
+                <span className="w-full">
+                  {paymentData?.plate
+                    ? /^[A-Za-z0-9]*[0-9]$/.test(paymentData.plate) // Ends in a number
+                      ? "Carro"
+                      : /^[A-Za-z0-9]*[A-Za-z]$/.test(paymentData.plate) // Ends in a letter
+                        ? "Moto"
+                        : ""
+                    : ""}{" "}
+                </span>
               </div>
               <div className="text-base text-start mb-1 flex gap-4 justify-between">
                 <span className="w-full">
@@ -268,8 +283,9 @@ function ParkingPayment() {
                   <strong>Total sin IVA:</strong>
                 </span>
                 <span className="w-full">
+                  $
                   {paymentData?.subtotal &&
-                    `$${paymentData.subtotal.toLocaleString("es-CO")}`}
+                    `${paymentData.subtotal.toLocaleString("es-CO")}`}
                 </span>
               </div>
               <hr className="border-t-1 border-neutral-300 my-3" />
@@ -292,40 +308,14 @@ function ParkingPayment() {
           <h1 className="font-bold text-3xl text-center">Datos de pago</h1>
           <h1 className="font-bold text-xl text-center">{subHeaderTitle}</h1>
         </CardHeader>
-        <CardBody className="flex justify-center items-center">
-          <form className="flex flex-col items-center justify-center">
-            <div className="flex flex-col place-items-end mb-1 my-2 gap-2">
-              <Checkbox
-                className="-mt-5"
-                color="primary"
-                onChange={() => setIsVisible((prev) => !prev)}
-              >
-                <p className="text-gray-600 my-2 px-4 mb-2">
-                  Facturación electrónica
-                </p>
-              </Checkbox>
-              {isVisible && (
-                <div className="flex gap-4 justify-between px-4">
-                  <label className="text-lg font-bold my-auto">
-                    Número De Factura Electrónica
-                  </label>
-                  <Input
-                    className="w-1/1"
-                    variant="underlined"
-                    onChange={(e) => {
-                      setPaymentData((prev: any) => ({
-                        ...prev, // Incluye todas las propiedades previas
-                        identificationCode: e.target.value, // Sobrescribe identificationCode
-                      }));
-                    }}
-                  />
-                </div>
-              )}
-              <div className="text-base mb-1 mt-2 flex gap-4 justify-between px-4">
+        <CardBody className="flex justify-center items-center gap-">
+          <form className="flex flex-col items-center justify-center w-full">
+            <div className="flex flex-col place-items-end gap-2 w-full px-4">
+              <div className="text-base text-start mb-1 flex gap-4 justify-between">
                 <strong>TOTAL:</strong>${paymentData.totalCost ?? 0}
               </div>
 
-              <div className="flex gap-4 justify-between px-4">
+              <div className=" text-start mb-1 flex gap-4 justify-between">
                 <label className="text-lg font-bold my-auto">
                   Medio de pago
                 </label>
@@ -356,21 +346,28 @@ function ParkingPayment() {
                   ))}
                 </Select>
               </div>
-              <div className="flex gap-4 justify-between px-4">
+              <div className="text-start mb-1 flex  justify-between">
                 <label className="text-lg font-bold my-auto">Recibido</label>
                 <Input
-                  className="w-1/1"
+                  className="w-1/2"
                   value={moneyReceived.toString()}
                   variant="underlined"
                   type="number"
                   onChange={(e) => {
-                    const value = parseInt(e.target.value) || 0;
+                    const value = parseFloat(e.target.value) || 0;
                     setMoneyReceived(value);
                   }}
-                />
+                >
+                  $
+                </Input>
               </div>
+
               <div className="flex gap-4 justify-between px-4">
-                <label className="text-lg font-bold my-auto">
+                <label
+                  className={`text-lg font-bold my-auto ${
+                    cashBack < 0 ? "text-red-500" : "text-black"
+                  }`}
+                >
                   Devolución: ${cashBack}
                 </label>
               </div>

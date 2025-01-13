@@ -8,6 +8,9 @@ export interface Email {
 	email: string;
 }
 
+export interface IdentificationCode {
+	identificationCode:string;
+}
 export interface IngresoSalida {
 	identificationType: "QR";
 	plate: string;

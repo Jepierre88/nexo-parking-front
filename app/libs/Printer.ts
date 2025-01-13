@@ -54,8 +54,14 @@ export class Connector {
 		});
 
 		// Información del encabezado
-		this.operaciones.push({ accion: "textalign", datos: "left" });
-		this.operaciones.push({ accion: "bold", datos: "on" });
+		this.operaciones.push({ 
+			accion: "textalign", 
+			datos: "left" 
+		});
+		this.operaciones.push({ 
+			accion: "bold", 
+			datos: "on" 
+		});
 		this.operaciones.push({
 			accion: "text",
 			datos: `FACTURA ELECTRONICA DE VENTA: ${factura.header.FACTURA_ELECTRONICA_DE_VENTA.toString()}`,
@@ -80,7 +86,6 @@ export class Connector {
 			accion: "text",
 			datos: `CC/NIT: ${factura.header.NIT}`,
 		});
-		//FORMA DE PAGO
 		this.operaciones.push({
 			accion: "text",
 			datos: `FORMA DE PAGO: ${factura.header.FORMA_DE_PAGO}`,

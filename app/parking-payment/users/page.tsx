@@ -31,7 +31,7 @@ import { match } from "assert";
 import { error } from "console";
 import withPermission from "@/app/withPermission";
 import ActionButton from "@/components/actionButtonProps";
-import { permissionsConfig } from "@/config/permissionsConfig";
+
 import MessageError from "@/components/menssageError";
 import Image from "next/image";
 
@@ -298,7 +298,7 @@ const Users = () => {
         <h1 className={title()}>Usuarios</h1>
         <ActionButton
           permission={8}
-          label={permissionsConfig[8]?.label || "+Agregar usuario"}
+          label={"+Agregar usuario"}
           onClick={onOpen}
         />
       </div>
