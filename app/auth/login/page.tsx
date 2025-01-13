@@ -24,7 +24,7 @@ import { EyeFilledIcon, EyeSlashFilledIcon } from "@/components/icons";
 
 export default function Login() {
 	const { router } = UseNavigateContext();
-	const { setToken, setIsAuthenticated, setUser } = UseAuthContext();
+	const { signIn } = UseAuthContext();
 	const [loading, setLoading] = useState(false);
 	const [message, setMessage] = useState("");
 	const {
@@ -70,33 +70,22 @@ export default function Login() {
 		setIsVisiblePassword3(!isVisiblePassword3);
 
 	const onSubmit: SubmitHandler<any> = async (data: UserLogin) => {
-		console.log("ENtrando al submit");
 		setLoading(true);
+
 		try {
-			console.log();
-			const response = await axios.post(
-				`${process.env.NEXT_PUBLIC_LOCAL_APIURL}/users/login`,
-				data
-			);
+			// Llamar a la función signIn del contexto
+			await signIn(data.email, data.password);
 
-			console.log(response.data);
-			localStorage.setItem("token", response.data.token);
-			if (response.data.token) {
-				setToken(response.data.token);
-				setUser({
-					name: response.data.name,
-					lastName: response.data.lastName,
-					realm: response.data.realm,
-				});
-				setIsAuthenticated(true);
-
-				router.push("/parking-payment");
-			}
-		} catch (error) {
+			// Redirigir al usuario tras iniciar sesión
+			router.push("/parking-payment");
+		} catch (error: any) {
+			// Manejar errores de inicio de sesión
 			console.error(error);
-			setToken("");
-			setIsAuthenticated(false);
-			alert("Error en el inicio de sesión");
+			if (error.status === 401) {
+				alert("Datos incorrectos");
+			} else {
+				alert("Error al conectar con el servidor");
+			}
 		} finally {
 			setLoading(false);
 		}

@@ -34,6 +34,7 @@ import { toast } from "sonner";
 import Invoice from "@/types/Invoice";
 import { UseTransactions } from "../hooks/transactions/Usetransactions";
 import { Connector } from "../libs/Printer";
+import Cookies from "js-cookie";
 
 export default function ParkingPayment() {
 	// Contexto de autenticación para obtener el usuario actual
@@ -250,7 +251,12 @@ export default function ParkingPayment() {
 			{/* Sección de procesos */}
 			<CardPropierties>
 				<CardHeader className="flex flex-col gap-1">
-					<h1 className="font-bold text-3xl text-center my-3">Procesos</h1>
+					<h1
+						className="font-bold text-3xl text-center my-3"
+						onClick={() => console.log(Cookies.get("authToken"))}
+					>
+						Procesos
+					</h1>
 				</CardHeader>
 				<CardBody className="my-auto">
 					{/* Tabs para diferentes tipos de procesos */}

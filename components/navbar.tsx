@@ -18,6 +18,7 @@ import { Button } from "@nextui-org/button";
 import { ChevronDown } from "@/components/icons";
 import COINSLOGO from "@/public/LOGO.png";
 import Loading from "@/app/loading";
+import Cookies from "js-cookie";
 
 export const Navbar = () => {
 	const icons = {
@@ -26,14 +27,10 @@ export const Navbar = () => {
 
 	const [loading, setLoading] = useState(false);
 
-	const redirectWithLoading = (url: string): void => {
-		//setLoading(true);
-		window.location.href = url;
-	};
-
 	const cerrarSesion = () => {
 		setLoading(true);
-		localStorage.removeItem("token");
+
+		Cookies.remove("authToken");
 
 		window.location.href = "/auth/login";
 	};
