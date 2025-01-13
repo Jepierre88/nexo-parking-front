@@ -453,7 +453,7 @@ const Users = () => {
 											<Button
 												color="primary"
 												variant="ghost"
-												onClick={clearInputs}
+												onPress={clearInputs}
 											>
 												Limpiar Datos
 											</Button>
@@ -573,13 +573,13 @@ const Users = () => {
 									<div
 										className={`flex justify-between w-96 mt-4 ${isView ? "hidden" : ""}`}
 									>
-										<Button color="primary" onClick={editUser}>
+										<Button color="primary" onPress={editUser}>
 											Guardar datos
 										</Button>
 										<Button
 											color="primary"
 											variant="ghost"
-											onClick={clearInputs}
+											onPress={clearInputs}
 										>
 											Limpiar Datos
 										</Button>
@@ -612,7 +612,7 @@ const Users = () => {
 							<Button color="danger" type="submit" variant="ghost">
 								Eliminar
 							</Button>
-							<Button color="primary" onClick={onCloseDelete}>
+							<Button color="primary" onPress={onCloseDelete}>
 								Volver
 							</Button>
 						</div>

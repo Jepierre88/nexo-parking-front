@@ -30,7 +30,7 @@ const SmallButton: React.FC<SmallButtonProps> = ({
 				lineHeight: "1",
 				width: "100%",
 			}}
-			onClick={onClick}
+			onPress={onClick}
 		>
 			{label}
 		</Button>
@@ -120,7 +120,7 @@ export const ModalConfirmation = ({
 						<Button
 							className="flex-1 mr-2"
 							color="primary"
-							onClick={() => {
+							onPress={() => {
 								onConfirm();
 								modalControl.onClose();
 							}}
@@ -130,7 +130,7 @@ export const ModalConfirmation = ({
 						<Button
 							className="flex-1"
 							color="primary"
-							onClick={() => (onCancel ? onCancel() : modalControl.onClose())}
+							onPress={() => (onCancel ? onCancel() : modalControl.onClose())}
 						>
 							No
 						</Button>

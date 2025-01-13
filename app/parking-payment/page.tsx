@@ -26,11 +26,14 @@ import ExtraServices from "@/components/parking-payment/ExtraServicesCard";
 // Librerías auxiliares
 import axios from "axios";
 import { formatDate } from "../libs/utils";
-import { Tooltip } from "@nextui-org/react";
+import { Form, Tooltip } from "@nextui-org/react";
 import { CartIcon } from "@/components/icons";
 import PaymentGenerate from "@/types/PaymentGenerate";
 import { initialPaymentData } from "../libs/initialStates";
 import { toast } from "sonner";
+import Invoice from "@/types/Invoice";
+import { UseTransactions } from "../hooks/transactions/Usetransactions";
+import { Connector } from "../libs/Printer";
 
 export default function ParkingPayment() {
 	// Contexto de autenticación para obtener el usuario actual
@@ -38,6 +41,7 @@ export default function ParkingPayment() {
 
 	// Lista de métodos de pago disponibles desde un hook personalizado
 	const { namePaymentType } = UseListsPaymentMethods("namePaymentType");
+	const { getTransactionForPrint } = UseTransactions();
 
 	// Estados principales del componente
 	const [subHeaderTitle, setSubHeaderTitle] = useState("Visitante (QR)"); // Controla el subtítulo según la pestaña activa
@@ -47,6 +51,8 @@ export default function ParkingPayment() {
 	const [cashBack, setCashBack] = useState<number>(0); // Monto de devolución
 	const [showCart, setShowCart] = useState<boolean>(false); // Controla la visibilidad del carrito de servicios adicionales
 	const [loadingPayment, setLoadingPayment] = useState(false); // Indica si se está procesando un pago
+
+	const [resetKey, setResetKey] = useState(0); // Indica si
 
 	// Contexto de pago, incluye estado del carrito y datos del pago
 	const { state, dispatch, paymentData, setPaymentData } = usePaymentContext();
@@ -79,7 +85,7 @@ export default function ParkingPayment() {
 		dispatch({ type: "CLEAR_PAYMENTS" });
 	};
 
-	// Función para confirmar la acción de pago
+	// Función para pagar con impresion
 	const onConfirmAction = async () => {
 		const services = [];
 
@@ -148,10 +154,10 @@ export default function ParkingPayment() {
 			});
 		}
 		// Envía el pago al backend
-		savePayment(dataToPay);
+		savePayment(dataToPay, true);
 	};
 
-	// Función para cancelar la acción de pago
+	// Función para pagar sin impresion
 	// TODO organizar datos de parqueadero
 	const onCancelAction = async () => {
 		const dataToPay = {
@@ -175,24 +181,52 @@ export default function ParkingPayment() {
 		};
 
 		// Envía el pago al backend sin marcar como impreso
-		savePayment(dataToPay);
+		savePayment(dataToPay, false);
 	};
 
 	// Función para guardar el pago en el backend
-	const savePayment = async (data: any) => {
+	const savePayment = async (data: any, print: boolean) => {
 		setLoadingPayment(true); // Activa el indicador de carga
 
 		toast.promise(
-			axios.post(
-				`${process.env.NEXT_PUBLIC_LOCAL_APIURL}/access-control/visitor-service/generateNewPP`,
-				data
-			),
-			{
-				loading: "Procesando el pago...",
-				success: (response: any) => {
+			axios
+				.post(
+					`${process.env.NEXT_PUBLIC_LOCAL_APIURL}/access-control/visitor-service/generateNewPP`,
+					data
+				)
+				.then(async (response: any) => {
 					console.log("Pago registrado:", response.data);
 					setPaymentData(initialPaymentData);
 
+					if (print) {
+						// Inicia el flujo de impresión
+						await toast.promise(
+							(async () => {
+								const factura: Invoice = await getTransactionForPrint(
+									response.data.transactionId
+								);
+								console.log("FACTURA");
+								console.log(factura);
+
+								// Conectar e imprimir factura
+								const impresora = new Connector("EPSON");
+								await impresora.imprimirFacturaTransaccion(factura);
+
+								return "Factura impresa correctamente.";
+							})(),
+							{
+								loading: "Imprimiendo factura...",
+								success: "Factura impresa exitosamente.",
+								error: "Error al imprimir la factura.",
+							}
+						);
+					}
+					setResetKey(resetKey + 1);
+					return "Pago registrado correctamente";
+				}),
+			{
+				loading: "Procesando el pago...",
+				success: (response: any) => {
 					return "Pago registrado correctamente";
 				},
 				error: (error) => {
@@ -209,7 +243,10 @@ export default function ParkingPayment() {
 		);
 	};
 	return (
-		<section className="flex flex-col lg:flex-row flex-grow flex-1 gap-1 justify-center items-center h-full w-full">
+		<section
+			className="flex flex-col lg:flex-row flex-grow flex-1 gap-1 justify-center items-center h-full w-full"
+			key={resetKey}
+		>
 			{/* Sección de procesos */}
 			<CardPropierties>
 				<CardHeader className="flex flex-col gap-1">
@@ -328,46 +365,50 @@ export default function ParkingPayment() {
 					<h1 className="font-bold text-3xl text-center">Datos de pago</h1>
 					<h1 className="font-bold text-xl text-center">{subHeaderTitle}</h1>
 				</CardHeader>
-				<CardBody className="flex justify-center items-center">
-					<form className="flex flex-col items-center justify-center">
-						<div className="flex flex-col place-items-end mb-1 my-2 gap-2">
+				<CardBody className="flex justify-center items-center overflow-x-hidden">
+					<Form className="flex flex-col items-center justify-center w-full">
+						<div className="text-3xl mb-1 mt-2 flex gap-4 justify-between px-4">
+							<strong>TOTAL:</strong>
+							<p className="font-light tracking-tight">
+								${paymentData.totalCost ?? 0}
+							</p>
+						</div>
+						<div className="flex mt-2 justify-center items-center font-light">
+							<p className="text-gray-600 my-auto px-4 mb-2">
+								¿Facturación electrónica?
+							</p>
 							<Checkbox
-								className="-mt-5"
+								className="-mt-4"
 								color="primary"
 								onChange={() => setIsVisible((prev) => !prev)}
-							>
-								<p className="text-gray-600 my-2 px-4 mb-2">
-									Facturación electrónica
-								</p>
-							</Checkbox>
-							{isVisible && (
-								<div className="flex gap-4 justify-between px-4">
-									<label className="text-lg font-bold my-auto">
-										Número De Factura Electrónica
-									</label>
-									<Input
-										className="w-1/1"
-										variant="underlined"
-										onChange={(e) => {
-											setPaymentData((prev: any) => ({
-												...prev, // Incluye todas las propiedades previas
-												identificationCode: e.target.value, // Sobrescribe identificationCode
-											}));
-										}}
-									/>
-								</div>
-							)}
-							<div className="text-base mb-1 mt-2 flex gap-4 justify-between px-4">
-								<strong>TOTAL:</strong>${paymentData.totalCost ?? 0}
+							></Checkbox>
+						</div>
+						<div className="flex flex-col place-items-end mb-1 my-5 gap-2 w-full px-2">
+							<div className="flex gap-4 justify-between w-full">
+								<label className="text-lg font-bold my-auto w-2/5">FE</label>
+								<Input
+									className="w-3/5"
+									isDisabled={!isVisible}
+									variant={!isVisible ? "faded" : "bordered"}
+									onChange={(e) => {
+										setPaymentData((prev: any) => ({
+											...prev, // Incluye todas las propiedades previas
+											identificationCode: e.target.value, // Sobrescribe identificationCode
+										}));
+									}}
+								/>
 							</div>
 
-							<div className="flex gap-4 justify-between px-4">
-								<label className="text-lg font-bold my-auto">
+							<div className="flex gap-4 justify-between w-full">
+								<label className="text-md font-bold my-auto w-2/5">
 									Medio de pago
 								</label>
 								<Select
-									className="w-52"
 									label="Seleccionar"
+									variant="bordered"
+									className="w-3/5"
+									isRequired
+									radius="lg"
 									size="sm"
 									onChange={(e) => {
 										const selectedPaymentMethod = namePaymentType.find(
@@ -392,13 +433,16 @@ export default function ParkingPayment() {
 									))}
 								</Select>
 							</div>
-							<div className="flex gap-4 justify-between px-4">
-								<label className="text-lg font-bold my-auto">Recibido</label>
+							<div className="flex gap-4 justify-between w-full">
+								<label className="text-lg font-bold my-auto w-2/5">
+									Recibido
+								</label>
 								<Input
-									className="w-1/1"
-									value={moneyReceived.toString()}
-									variant="underlined"
-									type="number"
+									className="w-3/5"
+									value={moneyReceived === 0 ? "" : moneyReceived.toString()}
+									variant="bordered"
+									startContent={<>$</>}
+									type="text"
 									onChange={(e) => {
 										const value = parseInt(e.target.value) || 0;
 										setMoneyReceived(value);
@@ -411,13 +455,13 @@ export default function ParkingPayment() {
 								</label>
 							</div>
 						</div>
-					</form>
+					</Form>
 				</CardBody>
 				<CardFooter className="flex justify-center items-center">
 					<Button
 						color="primary"
 						size="lg"
-						onClick={() => {
+						onPress={() => {
 							console.log(state.payments);
 							console.log(paymentData);
 							if (!paymentMethod) {

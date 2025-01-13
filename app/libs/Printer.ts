@@ -28,21 +28,24 @@ export class Connector {
 		this.operaciones.push(operacion);
 	}
 
-	async imprimir() {
-		try {
-			const response = await axios.post(
-				`${process.env.NEXT_PUBLIC_PRINTER_APIURL}/imprimir`,
-				{
+	imprimir(): Promise<any> {
+		return new Promise((resolve, reject) => {
+			axios
+				.post(`${process.env.NEXT_PUBLIC_PRINTER_APIURL}/imprimir`, {
 					nombre_impresora: this.nombre_impresora,
 					operaciones: [...this.operaciones, { accion: "cut", datos: "" }],
-				}
-			);
-		} catch (error) {
-			console.log("Error al imprimir", error);
-		}
+				})
+				.then((response) => {
+					resolve(response); // Resuelve la promesa si la petición es exitosa
+				})
+				.catch((error) => {
+					console.log("Error al imprimir", error);
+					reject(error); // Rechaza la promesa en caso de error
+				});
+		});
 	}
 
-	async imprimirFacturaTransaccion(factura: Invoice) {
+	async imprimirFacturaTransaccion(factura: Invoice): Promise<void> {
 		// Encabezado de la factura
 		this.operaciones.push({ accion: "textalign", datos: "center" });
 		this.operaciones.push({ accion: "text", datos: factura.empresa });
@@ -80,7 +83,7 @@ export class Connector {
 			accion: "text",
 			datos: `CC/NIT: ${factura.header.NIT}`,
 		});
-		//FORMA DE PAGO
+		// FORMA DE PAGO
 		this.operaciones.push({
 			accion: "text",
 			datos: `FORMA DE PAGO: ${factura.header.FORMA_DE_PAGO}`,
@@ -114,6 +117,7 @@ export class Connector {
 		});
 
 		let auxDesc: any[] = [];
+		let auxTotalDesc: any[] = [];
 
 		factura.description.forEach((element) => {
 			auxDesc.push({
@@ -122,9 +126,18 @@ export class Connector {
 				quantity: element.CANTIDAD,
 			});
 		});
+		factura.descriptionTotal.forEach((element) => {
+			auxDesc.push({
+				...element,
+			});
+		});
 		this.operaciones.push({
 			accion: "table",
 			datos: JSON.stringify(auxDesc),
+		});
+		this.operaciones.push({
+			accion: "table",
+			datos: JSON.stringify(auxTotalDesc),
 		});
 		this.operaciones.push({
 			accion: "text",
@@ -159,10 +172,10 @@ export class Connector {
 		this.operaciones.push({ accion: "text", datos: "\n" });
 		this.operaciones.push({ accion: "text", datos: factura.infoPolice });
 
-		// Corte de papel
 		// Llamar al backend
-		this.imprimir();
+		return this.imprimir(); // Devuelve la promesa generada por imprimir
 	}
+
 	async imprimirIngreso(ingreso: Income) {
 		const fechaIngreso = new Date(ingreso.datetime);
 		//Encabezado

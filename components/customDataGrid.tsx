@@ -84,7 +84,7 @@ const CustomDataGrid = (props: DataGridProps) => {
 					size="lg"
 					color="primary"
 					variant="shadow"
-					onClick={exportToExcel}
+					onPress={exportToExcel}
 				>
 					Exportar a Excel
 				</Button>

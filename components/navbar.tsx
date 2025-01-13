@@ -164,7 +164,7 @@ export const Navbar = () => {
 								className="p-0 bg-transparent data-[hover=true]:bg-transparent"
 								radius="sm"
 								variant="light"
-								onClick={cerrarSesion}
+								onPress={cerrarSesion}
 							>
 								CERRAR SESIÓN
 							</Button>

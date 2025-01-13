@@ -10,6 +10,8 @@ import { PaymentData } from "@/types";
 import { usePaymentContext } from "@/app/context/PaymentContext";
 import { initialPaymentData } from "@/app/libs/initialStates";
 import { toast } from "sonner";
+import { Autocomplete, AutocompleteItem } from "@nextui-org/react";
+import { animals } from "@/app/libs/data";
 
 export default function VisitanteQr() {
 	const { state, dispatch, paymentData, setPaymentData } = usePaymentContext();
@@ -237,18 +239,28 @@ export default function VisitanteQr() {
 						</p>
 					</Checkbox>
 				</div>
-				<div className="flex gap-4 justify-between ">
+				<div className="flex gap-4 justify-between">
 					<label
-						className="text-base font-bold text-nowrap my-auto"
+						className="text-base font-bold text-nowrap my-auto w-1/2 text-end"
 						htmlFor="discount"
 					>
 						Código de descuento
 					</label>
-					<Input className="w-1/2" variant="bordered" />
+					<Autocomplete
+						className="w-1/2"
+						variant="bordered"
+						selectorIcon={<></>}
+					>
+						{animals.map((animal) => (
+							<AutocompleteItem key={animal.key}>
+								{animal.label}
+							</AutocompleteItem>
+						))}
+					</Autocomplete>
 				</div>
 				<div className="flex gap-4 justify-between w-full">
 					<label
-						className="text-base font-bold text-nowrap my-auto px-6"
+						className="text-base font-bold text-nowrap my-auto w-1/2 text-end"
 						htmlFor="startDatetime"
 					>
 						Fecha de Entrada

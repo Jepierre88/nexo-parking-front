@@ -7,11 +7,17 @@ import {
 	RadioGroup,
 	Radio,
 	DateInput,
+	DateValue,
 } from "@nextui-org/react";
 import { Button } from "@nextui-org/button";
 import Image from "next/image";
 import { useDisclosure } from "@nextui-org/react";
-import { parseAbsoluteToLocal } from "@internationalized/date";
+import {
+	CalendarDate,
+	CalendarDateTime,
+	parseAbsoluteToLocal,
+	ZonedDateTime,
+} from "@internationalized/date";
 
 import CardPropierties from "@/components/parking-payment/cardPropierties";
 import ICONOCARRO from "@/public/iconoCarroOscuro.png";
@@ -64,6 +70,14 @@ const Home = () => {
 		vehicleKind: "",
 		extraServices: [],
 	});
+
+	const handleCurrentDateChange = (
+		value: CalendarDate | CalendarDateTime | ZonedDateTime | any
+	) => {
+		if (value) {
+			setCurrentDate(value);
+		}
+	};
 
 	const INCOME_CONDITION_TYPE = {
 		visitor: "Visitor",
@@ -212,19 +226,19 @@ const Home = () => {
 							</RadioGroup>
 
 							<DateInput
-								className="w-full md:w-1/2"
+								className="w-full md:w-2/3"
 								hideTimeZone
 								granularity="second"
 								label="Fecha y Hora de ingreso"
 								value={currentDate}
-								onChange={setCurrentDate}
+								onChange={handleCurrentDateChange}
 							/>
 
 							<Button
 								color="primary"
 								size="lg"
 								style={{ width: "250px" }}
-								onClick={handleGenerateEntry}
+								onPress={handleGenerateEntry}
 								isLoading={isLoading}
 							>
 								Registrar Vehículo

@@ -232,7 +232,7 @@ export default function Login() {
 									<Button
 										color="primary"
 										disabled={loadingReset}
-										onClick={handleResetPassword}
+										onPress={handleResetPassword}
 									>
 										{loadingReset ? "Cargando..." : "Buscar"}
 									</Button>
@@ -419,7 +419,7 @@ const RecoveryInputs = ({
 					size="lg"
 					type="button"
 					variant="ghost"
-					onClick={onClose}
+					onPress={onClose}
 				>
 					Cancelar
 				</Button>
@@ -430,7 +430,7 @@ const RecoveryInputs = ({
 					size="lg"
 					type="button"
 					variant="solid"
-					onClick={handleSubmit}
+					onPress={handleSubmit}
 				>
 					{loading ? "Guardando..." : "Guardar"}
 				</Button>

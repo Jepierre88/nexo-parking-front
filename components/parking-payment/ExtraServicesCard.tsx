@@ -243,7 +243,7 @@ export default function ExtraServices(props: {
 					<div className="relative w-full">
 						<div className="max-h-72 w-full overflow-y-auto">
 							<table className="table-auto w-full border-collapse">
-								<thead className="sticky top-0 bg-white z-10">
+								<thead className="sticky top-0 z-10">
 									<tr className="border-b">
 										<th className="text-left p-2">Servicio</th>
 										<th className="text-right p-2">Valor</th>

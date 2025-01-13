@@ -132,8 +132,8 @@ export default function Incomes() {
 										<Input className="ml-4 w-2/3" placeholder=" " type="text" />
 									</div>
 									<div className="flex justify-center w-full mt-4">
-										<Button onClick={onClose}>Cancelar</Button>
-										<Button onClick={() => console.log("Guardar datos")}>
+										<Button onPress={onClose}>Cancelar</Button>
+										<Button onPress={() => console.log("Guardar datos")}>
 											Guardar
 										</Button>
 									</div>
