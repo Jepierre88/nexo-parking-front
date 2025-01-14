@@ -136,5 +136,6 @@ export const validateIdentificationCode = z.object({
   identificationCode: z
     .string()
     .min(1, "La cédula es obligatoria")
+    .max(15, "El id debe tener maximo 15 caracteres")
     .regex(/^\d+$/, "Digite la cédula sin caracteres especiales"),
 });

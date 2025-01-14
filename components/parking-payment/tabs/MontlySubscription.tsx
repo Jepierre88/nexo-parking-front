@@ -1,7 +1,7 @@
 import { DateInput } from "@nextui-org/date-input";
 import { Input } from "@nextui-org/input";
 import { Select, SelectItem } from "@nextui-org/select";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { usePaymentContext } from "@/app/context/PaymentContext";
 import UsePermissions from "@/app/hooks/UsePermissions";
 import {
@@ -12,26 +12,37 @@ import { z } from "zod";
 import UseServices from "@/app/hooks/parking-payment/UseServices";
 import { Button } from "@nextui-org/button";
 import UseInformationList from "@/app/hooks/parking-payment/UseInformationList";
-import { Spinner } from "@nextui-org/react";
+import { DateValue, Spinner } from "@nextui-org/react";
+import { parseDate } from "@internationalized/date";
 
 export default function Mensualidad() {
   const { paymentData, setPaymentData } = usePaymentContext();
   const [plateError, setPlateError] = useState<string | null>(null);
   const { services, isLoading } = UseServices("Mensualidad");
+
   const { listInformation } = UseInformationList();
+  const [selectedService, setSelectedService] = useState<string | null>(null);
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [schedulingZone, setSchedulingZone] = useState<string>("");
   const [identificationCode, setIdentificationCode] = useState<string>("");
+  const [schedulingEndDatetime, setSchedulingEndDatetime] =
+    useState<DateValue | null>(null);
   const [loading, setLoading] = useState(false);
   const [identificationCodeError, setIdentificationCodeError] = useState<
     string | null
   >(null);
+
+  const { hasPermission } = UsePermissions();
+  const canViewSelect = useMemo(() => hasPermission(32), [hasPermission]);
+
   useEffect(() => {
     setFirstName("");
     setLastName("");
     setSchedulingZone("");
+    setSchedulingEndDatetime(null);
   }, [identificationCode]);
+
   const handlePlateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const plate = e.target.value.toUpperCase();
     try {
@@ -55,16 +66,23 @@ export default function Mensualidad() {
       setIdentificationCodeError(null);
       const data = await listInformation(identificationCode);
       if (data.length > 0) {
-        const customer = data[0]; // Usar el primer resultado
+        const customer = data[0];
+        setSelectedService(customer.service || null);
         setFirstName(`${customer.firstName} ${customer.secondName || ""}`);
         setLastName(
           `${customer.firstLastName} ${customer.secondLastName || ""}`
         );
         setSchedulingZone(`${customer.schedulingZone || ""}`);
+        setSchedulingEndDatetime(
+          customer.schedulingEndDatetime
+            ? parseDate(customer.schedulingEndDatetime.split("T")[0])
+            : null
+        );
       } else {
         setFirstName("");
         setLastName("");
         setSchedulingZone("");
+        setSchedulingEndDatetime(null);
         setIdentificationCodeError(
           "No se encontró información para la cédula."
         );
@@ -81,91 +99,62 @@ export default function Mensualidad() {
       setLoading(false);
     }
   };
-
   const handleFocus = () => {
     setIdentificationCodeError(null);
-  };
-
-  const PermissionedSelect = ({
-    permission,
-    children,
-  }: {
-    permission: number;
-    children: React.ReactNode;
-  }) => {
-    const { hasPermission } = UsePermissions();
-    const [hasAccess, setHasAccess] = useState(false);
-
-    useEffect(() => {
-      setHasAccess(hasPermission(permission));
-    }, [hasPermission, permission]);
-
-    if (!hasAccess) return null;
-    return <>{children}</>;
   };
 
   return (
     <article className="flex flex-col gap-2 justify-center h-full">
       <h2 className="font-bold text-2xl text-center">Datos de mensualidad</h2>
       <form className="flex flex-col gap-1">
-        <PermissionedSelect permission={32}>
-          <div className="flex gap-4 justify-between px-4">
-            <label className="text-base font-bold my-auto md:text-nowrap">
-              Tipo de mensualidad
-            </label>
+        <div className="flex gap-4 justify-between px-4">
+          <label className="text-base font-bold my-auto md:text-nowrap">
+            Tipo de mensualidad
+          </label>
+          {canViewSelect && (
             <Select
               className="w-1/2"
               size="sm"
               variant="bordered"
               label="Seleccionar"
-              radius="lg"
             >
-              {isLoading ? (
-                <SelectItem key={"loading"}>Cargando...</SelectItem>
-              ) : (
-                services.map((service) => (
-                  <SelectItem key={service.id}>{service.name}</SelectItem>
-                ))
-              )}
+              {services.map((service) => (
+                <SelectItem key={service.id} value={service.id}>
+                  {service.name}
+                </SelectItem>
+              ))}
             </Select>
-          </div>
-        </PermissionedSelect>
-
-        <div className="flex gap-4 justify-between px-4 ">
-          <div className="flex gap-4 justify-between ">
-            <label className="text-base font-bold my-auto md:text-nowrap">
-              N° de meses
-            </label>
-            <Input
-              className="w-1/2"
-              type="number"
-              variant="underlined"
-              defaultValue="1"
-            />
-          </div>
+          )}
+        </div>
+        <div className="flex gap-4 justify-between px-4">
+          <label className="text-base font-bold my-auto md:text-nowrap">
+            N° de meses
+          </label>
+          <Input
+            className="w-1/2"
+            type="number"
+            variant="underlined"
+            defaultValue="1"
+          />
         </div>
 
         <div className="flex gap-4 justify-between px-4 ">
-          <div className="flex gap-4 justify-between  ">
-            <label className="text-base font-bold my-auto md:text-nowrap">
-              Cedula
-            </label>
-            <Input
-              className="w-full"
-              variant="underlined"
-              value={identificationCode}
-              onChange={(e) => setIdentificationCode(e.target.value)}
-              onFocus={handleFocus}
-            />
-            {identificationCodeError && (
-              <p className="absolute text-red-500 text-sm mt-1">
-                {identificationCodeError}
-              </p>
-            )}
-            <Button color="primary" onPress={handleConsult} disabled={loading}>
-              {loading ? <Spinner size="lg" /> : "Consultar"}
-            </Button>
-          </div>
+          <label className="text-base font-bold my-auto ">Cedula</label>
+          <Input
+            className="w-1/2"
+            variant="underlined"
+            value={identificationCode}
+            onChange={(e) => setIdentificationCode(e.target.value)}
+            onFocus={handleFocus}
+          />
+          {identificationCodeError && (
+            <p className="absolute text-red-500 text-sm mt-1">
+              {identificationCodeError}
+            </p>
+          )}
+          <Button color="primary" onPress={handleConsult} disabled={loading}>
+            {loading ? <Spinner size="lg" /> : "Consultar"}
+          </Button>
         </div>
 
         <div className="flex gap-4 justify-between px-4 ">
@@ -206,10 +195,19 @@ export default function Mensualidad() {
             )}
           </div>
         </div>
-
         <div className="flex gap-4 justify-between ">
           <label className="text-base font-bold text-nowrap my-auto">
-            Válido hasta
+            Válido Desde
+          </label>
+          <DateInput
+            className="w-1/2"
+            variant="underlined"
+            aria-label="Fecha"
+          />
+        </div>
+        <div className="flex gap-4 justify-between ">
+          <label className="text-base font-bold text-nowrap my-auto">
+            Válido Hasta
           </label>
           <DateInput
             className="w-1/2"
@@ -238,6 +236,8 @@ export default function Mensualidad() {
             className="w-1/2"
             variant="underlined"
             aria-label="Fecha"
+            value={schedulingEndDatetime}
+            isReadOnly
           />
         </div>
       </form>

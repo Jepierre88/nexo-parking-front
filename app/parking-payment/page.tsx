@@ -267,7 +267,7 @@ function ParkingPayment() {
                 <span className="w-full">
                   <strong>Descuento parqueadero:</strong>
                 </span>
-                <span className="w-full">TO DO</span>
+                <Input className="w-1/2" type="number" variant="underlined" />
               </div>
               <div className="text-base text-start mb-1 flex gap-4 justify-between">
                 <span className="w-full">
