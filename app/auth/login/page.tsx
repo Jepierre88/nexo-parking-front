@@ -22,6 +22,7 @@ import { ModalError, ModalExito } from "@/components/modales";
 import UseResetPassword from "@/app/hooks/UseResetPassword";
 import { EyeFilledIcon, EyeSlashFilledIcon } from "@/components/icons";
 import Cookies from "js-cookie";
+import { redirect } from "next/navigation";
 
 export default function Login() {
   const { router } = UseNavigateContext();
@@ -101,13 +102,13 @@ export default function Login() {
           permissions: response.data.permissions,
         });
         setIsAuthenticated(true);
-
         router.push("/parking-payment");
       }
     } catch (error) {
       console.error(error);
       setToken("");
       setIsAuthenticated(false);
+      console.log(error)
       alert("Error en el inicio de sesión");
     } finally {
       setLoading(false);

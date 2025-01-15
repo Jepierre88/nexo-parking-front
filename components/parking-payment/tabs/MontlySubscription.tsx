@@ -10,7 +10,8 @@ import UseServices from "@/app/hooks/parking-payment/UseServices";
 import { Button } from "@nextui-org/button";
 import UseInformationList from "@/app/hooks/parking-payment/UseInformationList";
 import { Spinner } from "@nextui-org/react";
-import { format, parseISO } from "date-fns";
+import { initialPaymentData } from "@/app/libs/initialStates";
+
 
 export default function Mensualidad() {
   const { paymentData, setPaymentData } = usePaymentContext();
@@ -80,15 +81,13 @@ export default function Mensualidad() {
   };
 
   const formatDate = (dateString: string | null): string => {
-    return dateString ? format(parseISO(dateString), "dd/MM/yyyy") : "";
+    return dateString ? "" : "";
   };
 
   useEffect(() => {
     setFirstName("");
     setLastName("");
-    setPaymentData(() => ({
-      plate: "",
-    }));
+    setPaymentData(initialPaymentData);
     setSchedulingZone("");
     setEndDate("");
     setEndDate("");
