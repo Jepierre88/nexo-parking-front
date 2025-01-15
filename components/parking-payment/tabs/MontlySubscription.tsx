@@ -1,33 +1,34 @@
-import { DateInput } from "@nextui-org/date-input";
 import { Input } from "@nextui-org/input";
 import { Select, SelectItem } from "@nextui-org/select";
 import { useEffect, useMemo, useState } from "react";
 import { usePaymentContext } from "@/app/context/PaymentContext";
 import UsePermissions from "@/app/hooks/UsePermissions";
-import {
-  montleSubscription,
-  validateIdentificationCode,
-} from "@/app/schemas/validationSchemas";
+import { montleSubscription } from "@/app/schemas/validationSchemas";
 import { z } from "zod";
+import { dateValidationSchema } from "@/app/schemas/validationSchemas";
 import UseServices from "@/app/hooks/parking-payment/UseServices";
 import { Button } from "@nextui-org/button";
 import UseInformationList from "@/app/hooks/parking-payment/UseInformationList";
-import { DateValue, Spinner } from "@nextui-org/react";
-import { parseDate } from "@internationalized/date";
+import { Spinner } from "@nextui-org/react";
+import { format, parseISO } from "date-fns";
 
 export default function Mensualidad() {
   const { paymentData, setPaymentData } = usePaymentContext();
   const [plateError, setPlateError] = useState<string | null>(null);
   const { services, isLoading } = UseServices("Mensualidad");
-
   const { listInformation } = UseInformationList();
+
   const [selectedService, setSelectedService] = useState<string | null>(null);
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
   const [schedulingZone, setSchedulingZone] = useState<string>("");
   const [identificationCode, setIdentificationCode] = useState<string>("");
-  const [schedulingEndDatetime, setSchedulingEndDatetime] =
-    useState<DateValue | null>(null);
+  const [startDate, setStartDate] = useState<string>("");
+  const [endDate, setEndDate] = useState<string>("");
+  const [startDateTime, setStartDatetime] = useState<string>("");
+  const [startDateError, setStartDateError] = useState<string | null>(null);
+  const [endDateError, setEndDateError] = useState<string | null>(null);
+
   const [loading, setLoading] = useState(false);
   const [identificationCodeError, setIdentificationCodeError] = useState<
     string | null
@@ -35,12 +36,63 @@ export default function Mensualidad() {
 
   const { hasPermission } = UsePermissions();
   const canViewSelect = useMemo(() => hasPermission(32), [hasPermission]);
+  const canEditStartDate = useMemo(() => hasPermission(34), [hasPermission]);
+  const canEditEndDate = useMemo(() => hasPermission(35), [hasPermission]);
+
+  const formatWithSlashes = (value: string): string => {
+    const cleanedValue = value.replace(/\D/g, "");
+    return cleanedValue
+      .slice(0, 8)
+      .replace(/(\d{2})(\d{2})?(\d{4})?/, (_, day, month, year) =>
+        [day, month, year].filter(Boolean).join("/")
+      );
+  };
+
+  const validateDate = (
+    value: string,
+    setError: (msg: string | null) => void
+  ) => {
+    if (!value) {
+      setError(null);
+      return;
+    }
+
+    try {
+      dateValidationSchema.parse({ date: value });
+      setError(null);
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setError(error.errors[0].message);
+      }
+    }
+  };
+
+  const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formattedValue = formatWithSlashes(e.target.value);
+    setStartDate(formattedValue);
+    validateDate(formattedValue, setStartDateError);
+  };
+
+  const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formattedValue = formatWithSlashes(e.target.value);
+    setEndDate(formattedValue);
+    validateDate(formattedValue, setEndDateError);
+  };
+
+  const formatDate = (dateString: string | null): string => {
+    return dateString ? format(parseISO(dateString), "dd/MM/yyyy") : "";
+  };
 
   useEffect(() => {
     setFirstName("");
     setLastName("");
+    setPaymentData(() => ({
+      plate: "",
+    }));
     setSchedulingZone("");
-    setSchedulingEndDatetime(null);
+    setEndDate("");
+    setEndDate("");
+    setStartDatetime("");
   }, [identificationCode]);
 
   const handlePlateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -62,8 +114,6 @@ export default function Mensualidad() {
   const handleConsult = async () => {
     setLoading(true);
     try {
-      validateIdentificationCode.parse({ identificationCode });
-      setIdentificationCodeError(null);
       const data = await listInformation(identificationCode);
       if (data.length > 0) {
         const customer = data[0];
@@ -72,35 +122,27 @@ export default function Mensualidad() {
         setLastName(
           `${customer.firstLastName} ${customer.secondLastName || ""}`
         );
-        setSchedulingZone(`${customer.schedulingZone || ""}`);
-        setSchedulingEndDatetime(
-          customer.schedulingEndDatetime
-            ? parseDate(customer.schedulingEndDatetime.split("T")[0])
-            : null
-        );
+        setSchedulingZone(customer.schedulingZone || "");
+        //cambiar por la del validate
+        setStartDate(formatDate(customer.schedulingStartDatetime));
+        setEndDate(formatDate(customer.schedulingEndDatetime));
+        setStartDatetime(formatDate(customer.schedulingEndDatetime));
       } else {
         setFirstName("");
         setLastName("");
         setSchedulingZone("");
-        setSchedulingEndDatetime(null);
+        setStartDate("");
+        setEndDate("");
+        setStartDatetime("");
         setIdentificationCodeError(
           "No se encontró información para la cédula."
         );
       }
-    } catch (err: any) {
-      if (err instanceof z.ZodError) {
-        setIdentificationCodeError(err.errors[0].message);
-      } else {
-        setIdentificationCodeError(
-          err.message || "Error al consultar la información."
-        );
-      }
+    } catch (error) {
+      setIdentificationCodeError("Error al consultar la información.");
     } finally {
       setLoading(false);
     }
-  };
-  const handleFocus = () => {
-    setIdentificationCodeError(null);
   };
 
   return (
@@ -145,7 +187,6 @@ export default function Mensualidad() {
             variant="underlined"
             value={identificationCode}
             onChange={(e) => setIdentificationCode(e.target.value)}
-            onFocus={handleFocus}
           />
           {identificationCodeError && (
             <p className="absolute text-red-500 text-sm mt-1">
@@ -195,25 +236,36 @@ export default function Mensualidad() {
             )}
           </div>
         </div>
-        <div className="flex gap-4 justify-between ">
-          <label className="text-base font-bold text-nowrap my-auto">
+        <div className="flex gap-4 justify-between px-4">
+          <label className="text-base font-bold my-auto md:text-nowrap">
             Válido Desde
           </label>
-          <DateInput
+          <Input
             className="w-1/2"
-            variant="underlined"
-            aria-label="Fecha"
+            readOnly={!canEditStartDate}
+            value={startDate}
+            placeholder="dd/mm/yyyy"
+            onChange={handleStartDateChange}
           />
+          {startDateError && (
+            <p className="text-red-500 text-sm">{startDateError}</p>
+          )}
         </div>
-        <div className="flex gap-4 justify-between ">
-          <label className="text-base font-bold text-nowrap my-auto">
+
+        <div className="flex gap-4 justify-between px-4">
+          <label className="text-base font-bold my-auto md:text-nowrap">
             Válido Hasta
           </label>
-          <DateInput
+          <Input
             className="w-1/2"
-            variant="underlined"
-            aria-label="Fecha"
+            readOnly={!canEditEndDate}
+            value={endDate}
+            placeholder="dd/mm/yyyy"
+            onChange={handleEndDateChange}
           />
+          {endDateError && (
+            <p className="text-red-500 text-sm">{endDateError}</p>
+          )}
         </div>
         <h2 className="font-bold text-2xl text-center">Última mensualidad</h2>
 
@@ -229,15 +281,14 @@ export default function Mensualidad() {
           />
         </div>
         <div className="flex gap-4 justify-between px-4">
-          <label className="text-base font-bold text-nowrap my-auto">
+          <label className="text-base font-bold my-auto md:text-nowrap">
             Válido hasta
           </label>
-          <DateInput
+          <Input
             className="w-1/2"
-            variant="underlined"
-            aria-label="Fecha"
-            value={schedulingEndDatetime}
-            isReadOnly
+            readOnly
+            value={startDateTime}
+            placeholder="dd/mm/yyyy"
           />
         </div>
       </form>
