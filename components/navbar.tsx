@@ -17,7 +17,6 @@ import { Button } from "@nextui-org/button";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import COINSLOGO from "@/public/LOGO.png";
-import { UserIcon } from "./icons";
 import { Avatar } from "@nextui-org/react";
 
 export const Navbar = () => {

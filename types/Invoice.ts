@@ -1,5 +1,6 @@
 export default interface Factura {
 	description: Description[];
+	descriptionTotal: DescriptionTotal[];
 	direccion: string;
 	empresa: string;
 	header: Header;
@@ -9,6 +10,7 @@ export default interface Factura {
 	infoSoftwareManufacturer: string;
 	infoTechnologyProvider: string;
 	nit: string;
+	transactionId: number;
 }
 
 interface Description {
@@ -23,6 +25,17 @@ interface Description {
 	SUBTOTAL: number;
 	TOTAL: number;
 	VALOR: number;
+}
+
+interface DescriptionTotal {
+	BASE: string;
+	CAMBIO: string;
+	CANTIDAD_TOTAL: number;
+	DESCUENTO: string;
+	IVA_19: string;
+	RECIBIDO: string;
+	SUBTOTAL: string;
+	TOTAL: string;
 }
 
 interface Header {

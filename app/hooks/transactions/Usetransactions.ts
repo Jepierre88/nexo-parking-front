@@ -35,7 +35,6 @@ export const UseTransactions = () => {
 
 	const getTransactionForPrint = async (id: number) => {
 		try {
-			setLoading(true);
 			const response = await axios.get(
 				`${process.env.NEXT_PUBLIC_LOCAL_APIURL}/printForId/${id}`
 			);
@@ -45,12 +44,12 @@ export const UseTransactions = () => {
 		} catch (error) {
 			return null;
 		} finally {
-			setLoading(false);
 		}
 	};
 
 	useEffect(() => {
 		getTransactions();
+		return () => {};
 	}, []);
 
 	return {

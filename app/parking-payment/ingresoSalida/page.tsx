@@ -7,11 +7,17 @@ import {
   RadioGroup,
   Radio,
   DateInput,
+  DateValue,
 } from "@nextui-org/react";
 import { Button } from "@nextui-org/button";
 import Image from "next/image";
 import { useDisclosure } from "@nextui-org/react";
-import { parseAbsoluteToLocal } from "@internationalized/date";
+import {
+  CalendarDate,
+  CalendarDateTime,
+  parseAbsoluteToLocal,
+  ZonedDateTime,
+} from "@internationalized/date";
 
 import CardPropierties from "@/components/parking-payment/cardPropierties";
 import ICONOCARRO from "@/public/iconoCarroOscuro.png";
@@ -61,10 +67,19 @@ const ingresoSalida = () => {
       processId: 0,
       incomeDatetime: "- -",
       paidDatetime: "",
-      expectedOutComeDatetime: "",
+      expectedOutcomeDatetime: "",
     },
     vehicleKind: "",
+    extraServices: [],
   });
+
+  const handleCurrentDateChange = (
+    value: CalendarDate | CalendarDateTime | ZonedDateTime | any
+  ) => {
+    if (value) {
+      setCurrentDate(value);
+    }
+  };
 
   const INCOME_CONDITION_TYPE = {
     visitor: "Visitor",
@@ -203,30 +218,33 @@ const ingresoSalida = () => {
                     width={50}
                   />
                 </Radio>
-
                 <Radio value="MOTO">
                   <Image
                     alt="iconoMotoOscuro"
-                    height={40}
+                    height={50}
                     src={ICONOMOTO}
-                    width={40}
+                    width={50}
                   />
                 </Radio>
               </RadioGroup>
-
               <DateInput
-                className="w-full md:w-1/2"
+                className="w-full md:w-2/3"
                 hideTimeZone
                 granularity="second"
                 label="Fecha y Hora de ingreso"
                 value={currentDate}
-                onChange={setCurrentDate}
+                onChange={handleCurrentDateChange}
               />
-              <ActionButton
-                permission={28}
-                label="Registrar vehiculo"
-                onClick={handleGenerateEntry}
-              />
+
+              <Button
+                color="primary"
+                size="lg"
+                style={{ width: "250px" }}
+                onPress={handleGenerateEntry}
+                isLoading={isLoading}
+              >
+                Registrar Vehículo
+              </Button>
             </div>
           </form>
         </CardPropierties>

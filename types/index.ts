@@ -43,12 +43,14 @@ export interface PaymentData {
 	total: number;
 	validationDetail: ValidationDetail;
 	vehicleKind: string;
-	selectedService?: number;
+	selectedService?: any;
 	totalParking?: number;
 	totalServices?: number;
+	netTotalServices?: number;
 	services?: any[];
 	netTotal?: number;
 	totalCost?: number;
+	extraServices: any[];
 }
 
 export interface ValidationDetail {
@@ -57,5 +59,5 @@ export interface ValidationDetail {
 	processId: number;
 	incomeDatetime: string;
 	paidDatetime: string;
-	expectedOutComeDatetime: string;
+	expectedOutcomeDatetime: string;
 }

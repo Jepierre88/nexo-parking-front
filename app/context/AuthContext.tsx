@@ -1,5 +1,5 @@
 "use client";
-import { User } from "@/types";
+import User from "@/types/User";
 import { createContext, useContext, useEffect, useState } from "react";
 import Cookies from "js-cookie";
 const AuthContext = createContext<any | undefined>(undefined);
@@ -7,7 +7,9 @@ const AuthContext = createContext<any | undefined>(undefined);
 export const UseAuthContext = () => {
   const context = useContext(AuthContext);
 
-  if (!context) throw new Error("No auth context provided");
+  if (!context) {
+    throw new Error("AuthContext must be used within an AuthProvider");
+  }
 
   return context;
 };

@@ -9,15 +9,16 @@ import {
   ModalHeader,
   ModalBody,
 } from "@nextui-org/modal";
-import { DatePicker, DateValue, Input } from "@nextui-org/react";
 
 import UseIncomes from "@/app/hooks/incomes/UseIncomes";
 import { title } from "@/components/primitives";
 import CustomDataGrid from "@/components/customDataGrid";
 import {
+  DateValue,
   getLocalTimeZone,
   parseAbsoluteToLocal,
 } from "@internationalized/date";
+import { DatePicker, DateRangePicker, Input } from "@nextui-org/react";
 import withPermission from "@/app/withPermission";
 
 function Outcomes() {
@@ -42,16 +43,40 @@ function Outcomes() {
   let [endDatetime, setEndDatetime] = useState<DateValue>(
     parseAbsoluteToLocal(new Date().toISOString())
   );
+  const [dateRange, setDateRange] = useState<{
+    start: DateValue;
+    end: DateValue;
+  }>({
+    start: parseAbsoluteToLocal(
+      new Date(
+        new Date().getFullYear(),
+        new Date().getMonth(),
+        new Date().getDate() - 1
+      ).toISOString()
+    ),
+    end: parseAbsoluteToLocal(new Date().toISOString()),
+  });
+  const handleDateRangeChange = (
+    range: { start: DateValue; end: DateValue } | null
+  ) => {
+    if (range) {
+      setDateRange({
+        start: range.start,
+        end: range.end,
+      });
+    }
+  };
+
   const [plate, setPlate] = useState("");
 
   const handleFilter = () => {
-    setLoading(true); // Inicia el loading
+    setLoading(true);
 
     getIncomes(
-      startDatetime.toDate(getLocalTimeZone()),
-      endDatetime.toDate(getLocalTimeZone())
+      dateRange.start.toDate(getLocalTimeZone()),
+      dateRange.end.toDate(getLocalTimeZone())
     ).finally(() => {
-      setLoading(false); // Finaliza el loading
+      setLoading(false);
     });
   };
 
@@ -108,26 +133,36 @@ function Outcomes() {
         </h1>
 
         <div className="flex my-3 gap-4 items-center justify-center h-min flex-wrap md:flex-nowrap">
-          <DatePicker
+          <DateRangePicker
             lang="es-ES"
             hideTimeZone
             showMonthAndYearPickers
             className="text-sm"
-            label={"Desde"}
+            label="Rango de Fechas"
             size="md"
-            value={startDatetime}
-            onChange={setStartDatetime}
+            value={dateRange}
+            onChange={handleDateRangeChange}
           />
-          <DatePicker
-            lang="es-ES"
-            hideTimeZone
-            showMonthAndYearPickers
-            className="text-sm"
-            label={"Hasta"}
-            size="md"
-            value={endDatetime}
-            onChange={setEndDatetime}
-          />
+          {/* <DatePicker
+						lang="es-ES"
+						hideTimeZone
+						showMonthAndYearPickers
+						className="text-sm"
+						label={"Desde"}
+						size="md"
+						value={startDatetime}
+						onChange={setStartDatetime}
+					/>
+					<DatePicker
+						lang="es-ES"
+						hideTimeZone
+						showMonthAndYearPickers
+						className="text-sm"
+						label={"Hasta"}
+						size="md"
+						value={endDatetime}
+						onChange={setEndDatetime}
+					/> */}
           <Input
             label={"Placa"}
             maxLength={6}
@@ -141,7 +176,6 @@ function Outcomes() {
             size="lg"
             variant="shadow"
             isDisabled={loading}
-            onClick={handleFilter}
             onPress={handleFilter}
           >
             Filtrar
@@ -171,8 +205,8 @@ function Outcomes() {
                     <Input className="ml-4 w-2/3" placeholder=" " type="text" />
                   </div>
                   <div className="flex justify-center w-full mt-4">
-                    <Button onClick={onClose}>Cancelar</Button>
-                    <Button onClick={() => console.log("Guardar datos")}>
+                    <Button onPress={onClose}>Cancelar</Button>
+                    <Button onPress={() => console.log("Guardar datos")}>
                       Guardar
                     </Button>
                   </div>

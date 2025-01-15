@@ -26,9 +26,16 @@ import ExtraServices from "@/components/parking-payment/ExtraServicesCard";
 // Librerías auxiliares
 import axios from "axios";
 import { formatDate } from "../libs/utils";
-import { Tooltip } from "@nextui-org/react";
+import { Form, Tooltip } from "@nextui-org/react";
 import { CartIcon } from "@/components/icons";
 import withPermission from "../withPermission";
+import PaymentGenerate from "@/types/PaymentGenerate";
+import { initialPaymentData } from "../libs/initialStates";
+import { toast } from "sonner";
+import Invoice from "@/types/Invoice";
+import { UseTransactions } from "../hooks/transactions/Usetransactions";
+import { Connector } from "../libs/Printer";
+import Cookies from "js-cookie";
 
 function ParkingPayment() {
   // Contexto de autenticación para obtener el usuario actual
@@ -36,6 +43,7 @@ function ParkingPayment() {
 
   // Lista de métodos de pago disponibles desde un hook personalizado
   const { namePaymentType } = UseListsPaymentMethods("namePaymentType");
+  const { getTransactionForPrint } = UseTransactions();
 
   // Estados principales del componente
   const [subHeaderTitle, setSubHeaderTitle] = useState("Visitante (QR)"); // Controla el subtítulo según la pestaña activa
@@ -45,6 +53,8 @@ function ParkingPayment() {
   const [cashBack, setCashBack] = useState<number>(0); // Monto de devolución
   const [showCart, setShowCart] = useState<boolean>(false); // Controla la visibilidad del carrito de servicios adicionales
   const [loadingPayment, setLoadingPayment] = useState(false); // Indica si se está procesando un pago
+
+  const [resetKey, setResetKey] = useState(0); // Indica si
 
   // Contexto de pago, incluye estado del carrito y datos del pago
   const { state, dispatch, paymentData, setPaymentData } = usePaymentContext();
@@ -77,7 +87,7 @@ function ParkingPayment() {
     dispatch({ type: "CLEAR_PAYMENTS" });
   };
 
-  // Función para confirmar la acción de pago
+  // Función para pagar con impresion
   const onConfirmAction = async () => {
     const services = [];
 
@@ -104,32 +114,52 @@ function ParkingPayment() {
     const updatedPaymentData = { ...paymentData, services };
     setPaymentData(updatedPaymentData);
 
+    console.log(paymentData);
+
     // Estructura los datos del pago para enviarlos al backend
-    const dataToPay = {
-      deviceId: paymentData.deviceId,
-      identificationType: paymentData.identificationType,
-      identificationCode: paymentData.identificationCode,
-      concept: paymentData.concept,
+    const dataToPay: PaymentGenerate = {
       cashier: user.name,
-      plate: paymentData.plate,
-      datetime: paymentData.datetime,
-      subtotal: paymentData.subtotal,
+      cashValue: moneyReceived,
+      concept: paymentData.concept,
+      discountCode: "",
+      datetime: new Date().toISOString(),
+      discountTotal: 0,
+      // extraServices: [...paymentData.extraServices],
+      extraServices: paymentData.extraServices.map(
+        ({ isLocked, ...rest }) => rest
+      ),
+      identificationCode: paymentData.identificationCode,
+      identificationType: paymentData.identificationType,
       IVAPercentage: paymentData.IVAPercentage,
-      IVATotal: paymentData.IVATotal,
-      total: paymentData.totalCost,
+      IVATotal: Number(paymentData.subtotal.toFixed(2)),
+      paymentType: namePaymentType.find(
+        (e) => e.namePaymentType === paymentMethod
+      ).id,
+      plate: paymentData.plate,
       processId: paymentData.validationDetail.processId,
-      generationDetail: {
-        internalId: 1,
-        internalConsecutive: "1",
-        paymentType: paymentMethod,
-      },
+      processPaidDatetime: paymentData.validationDetail.expectedOutcomeDatetime,
+      total: paymentData.totalCost ?? 0,
+      vehicleKind: paymentData.vehicleKind,
+      vehicleParkingTime: paymentData.validationDetail.timeInParking,
     };
 
+    if (paymentData.concept !== "Servicios varios") {
+      dataToPay.extraServices.push({
+        code: paymentData.concept,
+        name: paymentData.concept,
+        quantity: 1,
+        unitPrice: paymentData.subtotal,
+        totalPrice: paymentData.total,
+        iva: paymentData.IVAPercentage,
+        ivaAmount: paymentData.IVATotal,
+        netTotal: paymentData.subtotal,
+      });
+    }
     // Envía el pago al backend
-    savePayment(dataToPay);
+    savePayment(dataToPay, true);
   };
 
-  // Función para cancelar la acción de pago
+  // Función para pagar sin impresion
   // TODO organizar datos de parqueadero
   const onCancelAction = async () => {
     const dataToPay = {
@@ -153,40 +183,83 @@ function ParkingPayment() {
     };
 
     // Envía el pago al backend sin marcar como impreso
-    savePayment(dataToPay);
+    savePayment(dataToPay, false);
   };
 
   // Función para guardar el pago en el backend
-  const savePayment = async (data: any) => {
-    try {
-      setLoadingPayment(true); // Activa el indicador de carga
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/access-control/visitor-service/generate`,
-        data
-      );
-      console.log("Pago registrado:", response.data);
-    } catch (error) {
-      console.error("Error al registrar el pago:", error);
-    } finally {
-      setLoadingPayment(false); // Desactiva el indicador de carga
-      onCloseModalConfirmationDos(); // Cierra el modal de confirmación
-    }
+  const savePayment = async (data: any, print: boolean) => {
+    setLoadingPayment(true); // Activa el indicador de carga
+
+    toast.promise(
+      axios
+        .post(
+          `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/access-control/visitor-service/generateNewPP`,
+          data
+        )
+        .then(async (response: any) => {
+          console.log("Pago registrado:", response.data);
+          setPaymentData(initialPaymentData);
+
+          if (print) {
+            // Inicia el flujo de impresión
+            await toast.promise(
+              (async () => {
+                const factura: Invoice = await getTransactionForPrint(
+                  response.data.transactionId
+                );
+                console.log("FACTURA");
+                console.log(factura);
+
+                // Conectar e imprimir factura
+                const impresora = new Connector("EPSON");
+                await impresora.imprimirFacturaTransaccion(factura);
+
+                return "Factura impresa correctamente.";
+              })(),
+              {
+                loading: "Imprimiendo factura...",
+                success: "Factura impresa exitosamente.",
+                error: "Error al imprimir la factura.",
+              }
+            );
+          }
+          setResetKey(resetKey + 1);
+          return "Pago registrado correctamente";
+        }),
+      {
+        loading: "Procesando el pago...",
+        success: (response: any) => {
+          return "Pago registrado correctamente";
+        },
+        error: (error) => {
+          setPaymentData(initialPaymentData);
+          console.error("Error al registrar el pago:", error);
+          return "Error al registrar el pago. Por favor, inténtalo de nuevo.";
+        },
+        finally: () => {
+          console.log(initialPaymentData);
+          setLoadingPayment(false); // Desactiva el indicador de carga
+          onCloseModalConfirmationDos(); // Cierra el modal de confirmación
+        },
+      }
+    );
   };
-
-  useEffect(() => {
-    const totalCost = paymentData?.totalCost ?? 0;
-    const received = isNaN(moneyReceived) ? 0 : moneyReceived;
-
-    setCashBack(received - totalCost);
-  }, [moneyReceived, paymentData?.totalCost]);
   return (
-    <section className="flex flex-col lg:flex-row flex-grow flex-1 gap-1 justify-center items-center h-full w-full">
+    <section
+      className="flex flex-col lg:flex-row flex-grow flex-1 gap-1 justify-center items-center h-full w-full"
+      key={resetKey}
+    >
       {/* Sección de procesos */}
       <CardPropierties>
         <CardHeader className="flex flex-col gap-1">
-          <h1 className="font-bold text-3xl text-center my-3">Procesos</h1>
+          <h1
+            className="font-bold text-3xl text-center my-3"
+            onClick={() => console.log(Cookies.get("authToken"))}
+          >
+            Procesos
+          </h1>
         </CardHeader>
-        <CardBody className="-my-5">
+        <CardBody className="my-auto">
           {/* Tabs para diferentes tipos de procesos */}
           <Tabs
             className="mx-auto"
@@ -238,15 +311,7 @@ function ParkingPayment() {
                 <span className="w-full">
                   <strong>Tipo de vehículo:</strong>
                 </span>
-                <span className="w-full">
-                  {paymentData?.plate
-                    ? /^[A-Za-z0-9]*[0-9]$/.test(paymentData.plate) // Ends in a number
-                      ? "Carro"
-                      : /^[A-Za-z0-9]*[A-Za-z]$/.test(paymentData.plate) // Ends in a letter
-                        ? "Moto"
-                        : ""
-                    : ""}{" "}
-                </span>
+                <span className="w-full">{paymentData?.vehicleKind}</span>
               </div>
               <div className="text-base text-start mb-1 flex gap-4 justify-between">
                 <span className="w-full">
@@ -267,7 +332,7 @@ function ParkingPayment() {
                 <span className="w-full">
                   <strong>Descuento parqueadero:</strong>
                 </span>
-                <Input className="w-1/2" type="number" variant="underlined" />
+                <span className="w-full">TO DO</span>
               </div>
               <div className="text-base text-start mb-1 flex gap-4 justify-between">
                 <span className="w-full">
@@ -283,9 +348,8 @@ function ParkingPayment() {
                   <strong>Total sin IVA:</strong>
                 </span>
                 <span className="w-full">
-                  $
                   {paymentData?.subtotal &&
-                    `${paymentData.subtotal.toLocaleString("es-CO")}`}
+                    `$${paymentData.subtotal.toLocaleString("es-CO").split(",")[0]}`}
                 </span>
               </div>
               <hr className="border-t-1 border-neutral-300 my-3" />
@@ -294,9 +358,9 @@ function ParkingPayment() {
                   <strong>Servicios adicionales:</strong>
                 </span>
                 <span className="w-full">
-                  {/** //TODO A MEJORAR */}
+                  {/** TODO: Mejora en el cálculo del IVA */}
                   {paymentData?.totalServices &&
-                    `$${(paymentData.totalServices + (paymentData.IVAPercentage || 0.19) * paymentData.totalServices).toLocaleString("es-CO")}`}
+                    `$${paymentData.totalServices.toLocaleString("es-CO")}`}
                 </span>
               </div>
             </div>
@@ -308,20 +372,50 @@ function ParkingPayment() {
           <h1 className="font-bold text-3xl text-center">Datos de pago</h1>
           <h1 className="font-bold text-xl text-center">{subHeaderTitle}</h1>
         </CardHeader>
-        <CardBody className="flex justify-center items-center gap-">
-          <form className="flex flex-col items-center justify-center w-full">
-            <div className="flex flex-col place-items-end gap-2 w-full px-4">
-              <div className="text-base text-start mb-1 flex gap-4 justify-between">
-                <strong>TOTAL:</strong>${paymentData.totalCost ?? 0}
+        <CardBody className="flex justify-center items-center overflow-x-hidden">
+          <Form className="flex flex-col items-center justify-center w-full">
+            <div className="text-3xl mb-1 mt-2 flex gap-4 justify-between px-4">
+              <strong>TOTAL:</strong>
+              <p className="font-light tracking-tight">
+                ${paymentData.totalCost ?? 0}
+              </p>
+            </div>
+            <div className="flex mt-2 justify-center items-center font-light">
+              <p className="text-gray-600 my-auto px-4 mb-2">
+                ¿Facturación electrónica?
+              </p>
+              <Checkbox
+                className="-mt-4"
+                color="primary"
+                onChange={() => setIsVisible((prev) => !prev)}
+              ></Checkbox>
+            </div>
+            <div className="flex flex-col place-items-end mb-1 my-5 gap-2 w-full px-2">
+              <div className="flex gap-4 justify-between w-full">
+                <label className="text-lg font-bold my-auto w-2/5">FE</label>
+                <Input
+                  className="w-3/5"
+                  isDisabled={!isVisible}
+                  variant={!isVisible ? "faded" : "bordered"}
+                  onChange={(e) => {
+                    setPaymentData((prev: any) => ({
+                      ...prev, // Incluye todas las propiedades previas
+                      identificationCode: e.target.value, // Sobrescribe identificationCode
+                    }));
+                  }}
+                />
               </div>
 
-              <div className=" text-start mb-1 flex gap-4 justify-between">
-                <label className="text-lg font-bold my-auto">
+              <div className="flex gap-4 justify-between w-full">
+                <label className="text-md font-bold my-auto w-2/5">
                   Medio de pago
                 </label>
                 <Select
-                  className="w-52"
                   label="Seleccionar"
+                  variant="bordered"
+                  className="w-3/5"
+                  isRequired
+                  radius="lg"
                   size="sm"
                   onChange={(e) => {
                     const selectedPaymentMethod = namePaymentType.find(
@@ -346,43 +440,44 @@ function ParkingPayment() {
                   ))}
                 </Select>
               </div>
-              <div className="text-start mb-1 flex  justify-between">
-                <label className="text-lg font-bold my-auto">Recibido</label>
+              <div className="flex gap-4 justify-between w-full">
+                <label className="text-lg font-bold my-auto w-2/5">
+                  Recibido
+                </label>
                 <Input
-                  className="w-1/2"
-                  value={moneyReceived.toString()}
-                  variant="underlined"
-                  type="number"
+                  className="w-3/5"
+                  value={moneyReceived === 0 ? "" : moneyReceived.toString()}
+                  variant="bordered"
+                  startContent={<>$</>}
+                  type="text"
                   onChange={(e) => {
-                    const value = parseFloat(e.target.value) || 0;
+                    const value = parseInt(e.target.value) || 0;
                     setMoneyReceived(value);
                   }}
-                >
-                  $
-                </Input>
+                />
               </div>
-
               <div className="flex gap-4 justify-between px-4">
-                <label
-                  className={`text-lg font-bold my-auto ${
-                    cashBack < 0 ? "text-red-500" : "text-black"
-                  }`}
-                >
+                <label className="text-lg font-bold my-auto">
                   Devolución: ${cashBack}
                 </label>
               </div>
             </div>
-          </form>
+          </Form>
         </CardBody>
         <CardFooter className="flex justify-center items-center">
           <Button
             color="primary"
             size="lg"
-            onClick={() => {
+            onPress={() => {
               console.log(state.payments);
               console.log(paymentData);
               if (!paymentMethod) {
+                toast.error("Porfavor, selecciona un medio de pago válido");
                 // TODO Modal de error para decir que se seleccione el tipo de pago
+              } else if (moneyReceived < (paymentData.totalCost || 0)) {
+                toast.error(
+                  "Porfavor, ingrese el dinero para realizar el pago"
+                );
               } else {
                 console.log(state.payments);
                 onOpenModalConfirmation();
@@ -446,10 +541,19 @@ function ParkingPayment() {
             </Button>
           </Tooltip>
           {/* Badge */}
-          {state.payments.length > 0 && (
+          {/* {state.payments.length > 0 && (
+						<span className="absolute top-0 left-2 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full transform translate-x-2 -translate-y-2">
+							{state.payments.reduce(
+								(acc, payment) => acc + payment.quantity,
+								0
+							)}
+						</span>
+					)}
+				</div> */}
+          {paymentData.extraServices.length > 0 && (
             <span className="absolute top-0 left-2 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full transform translate-x-2 -translate-y-2">
-              {state.payments.reduce(
-                (acc, payment) => acc + payment.quantity,
+              {paymentData.extraServices.reduce(
+                (acc, service) => acc + service.quantity,
                 0
               )}
             </span>

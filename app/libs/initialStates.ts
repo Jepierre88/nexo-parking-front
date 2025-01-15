@@ -22,7 +22,7 @@ export const initialPaymentData: PaymentData = {
 	subtotal: 0,
 	total: 0,
 	validationDetail: {
-		expectedOutComeDatetime: "",
+		expectedOutcomeDatetime: "",
 		validationDatetime: "",
 		timeInParking: "",
 		processId: 0,
@@ -31,4 +31,5 @@ export const initialPaymentData: PaymentData = {
 	},
 	vehicleKind: "",
 	selectedService: undefined, // Si es opcional
+	extraServices: [],
 };
