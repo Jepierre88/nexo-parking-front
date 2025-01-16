@@ -127,7 +127,6 @@ const ingresoSalida = () => {
     const placa = e.target.value.toUpperCase();
 
     setPlacaIn(placa);
-    setIsLoading(true);
 
     if (placa.trim() !== "") {
       const lastChar = placa.charAt(placa.length - 1).toUpperCase();

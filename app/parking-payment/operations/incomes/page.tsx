@@ -13,7 +13,8 @@ import {
   parseAbsoluteToLocal,
 } from "@internationalized/date";
 import withPermission from "@/app/withPermission";
-
+import { Connector } from "@/app/libs/Printer";
+import Income from "@/types/Income";
 function Incomes() {
   const { incomes, getIncomes, updatePlate, loading } = UseIncomes();
   const { resolvedTheme } = useTheme();
@@ -116,6 +117,7 @@ function Incomes() {
             color="default"
             radius="none"
             variant="light"
+            onPress={() => handlenPrint(params.row)}
           >
             <PrinterIcon
               fill={isDark ? "#000" : "#FFF"}
@@ -127,6 +129,15 @@ function Incomes() {
       ),
     },
   ];
+
+  const handlenPrint = async (row: Income) => {
+    try {
+      const impresora = new Connector("EPSON");
+      await impresora.imprimirIngreso(row);
+    } catch (e) {
+      console.error("Error al imprimir la factura", e);
+    }
+  };
 
   return (
     <section className="h-full">
@@ -157,7 +168,7 @@ function Incomes() {
             size="lg"
             isDisabled={loading}
             variant="shadow"
-            onPress={handleFilter}
+            onPress={() => {}}
           >
             Filtrar
           </Button>

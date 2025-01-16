@@ -18,7 +18,7 @@ import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import COINSLOGO from "@/public/LOGO.png";
 import { Avatar } from "@nextui-org/react";
-
+import Link from "next/link";
 export const Navbar = () => {
   const [loading, setLoading] = useState(false);
   const [permissions, setPermissions] = useState<number[]>([]);
@@ -121,7 +121,8 @@ export const Navbar = () => {
     Cookies.remove("auth_token");
     Cookies.remove("permissions");
     localStorage.removeItem("token");
-    router.push("/auth/login");
+    localStorage.clear();
+    router.replace("/auth/login");
   };
 
   return (
@@ -158,8 +159,8 @@ export const Navbar = () => {
                 className="w-full p-0 -mx-0"
               >
                 {option.items.map((item) => (
-                  <DropdownItem key={item.key} href={item.href}>
-                    {item.label}
+                  <DropdownItem key={item.key}>
+                    <Link href={item.href}>{item.label}</Link>
                   </DropdownItem>
                 ))}
               </DropdownMenu>

@@ -1,31 +1,46 @@
 "use client";
 import Cookies from "js-cookie";
-
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 const withPermission = (Component: React.FC, requiredPermission: number) => {
   return (props: any) => {
     const [isAllowed, setIsAllowed] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
+    const router = useRouter();
 
     useEffect(() => {
-      if (typeof window !== "undefined") {
-        const permissions = Cookies.get("permissions")
-          ? JSON.parse(Cookies.get("permissions")!)
-          : [];
+      const storedToken = Cookies.get("auth_token");
+      const storedPermissions = Cookies.get("permissions");
 
-        if (permissions.includes(requiredPermission)) {
-          setIsAllowed(true);
-        } else {
-          console.warn(
-            `Access denied. Permission ${requiredPermission} required.`
-          );
-          window.location.href = "/auth/login";
+      if (storedToken && storedPermissions) {
+        try {
+          const parsedPermissions = JSON.parse(storedPermissions);
+
+          if (
+            Array.isArray(parsedPermissions) &&
+            parsedPermissions.includes(requiredPermission)
+          ) {
+            setIsAllowed(true);
+          } else {
+            setIsAllowed(false);
+          }
+        } catch (error) {
+          console.error("Error procesando los permisos:", error);
+          setIsAllowed(false);
         }
-
-        setIsLoading(false);
+      } else {
+        setIsAllowed(false); // No hay token o permisos
       }
-    }, []);
+
+      setIsLoading(false);
+    }, [requiredPermission]);
+
+    useEffect(() => {
+      if (!isAllowed && !isLoading) {
+        router.replace("/auth/login");
+      }
+    }, [isAllowed, isLoading, router]);
 
     if (isLoading) {
       return <p>Cargando...</p>;

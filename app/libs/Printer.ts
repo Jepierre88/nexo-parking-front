@@ -3,6 +3,7 @@ import axios from "axios";
 
 import Invoice from "@/types/Invoice";
 import Income from "@/types/Income";
+import { Description, Payment } from "@mui/icons-material";
 const DEFAULT_PLUGIN_URL = "http://localhost:8080";
 
 class Operation {
@@ -141,15 +142,45 @@ export class Connector {
 			accion: "table",
 			datos: JSON.stringify(auxDesc),
 		});
-		this.operaciones.push({
-			accion: "table",
-			datos: JSON.stringify(auxTotalDesc),
-		});
+		        factura.descriptionTotal.forEach((totalData) => {
+            this.operaciones.push({
+              accion: "text",
+              datos: `Cantidad Total: ${totalData.CANTIDAD_TOTAL || 0}`,
+            });
+            this.operaciones.push({
+              accion: "text",
+              datos: `Base: ${totalData.BASE || 0}`,
+            });
+            this.operaciones.push({
+              accion: "text",
+              datos: `Descuento: ${totalData.DESCUENTO || 0}`,
+            });
+            this.operaciones.push({
+              accion: "text",
+              datos: `Subtotal: ${totalData.SUBTOTAL || 0}`,
+            });
+            this.operaciones.push({
+              accion: "text",
+              datos: `IVA 19%: ${totalData.IVA_19 || 0}`,
+            });
+            this.operaciones.push({
+              accion: "text",
+              datos: `Total: ${totalData.TOTAL || 0}`,
+            });
+            this.operaciones.push({
+              accion: "text",
+              datos: `Recibido: ${totalData.RECIBIDO || 0}`,
+            });
+            this.operaciones.push({
+              accion: "text",
+              datos: `Cambio: ${totalData.CAMBIO || 0}`,
+            });
+	
 		this.operaciones.push({
 			accion: "text",
 			datos: "---------------------------",
 		});
-
+	});
 		// CUFE y resolución
 		if (factura.infoCufe.CUFE) {
 			const urlDian = `https://catalogo-vpfe.dian.gov.co/document/searchqr?documentkey=${factura.infoCufe.CUFE}`;
