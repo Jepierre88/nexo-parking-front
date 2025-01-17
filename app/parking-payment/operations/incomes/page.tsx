@@ -1,347 +1,168 @@
 "use client";
 import React, { useState, useEffect } from "react";
-import { title } from "@/components/primitives";
 import { Button } from "@nextui-org/button";
-import ICONOLAPIZ from "@/public/iconoLapiz.png";
-import ICONOIMPRESORA from "@/public/IconoImpresora.png";
-import ICONOBASURERO from "@/public/iconoBasurero.png";
-import Image from "next/image";
-import { UserData } from "@/types";
-import UseIncomes from "@/app/parking-payment/hooks/UseIncomes";
-import { DataGrid, GridColDef } from "@mui/x-data-grid";
-import { printInvoice } from "@/app/libs/utils";
-import {
-  ModalContent,
-  useDisclosure,
-  Modal,
-  ModalHeader,
-  ModalBody,
-} from "@nextui-org/modal";
-import { Input } from "@nextui-org/react";
-import { ModalError, ModalExito } from "@/components/modales";
-import Loading from "@/app/loading";
+import { GridColDef } from "@mui/x-data-grid";
+import { DateRangePicker, Input } from "@nextui-org/react";
+import { useTheme } from "next-themes";
+
+import UseIncomes from "@/app/hooks/incomes/UseIncomes";
 import CustomDataGrid from "@/components/customDataGrid";
-import { finished } from "stream";
-import { Connector } from "@/app/libs/Printer";
+import { PencilIcon, PrinterIcon } from "@/components/icons";
+import {
+	getLocalTimeZone,
+	parseAbsoluteToLocal,
+} from "@internationalized/date";
 
 export default function Incomes() {
-  const { incomes, getIncomes, updatePlate, setIncomes, loading } =
-    UseIncomes();
-  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+	const { incomes, getIncomes, updatePlate, loading } = UseIncomes();
+	const { resolvedTheme } = useTheme();
+	const [isDark, setIsDark] = useState(false);
 
-  const {
-    isOpen: isOpenExitoModal,
-    onOpen: onOpenExitoModal,
-    onOpenChange: onOpenChangeExitoModal,
-    onClose: onCloseExitoModal,
-  } = useDisclosure();
+	// Rango de Fechas
+	const [dateRange, setDateRange] = useState<any>({
+		start: parseAbsoluteToLocal(
+			new Date(
+				new Date().getFullYear(),
+				new Date().getMonth(),
+				new Date().getDate() - 1
+			).toISOString()
+		),
+		end: parseAbsoluteToLocal(new Date().toISOString()),
+	});
 
-  const {
-    isOpen: isOpenErrorModal,
-    onOpen: onOpenErrorModal,
-    onOpenChange: onOpenChangeErrorModal,
-    onClose: onCloseErrorModal,
-  } = useDisclosure();
+	const [plate, setPlate] = useState("");
+	const [message, setMessage] = useState("");
 
-  const {
-    isOpen: isOpenDelete,
-    onOpen: onOpenDelete,
-    onOpenChange: onOpenChangeDelete,
-    onClose: onCloseDelete,
-  } = useDisclosure();
+	useEffect(() => {
+		setIsDark(resolvedTheme === "dark");
+	}, [resolvedTheme]);
 
-  // Inicialización de fechas
-  const today = new Date();
-  const tomorrow = new Date();
-  tomorrow.setDate(today.getDate() + 1);
+	const handleFilter = () => {
+		if (dateRange.start && dateRange.end) {
+			getIncomes(
+				dateRange.start.toDate(getLocalTimeZone()),
+				dateRange.end.toDate(getLocalTimeZone()),
+				plate
+			);
+		}
+	};
 
-  const [startDate, setStartDate] = useState(today.toISOString().split("T")[0]);
-  const [startTime, setStartTime] = useState(
-    today.toISOString().split("T")[1].split(".")[0]
-  );
-  const [endDate, setEndDate] = useState(tomorrow.toISOString().split("T")[0]);
-  const [endTime, setEndTime] = useState(
-    today.toISOString().split("T")[1].split(".")[0]
-  );
+	// Configuración de columnas para DataGrid
+	const columns: GridColDef[] = [
+		{
+			field: "id",
+			headerName: "Id",
+			flex: 1,
+			headerAlign: "center",
+			align: "center",
+		},
+		{
+			field: "datetime",
+			headerName: "Fecha",
+			flex: 1,
+			headerAlign: "center",
+			align: "center",
+		},
+		{
+			field: "identificationMethod",
+			headerName: "Tipo",
+			flex: 1,
+			headerAlign: "center",
+			align: "center",
+		},
+		{
+			field: "identificationId",
+			headerName: "Código",
+			flex: 1,
+			headerAlign: "center",
+			align: "center",
+		},
+		{
+			field: "vehicleKind",
+			headerName: "Tipo V",
+			flex: 1,
+			headerAlign: "center",
+			align: "center",
+		},
+		{
+			field: "plate",
+			headerName: "Placa",
+			flex: 1,
+			headerAlign: "center",
+			align: "center",
+		},
+		{
+			field: "actions",
+			headerName: "Acciones",
+			minWidth: 300,
+			headerAlign: "center",
+			sortable: false,
+			filterable: false,
+			align: "center",
+			renderCell: (params) => (
+				<div className="flex h-full justify-center items-center w-full overflow-hidden">
+					<Button
+						className="w-1 h-full p-1 flex items-center"
+						disabled={loading}
+						radius="none"
+						color="default"
+						variant="light"
+					>
+						<PencilIcon fill={isDark ? "#FFF" : "#000"} size={24} />
+					</Button>
+					<Button
+						className="w-1 h-full p-1 flex items-center"
+						color="default"
+						radius="none"
+						variant="light"
+					>
+						<PrinterIcon
+							fill={isDark ? "#000" : "#FFF"}
+							size={28}
+							stroke={isDark ? "#FFF" : "#000"}
+						/>
+					</Button>
+				</div>
+			),
+		},
+	];
 
-  const handleFilter = () => {
-    const startDateTime = new Date(`${startDate}T${startTime}`);
-    const endDateTime = new Date(`${endDate}T${endTime}`);
-    if (isNaN(startDateTime.getTime()) || isNaN(endDateTime.getTime())) {
-      console.error("Fechas no válidas");
-      setIncomes([]);
-      return;
-    }
-    console.log(startDateTime.toISOString(), endDateTime.toISOString());
-    getIncomes(startDateTime, endDateTime);
-  };
+	return (
+		<section className="h-full">
+			<div className="flex justify-between items-center flex-col xl:flex-row overflow-hidden">
+				<h1 className="text-4xl font-bold my-3 h-20 text-center items-center content-center">
+					Entradas
+				</h1>
 
-  const handleClickPrint = async (row: any) => {
-    const conec = new Connector("EPSON");
-    conec.agregarOperacion("text", "richar hola");
-    conec.agregarOperacion("text", "coins");
-    conec.imprimir();
-  };
+				<div className="flex my-3 gap-4 items-center justify-center h-min flex-wrap md:flex-nowrap">
+					<DateRangePicker
+						lang="es-ES"
+						hideTimeZone
+						label="Rango de Fechas"
+						size="md"
+						value={dateRange}
+						onChange={setDateRange}
+					/>
 
-  const [plate, setPlateValue] = useState("");
-  const [id, setVehicleId] = useState<string | null>(null);
-  const [plateImg, setPlateImg] = useState("");
-
-  const handleButtonClick = (id: string, plate: string, img: string) => {
-    console.log(id);
-    setVehicleId(id);
-    setPlateValue(plate);
-    setPlateImg(img);
-    onOpen();
-  };
-  const [message, setMessage] = useState("");
-
-  const editPlate = async () => {
-    if (id && plate) {
-      try {
-        await updatePlate(id, plate);
-        setPlateValue("");
-        setVehicleId(null);
-        onClose();
-        setMessage("Placa actualizada con éxito");
-        onOpenExitoModal();
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        await getIncomes();
-      } catch (error) {
-        console.error("Error editando la placa:", error);
-        setMessage("Error editando la placa");
-        onOpenErrorModal();
-      }
-    } else {
-      console.error("ID o placa no válidos");
-      setMessage("Placa no válida");
-      onOpenErrorModal();
-    }
-  };
-
-  const buttonDelete = () => {
-    onOpenDelete();
-  };
-
-  const columns: GridColDef[] = [
-    {
-      field: "id",
-      headerName: "Id",
-      flex: 1,
-      headerAlign: "center",
-      align: "center",
-    },
-    {
-      field: "datetime",
-      headerName: "Fecha",
-      flex: 1,
-      headerAlign: "center",
-      align: "center",
-    },
-    {
-      field: "identificationMethod",
-      headerName: "Tipo",
-      flex: 1,
-      headerAlign: "center",
-      align: "center",
-    },
-    {
-      field: "identificationId",
-      headerName: "Código",
-      flex: 1,
-      headerAlign: "center",
-      align: "center",
-    },
-    {
-      field: "vehicleKind",
-      headerName: "Tipo V",
-      flex: 1,
-      headerAlign: "center",
-      align: "center",
-    },
-    {
-      field: "plate",
-      headerName: "Placa",
-      flex: 1,
-      headerAlign: "center",
-      align: "center",
-    },
-    {
-      field: "actions",
-      headerName: "Acciones",
-      minWidth: 200,
-      renderCell: (params) => (
-        <div className="flex justify-center items-center">
-          <Button
-            color="primary"
-            onPress={() =>
-              handleButtonClick(
-                params.row.id,
-                params.row.plate,
-                params.row.plateImage
-              )
-            }
-            disabled={loading}
-          >
-            <Image src={ICONOLAPIZ} alt="IconoLapiz" width={20} />
-          </Button>
-          <Button color="primary" onClick={() => handleClickPrint(params.row)}>
-            <Image src={ICONOIMPRESORA} alt="IconoImpresora" width={20} />
-          </Button>
-          <Button color="primary" onClick={() => buttonDelete()}>
-            <Image src={ICONOBASURERO} alt="IconoBasurero" width={20} />
-          </Button>
-        </div>
-      ),
-    },
-  ];
-
-  return (
-    <section className="relative flex-col">
-      {loading && <Loading />}{" "}
-      <div className="flex gap-4 justify-between">
-        <h1 className={title()}>Entradas</h1>
-
-        <div className="flex">
-          <div className="flex gap-4 flex-col w-45 mr-1">
-            <label className="text-base font-bold text-nowrap mb-2 mr-2">
-              DESDE
-            </label>
-            <div className="flex space-x-2">
-              <input
-                type="date"
-                value={startDate}
-                className="text-sm font-bold mr-2 border border-gray-300 rounded p-1"
-                onChange={(e) => setStartDate(e.target.value)}
-              />
-              <input
-                type="time"
-                value={startTime}
-                className="text-sm font-bold border border-gray-300 rounded p-1"
-                onChange={(e) => setStartTime(e.target.value)}
-              />
-            </div>
-            <div className="flex flex-col w-45">
-              <label className="text-base font-bold text-nowrap mr-2 mb-2">
-                HASTA
-              </label>
-              <div className="flex space-x-2">
-                <input
-                  type="date"
-                  value={endDate}
-                  className="text-sm font-bold border border-gray-300 rounded p-1"
-                  onChange={(e) => setEndDate(e.target.value)}
-                />
-                <input
-                  type="time"
-                  value={endTime}
-                  className="text-sm font-bold border border-gray-300 rounded p-1"
-                  onChange={(e) => setEndTime(e.target.value)}
-                />
-              </div>
-            </div>
-          </div>
-
-          <Button
-            className=" my-auto "
-            color="primary"
-            onClick={handleFilter}
-            disabled={loading} // Deshabilitar el botón mientras está cargando
-          >
-            Filtrar
-          </Button>
-        </div>
-      </div>
-      <div style={{ height: 400, width: "100%", marginTop: "20px" }}>
-        <CustomDataGrid rows={incomes} columns={columns} />
-      </div>
-      <Modal
-        onOpenChange={onOpenChange}
-        isOpen={isOpen}
-        aria-labelledby="user-modal-title"
-        aria-describedby="user-modal-description"
-      >
-        <ModalContent>
-          {() => (
-            <div className="flex flex-col items-start w-full p-4">
-              <ModalHeader className="flex justify-between w-full">
-                <h1 className={`text-2xl ${title()}`}>Agregar placa</h1>
-              </ModalHeader>
-              <ModalBody className="flex w-full">
-                <div className="flex-grow" />
-                <div className="flex flex-col items-center w-full">
-                  <div className="flex flex-col items-center w-98">
-                    <Input
-                      placeholder="Placa"
-                      className="ml-4 w-2/3"
-                      type="text"
-                      variant="faded"
-                      value={plate}
-                      onChange={(e) => setPlateValue(e.target.value)}
-                    />
-                  </div>
-                  <div className="flex justify-center w-full mt-4">
-                    <Button
-                      color="primary"
-                      onClick={editPlate}
-                      disabled={loading}
-                    >
-                      Guardar
-                    </Button>
-                    <Button color="primary" onClick={onClose} className="mr-2">
-                      Cancelar
-                    </Button>
-                  </div>
-                </div>
-              </ModalBody>
-            </div>
-          )}
-        </ModalContent>
-      </Modal>
-      <Modal
-        onOpenChange={onOpenChangeDelete}
-        isOpen={isOpenDelete}
-        aria-labelledby="user-modal-title"
-        aria-describedby="user-modal-description"
-      >
-        <ModalContent>
-          <ModalHeader>
-            <h1 className={`text-xl ${title()}`}>Eliminar Ingreso</h1>
-          </ModalHeader>
-          <ModalBody>
-            <p>
-              ¿Está seguro que desea eliminar el ingreso de la placa:
-              <span className="ml-1 font-bold">{plate}</span>?
-            </p>
-            <div className="flex justify-between ">
-              <Button color="primary" type="submit">
-                Eliminar
-              </Button>
-              <Button color="primary" onClick={onCloseDelete}>
-                Volver
-              </Button>
-            </div>
-          </ModalBody>
-        </ModalContent>
-      </Modal>
-      <ModalError
-        modalControl={{
-          isOpen: isOpenErrorModal,
-          onOpen: onOpenErrorModal,
-          onClose: onCloseErrorModal,
-          onOpenChange: onOpenChangeErrorModal,
-        }}
-        message={message}
-      />
-      <ModalExito
-        modalControl={{
-          isOpen: isOpenExitoModal,
-          onOpen: onOpenExitoModal,
-          onClose: onCloseExitoModal,
-          onOpenChange: onOpenChangeExitoModal,
-        }}
-        message={message}
-      />
-    </section>
-  );
+					<Input
+						label={"Placa"}
+						maxLength={6}
+						size="md"
+						value={plate}
+						onChange={(e) => setPlate(e.target.value.toUpperCase())}
+					/>
+					<Button
+						className="bg-primary text-white my-auto"
+						size="lg"
+						isDisabled={loading}
+						variant="shadow"
+						onPress={handleFilter}
+					>
+						Filtrar
+					</Button>
+				</div>
+			</div>
+			<CustomDataGrid columns={columns} loading={loading} rows={incomes} />
+		</section>
+	);
 }
