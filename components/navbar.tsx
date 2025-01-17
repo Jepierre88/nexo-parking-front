@@ -43,18 +43,6 @@ export const Navbar = () => {
 
   const navbarOptions = [
     {
-      label: "Administrador",
-      key: 1,
-      items: [
-        {
-          label: "Usuarios",
-          key: 1,
-          href: "/parking-payment/users",
-          permission: 1,
-        },
-      ],
-    },
-    {
       label: "Operación",
       key: 2,
       items: [
@@ -71,12 +59,6 @@ export const Navbar = () => {
           permission: 3,
         },
         {
-          label: "Procesos De Pago",
-          key: 4,
-          href: "/parking-payment",
-          permission: 4,
-        },
-        {
           label: "Transacciones",
           key: 5,
           href: "/parking-payment/operations/transactions",
@@ -91,6 +73,18 @@ export const Navbar = () => {
       ],
     },
     {
+      label: "Pagar",
+      key: 1,
+      items: [
+        {
+          label: "Procesos De Pago",
+          key: 4,
+          href: "/parking-payment",
+          permission: 4,
+        },
+      ],
+    },
+    {
       label: "Ingreso Por Placa",
       key: 3,
       items: [
@@ -99,6 +93,18 @@ export const Navbar = () => {
           key: 7,
           href: "/parking-payment/ingresoSalida",
           permission: 7,
+        },
+      ],
+    },
+    {
+      label: "Administrador",
+      key: 1,
+      items: [
+        {
+          label: "Usuarios",
+          key: 1,
+          href: "/parking-payment/users",
+          permission: 1,
         },
       ],
     },

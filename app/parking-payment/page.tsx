@@ -349,7 +349,9 @@ function ParkingPayment() {
                 </span>
                 <span className="w-full">
                   {paymentData?.subtotal &&
-                    `$${paymentData.subtotal.toLocaleString("es-CO").split(",")[0]}`}
+                    `$${
+                      paymentData.subtotal.toLocaleString("es-CO").split(",")[0]
+                    }`}
                 </span>
               </div>
               <hr className="border-t-1 border-neutral-300 my-3" />
@@ -399,8 +401,8 @@ function ParkingPayment() {
                   variant={!isVisible ? "faded" : "bordered"}
                   onChange={(e) => {
                     setPaymentData((prev: any) => ({
-                      ...prev, // Incluye todas las propiedades previas
-                      identificationCode: e.target.value, // Sobrescribe identificationCode
+                      ...prev,
+                      identificationCode: e.target.value,
                     }));
                   }}
                 />

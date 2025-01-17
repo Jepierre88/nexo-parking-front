@@ -148,3 +148,9 @@ export const dateValidationSchema = z.object({
     )
     .max(10, "La fecha debe estar en formato dd/mm/yyyy"),
 });
+export const numberMonthsSchema = z.object({
+  numberMonths: z
+    .number()
+    .min(1, "Debe Pagar Minimo Un Mes")
+    .max(24, "Como Máximo puedes pagar 24 meses"),
+});
