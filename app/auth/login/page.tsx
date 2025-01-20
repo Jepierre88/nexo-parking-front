@@ -85,7 +85,7 @@ export default function Login() {
       //Y el expires es para poner el tiempo de caducacion de la cookie
       Cookies.set("auth_token", response.data.token, {
         expires: 1,
-        secure: true,
+        secure: false,
       });
       Cookies.set("permissions", JSON.stringify(response.data.permissions), {
         expires: 1,
@@ -108,7 +108,7 @@ export default function Login() {
       console.error(error);
       setToken("");
       setIsAuthenticated(false);
-      console.log(error)
+      console.log(error);
       alert("Error en el inicio de sesión");
     } finally {
       setLoading(false);

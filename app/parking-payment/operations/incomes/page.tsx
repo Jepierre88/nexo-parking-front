@@ -15,6 +15,8 @@ import {
 import withPermission from "@/app/withPermission";
 import { Connector } from "@/app/libs/Printer";
 import Income from "@/types/Income";
+import { toast } from "sonner";
+
 function Incomes() {
   const { incomes, getIncomes, updatePlate, loading } = UseIncomes();
   const { resolvedTheme } = useTheme();
@@ -33,7 +35,6 @@ function Incomes() {
   });
 
   const [plate, setPlate] = useState("");
-  const [message, setMessage] = useState("");
 
   useEffect(() => {
     setIsDark(resolvedTheme === "dark");
@@ -131,10 +132,18 @@ function Incomes() {
   ];
 
   const handlenPrint = async (row: Income) => {
+    const loadingToastId = toast.loading("Imprimiendo ticket de ingreso...");
+
     try {
       const impresora = new Connector("EPSON");
       await impresora.imprimirIngreso(row);
+      toast.success("Ticket impreso correctamente.", {
+        id: loadingToastId,
+      });
     } catch (e) {
+      toast.error("Error al imprimir el ticket.", {
+        id: loadingToastId,
+      });
       console.error("Error al imprimir la factura", e);
     }
   };

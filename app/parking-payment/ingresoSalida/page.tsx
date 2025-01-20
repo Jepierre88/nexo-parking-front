@@ -31,7 +31,7 @@ import axios from "axios";
 import withPermission from "@/app/withPermission";
 import { Connector } from "@/app/libs/Printer";
 import ActionButton from "@/components/actionButtonProps";
-
+import { toast } from "sonner";
 const ingresoSalida = () => {
   const [placaIn, setPlacaIn] = useState("");
 
@@ -85,38 +85,19 @@ const ingresoSalida = () => {
     visitor: "Visitor",
   };
 
-  const {
-    isOpen: isOpenErrorModal,
-    onOpen: onOpenErrorModal,
-    onClose: onCloseErrorModal,
-    onOpenChange: onOpenChangeErrorModal,
-  } = useDisclosure();
-
-  const {
-    isOpen: isOpenExitoModal,
-    onOpen: onOpenExitoModal,
-    onClose: onCloseExitoModal,
-    onOpenChange: onOpenChangeExitoModal,
-  } = useDisclosure();
-
   const [currentDate, setCurrentDate] = useState(
     parseAbsoluteToLocal(new Date().toISOString())
   );
   const validatePlaca = (placa: string, checkEmpty: boolean = true) => {
     if (checkEmpty && placa.trim() === "") {
-      setMessage("La placa no puede estar vacía.");
-      onOpenErrorModal();
-
+      toast.error("La placa no puede estar vacía.");
       return false;
     }
 
     const validationSchemas = vehicleEntrySchema.safeParse({ placa });
-
     if (!validationSchemas.success) {
-      setMessage(validationSchemas.error.issues[0].message);
+      toast.error(validationSchemas.error.issues[0].message);
       setPlacaIn((prevPlaca) => prevPlaca.slice(0, -1));
-      onOpenErrorModal();
-
       return false;
     }
 
@@ -125,22 +106,28 @@ const ingresoSalida = () => {
 
   const handleInputChangeIn = (e: any) => {
     const placa = e.target.value.toUpperCase();
-
     setPlacaIn(placa);
 
     if (placa.trim() !== "") {
       const lastChar = placa.charAt(placa.length - 1).toUpperCase();
-
       setVehicleType(isNaN(Number(lastChar)) ? "MOTO" : "CARRO");
       validatePlaca(placa, false);
     }
   };
 
   const handlePrint = async (row: Income) => {
+    const loadingToastId = toast.loading("Imprimiendo ticket de ingreso...");
+
     try {
       const impresora = new Connector("EPSON");
       await impresora.imprimirIngreso(row);
+      toast.success("Ticket impreso correctamente.", {
+        id: loadingToastId,
+      });
     } catch (error) {
+      toast.error("Error al imprimir el ticket.", {
+        id: loadingToastId,
+      });
       console.error("Error imprimiendo la factura:", error);
     }
   };
@@ -149,8 +136,11 @@ const ingresoSalida = () => {
     if (!validatePlaca(placaIn)) {
       return;
     }
+
+    const loadingToastId = toast.loading("Registrando vehículo...");
     try {
       setIsLoading(true);
+
       const response = await axios.post(
         `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/access-control/visitor-service/generateContingency`,
         {
@@ -161,18 +151,20 @@ const ingresoSalida = () => {
           incomeConditionType: INCOME_CONDITION_TYPE.visitor,
         }
       );
-      handlePrint(response.data);
-      setMessage("Vehículo registrado exitosamente.");
-      onOpenExitoModal();
+
+      await handlePrint(response.data);
+      toast.success("Vehículo registrado con éxito.", {
+        id: loadingToastId,
+      });
       setPlacaIn("");
-      console.log("Entrada generada:", placaIn);
     } catch (error) {
+      toast.error("Error al registrar el vehículo.", {
+        id: loadingToastId,
+      });
+      console.error("Error registrando el vehículo:", error);
     } finally {
       setIsLoading(false);
     }
-  };
-  const handleCloseErrorModal = () => {
-    onCloseErrorModal();
   };
 
   return (
@@ -290,26 +282,6 @@ const ingresoSalida = () => {
             </div>
           </form>
         </CardPropierties>
-
-        <ModalError
-          message={message}
-          modalControl={{
-            isOpen: isOpenErrorModal,
-            onOpen: onOpenErrorModal,
-            onClose: handleCloseErrorModal,
-            onOpenChange: onOpenChangeErrorModal,
-          }}
-        />
-
-        <ModalExito
-          message={message}
-          modalControl={{
-            isOpen: isOpenExitoModal,
-            onOpen: onOpenExitoModal,
-            onClose: onCloseExitoModal,
-            onOpenChange: onOpenChangeExitoModal,
-          }}
-        />
       </div>
     </section>
   );

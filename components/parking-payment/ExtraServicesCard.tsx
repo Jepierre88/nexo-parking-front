@@ -6,7 +6,8 @@ import UseExtraServices from "@/app/hooks/parking-payment/UseExtraServices";
 import { CancelIcon, MinusIcon, PlusIcon } from "../icons";
 import { toast } from "sonner";
 import { PaymentData } from "@/types";
-
+import UsePermissions from "@/app/hooks/UsePermissions";
+import { useMemo } from "react";
 export default function ExtraServices(props: {
   showCart: boolean;
   setShowCart: (show: boolean) => void;
@@ -224,6 +225,7 @@ export default function ExtraServices(props: {
           props.showCart ? "translate-x-0" : "translate-x-full"
         }`}
       >
+        {" "}
         <CardHeader className="flex flex-col">
           <Button
             variant="light"
@@ -235,7 +237,6 @@ export default function ExtraServices(props: {
           </Button>
           <h3 className={title()}>Servicios adicionales</h3>
         </CardHeader>
-
         <CardBody className="flex flex-col items-center w-full px-6">
           <p className="text-sm mb-4 text-center">
             Agrega los servicios adicionales para este usuario:
@@ -313,6 +314,7 @@ export default function ExtraServices(props: {
               ${(paymentData.totalServices || 0).toLocaleString("es-CO")}
             </span>
           </div>
+
           <Button
             color="primary"
             size="lg"

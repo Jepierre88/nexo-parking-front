@@ -36,7 +36,8 @@ import Invoice from "@/types/Invoice";
 import { UseTransactions } from "../hooks/transactions/Usetransactions";
 import { Connector } from "../libs/Printer";
 import Cookies from "js-cookie";
-
+import { useMemo } from "react";
+import UsePermissions from "../hooks/UsePermissions";
 function ParkingPayment() {
   // Contexto de autenticación para obtener el usuario actual
   const { user } = UseAuthContext();
@@ -53,7 +54,8 @@ function ParkingPayment() {
   const [cashBack, setCashBack] = useState<number>(0); // Monto de devolución
   const [showCart, setShowCart] = useState<boolean>(false); // Controla la visibilidad del carrito de servicios adicionales
   const [loadingPayment, setLoadingPayment] = useState(false); // Indica si se está procesando un pago
-
+  const { hasPermission } = UsePermissions();
+  const canViewCart = useMemo(() => hasPermission(37), [hasPermission]);
   const [resetKey, setResetKey] = useState(0); // Indica si
 
   // Contexto de pago, incluye estado del carrito y datos del pago
@@ -528,20 +530,22 @@ function ParkingPayment() {
       />
       <div className="fixed right-4 top-20 z-30 flex flex-col">
         <div className="relative inline-block">
-          <Tooltip
-            content="Servicios adicionales"
-            placement="left"
-            closeDelay={100}
-          >
-            <Button
-              radius="full"
-              color="primary"
-              className="min-w-1 flex justify-center items-center right-4 h-14 mx-auto"
-              onPress={() => setShowCart(true)}
+          {canViewCart && (
+            <Tooltip
+              content="Servicios adicionales"
+              placement="left"
+              closeDelay={100}
             >
-              <CartIcon fill="#fff" stroke="#000" width={24} height={24} />
-            </Button>
-          </Tooltip>
+              <Button
+                radius="full"
+                color="primary"
+                className="min-w-1 flex justify-center items-center right-4 h-14 mx-auto"
+                onPress={() => setShowCart(true)}
+              >
+                <CartIcon fill="#fff" stroke="#000" width={24} height={24} />
+              </Button>
+            </Tooltip>
+          )}
           {/* Badge */}
           {/* {state.payments.length > 0 && (
 						<span className="absolute top-0 left-2 bg-red-500 text-white text-xs font-bold w-5 h-5 flex items-center justify-center rounded-full transform translate-x-2 -translate-y-2">
