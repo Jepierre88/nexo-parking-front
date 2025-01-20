@@ -89,7 +89,7 @@ export default function Login() {
       });
       Cookies.set("permissions", JSON.stringify(response.data.permissions), {
         expires: 1,
-        secure: true,
+        secure: false,
       });
       console.log("Permissions from cookie:", Cookies.get("permissions"));
 

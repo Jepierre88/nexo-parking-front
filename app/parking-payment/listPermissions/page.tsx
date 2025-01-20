@@ -1,7 +1,6 @@
 "use client";
 
-import UseRelationPermissions from "../hooks/UseRelationPermissions";
-
+import UseRelationPermissions from "@/app/hooks/UseRelationPermissions";
 export default function ListPermissions() {
   const { permissionsById } = UseRelationPermissions(1);
 

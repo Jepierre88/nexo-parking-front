@@ -204,6 +204,7 @@ export default function VisitanteQr() {
             variant="bordered"
             required
             value={paymentData.identificationCode}
+            isDisabled={!paymentData.selectedService}
             onChange={(e) => {
               setPaymentData({
                 ...paymentData,

@@ -1,10 +1,10 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { Button } from "@nextui-org/button";
 import { GridColDef } from "@mui/x-data-grid";
 import { DateRangePicker, Input } from "@nextui-org/react";
 import { useTheme } from "next-themes";
-
+import UsePermissions from "@/app/hooks/UsePermissions";
 import UseIncomes from "@/app/hooks/incomes/UseIncomes";
 import CustomDataGrid from "@/components/customDataGrid";
 import { PencilIcon, PrinterIcon } from "@/components/icons";
@@ -16,12 +16,36 @@ import withPermission from "@/app/withPermission";
 import { Connector } from "@/app/libs/Printer";
 import Income from "@/types/Income";
 import { toast } from "sonner";
+import {
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+  useDisclosure,
+} from "@nextui-org/modal";
+import { title } from "@/components/primitives";
 
+const initialIncomeEdit: Income = {
+  datetime: new Date(),
+  id: 0,
+  identificationId: "",
+  identificationMethod: "",
+  incomePointId: 0,
+  peopleAmount: 0,
+  plate: "",
+  plateImage: "",
+  processId: 0,
+  state: 0,
+  vehicle: "",
+  vehicleKind: "",
+};
 function Incomes() {
   const { incomes, getIncomes, updatePlate, loading } = UseIncomes();
   const { resolvedTheme } = useTheme();
   const [isDark, setIsDark] = useState(false);
-
+  const { hasPermission } = UsePermissions();
+  const canEditIncome = useMemo(() => hasPermission(38), [hasPermission]);
+  const canPrinterIncome = useMemo(() => hasPermission(13), [hasPermission]);
   // Rango de Fechas
   const [dateRange, setDateRange] = useState<any>({
     start: parseAbsoluteToLocal(
@@ -35,7 +59,7 @@ function Incomes() {
   });
 
   const [plate, setPlate] = useState("");
-
+  const [IncomeEdit, setIncomeEdit] = useState<Income>(initialIncomeEdit);
   useEffect(() => {
     setIsDark(resolvedTheme === "dark");
   }, [resolvedTheme]);
@@ -49,6 +73,17 @@ function Incomes() {
       );
     }
   };
+  const handleEditIncome = (data: Income) => {
+    setIncomeEdit(data);
+    onOpenEdit();
+  };
+
+  const {
+    isOpen: isOpenEdit,
+    onOpen: onOpenEdit,
+    onOpenChange: onOpenChangeEdit,
+    onClose: onCloseEdit,
+  } = useDisclosure();
 
   // Configuración de columnas para DataGrid
   const columns: GridColDef[] = [
@@ -106,18 +141,21 @@ function Incomes() {
         <div className="flex h-full justify-center items-center w-full overflow-hidden">
           <Button
             className="w-1 h-full p-1 flex items-center"
-            disabled={loading}
             radius="none"
             color="default"
             variant="light"
+            isDisabled={!canEditIncome}
+            onPress={() => handleEditIncome(params.row)}
           >
             <PencilIcon fill={isDark ? "#FFF" : "#000"} size={24} />
           </Button>
+
           <Button
             className="w-1 h-full p-1 flex items-center"
             color="default"
             radius="none"
             variant="light"
+            isDisabled={!canPrinterIncome}
             onPress={() => handlenPrint(params.row)}
           >
             <PrinterIcon
@@ -177,13 +215,95 @@ function Incomes() {
             size="lg"
             isDisabled={loading}
             variant="shadow"
-            onPress={() => {}}
+            onPress={handleFilter}
           >
             Filtrar
           </Button>
         </div>
       </div>
       <CustomDataGrid columns={columns} loading={loading} rows={incomes} />
+
+      <Modal
+        aria-describedby="user-modal-description"
+        aria-labelledby="user-modal-title"
+        isOpen={isOpenEdit}
+        onOpenChange={onOpenChangeEdit}
+      >
+        <ModalContent>
+          <div className="flex flex-col items-start w-full p-4">
+            <ModalHeader className="flex justify-between w-full">
+              <h1 className={`text-2xl  font-bold ${title()}`}>INGRESO</h1>
+            </ModalHeader>
+            <ModalBody className="flex flex-col w-full mt-4 gap-4">
+              <form className="flex flex-grow flex-col items-start w-full gap-4">
+                {/*Editar Entrada*/}
+                <div className="flex flex-col itms-star w-98">
+                  <div className="flex flex-col mt-2 mb-2 w-96">
+                    <div className="flex items-center mt-2 mb-2 w-96">
+                      <label className="text-xl font-bold text-nowrap w-1/3">
+                        Placa
+                      </label>
+                      <Input
+                        className="ml-4 w-2/3"
+                        placeholder="Digite la placa"
+                        type="text"
+                        value={IncomeEdit.plate}
+                        onChange={(e) => {
+                          const value = e.target.value.toUpperCase();
+                          if (value.length <= 6) {
+                            setIncomeEdit((prev) => ({
+                              ...prev,
+                              plate: value,
+                            }));
+                          }
+                        }}
+                      />
+                    </div>
+                    <div className="flex items-center w-full">
+                      <label className="text-xl font-bold w-1/3">
+                        Tipo de Vehículo
+                      </label>
+                      <Input
+                        className="w-2/3"
+                        placeholder="Digite el tipo de vehículo"
+                        type="text"
+                        value={IncomeEdit.vehicleKind}
+                        onChange={(e) =>
+                          setIncomeEdit((prev) => ({
+                            ...prev,
+                            vehicleKind: e.target.value,
+                          }))
+                        }
+                      />
+                    </div>
+                    {/* <div className="flex items-center w-full">
+                      <label className="text-xl font-bold w-1/3">
+                        Fecha y Hora
+                      </label>
+                      <Input
+                        className="w-2/3"
+                        type="text"
+                        value={IncomeEdit.datetime.toISOString().slice(0, 16)}
+                        onChange={(e) =>
+                          setIncomeEdit((prev) => ({
+                            ...prev,
+                            datetime: new Date(e.target.value),
+                          }))
+                        }
+                      />
+                    </div> */}
+                    <div className="flex justify-end w-full mt-4">
+                      <Button color="primary" size="sm" onPress={onCloseEdit}>
+                        Guardar Datos
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </form>
+            </ModalBody>
+          </div>
+        </ModalContent>
+      </Modal>
     </section>
   );
 }

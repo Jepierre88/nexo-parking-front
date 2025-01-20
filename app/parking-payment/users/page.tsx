@@ -31,11 +31,10 @@ import { match } from "assert";
 import { error } from "console";
 import withPermission from "@/app/withPermission";
 import ActionButton from "@/components/actionButtonProps";
-
 import MessageError from "@/components/menssageError";
 import Image from "next/image";
-
 import SelectPermission from "@/app/selectPermission";
+
 const initialUserEdit: User = {
   cellPhoneNumber: "",
   departmentName: "",

@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import {
   NextUIProvider,
   Input,
@@ -7,7 +7,6 @@ import {
   RadioGroup,
   Radio,
   DateInput,
-  DateValue,
 } from "@nextui-org/react";
 import { Button } from "@nextui-org/button";
 import Image from "next/image";
@@ -32,14 +31,19 @@ import withPermission from "@/app/withPermission";
 import { Connector } from "@/app/libs/Printer";
 import ActionButton from "@/components/actionButtonProps";
 import { toast } from "sonner";
+import UsePermissions from "@/app/hooks/UsePermissions";
+
 const ingresoSalida = () => {
+  const { hasPermission } = UsePermissions();
+  const canViewDate = useMemo(() => hasPermission(28), [hasPermission]);
   const [placaIn, setPlacaIn] = useState("");
-
   const [isLoading, setIsLoading] = useState(false);
-
-  const [message, setMessage] = useState("");
-  const { user } = UseAuthContext();
   const [vehicleType, setVehicleType] = useState("CARRO");
+  const [currentDate, setCurrentDate] = useState(
+    parseAbsoluteToLocal(new Date().toISOString())
+  );
+  const { user } = UseAuthContext();
+
   const [paymentData, setPaymentData] = useState<PaymentData>({
     IVAPercentage: 0,
     IVATotal: 0,
@@ -85,9 +89,6 @@ const ingresoSalida = () => {
     visitor: "Visitor",
   };
 
-  const [currentDate, setCurrentDate] = useState(
-    parseAbsoluteToLocal(new Date().toISOString())
-  );
   const validatePlaca = (placa: string, checkEmpty: boolean = true) => {
     if (checkEmpty && placa.trim() === "") {
       toast.error("La placa no puede estar vacía.");
@@ -225,6 +226,7 @@ const ingresoSalida = () => {
                 label="Fecha y Hora de ingreso"
                 value={currentDate}
                 onChange={handleCurrentDateChange}
+                isDisabled={!canViewDate}
               />
 
               <Button
