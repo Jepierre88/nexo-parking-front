@@ -1,10 +1,13 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
 interface Income {
-  id: string;
-  realm: string;
+  id: number;
+  realm?: string;
   plate: string;
+  vehicleKind: string;
+  datetime: Date;
 }
 
 export default function UseIncomes() {
@@ -53,6 +56,7 @@ export default function UseIncomes() {
       setLoading(false);
     }
   };
+
   const updatePlate = async (id: string, plate: string) => {
     setLoading(true);
     try {
@@ -71,5 +75,34 @@ export default function UseIncomes() {
     }
   };
 
-  return { incomes, loading, getIncomes, updatePlate, setIncomes };
+  const updateIncome = async (income: Income) => {
+    setLoading(true);
+    try {
+      const response = await axios.patch(
+        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/incomes/${income.id}`,
+        {
+          datetime: income.datetime,
+          vehicleKind: income.vehicleKind,
+          plate: income.plate,
+        }
+      );
+
+      console.log("Ingreso actualizado:", response.data);
+
+      return response.data;
+    } catch (error) {
+      console.error("Error al actualizar el ingreso:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return {
+    incomes,
+    loading,
+    getIncomes,
+    updatePlate,
+    setIncomes,
+    updateIncome,
+  };
 }

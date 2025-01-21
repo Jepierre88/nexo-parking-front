@@ -106,7 +106,7 @@ export const editUserSchema = (
   });
 
 export const vehicleEntrySchema = z.object({
-  placa: z
+  plate: z
     .string()
     .min(1, "La placa no puede estar vacía")
     .max(6, "La placa debe tener exactamente 6 caracteres")
@@ -153,4 +153,13 @@ export const numberMonthsSchema = z.object({
     .number()
     .min(1, "Debe Pagar Minimo Un Mes")
     .max(24, "Como Máximo puedes pagar 24 meses"),
+});
+export const incomeSchema = z.object({
+  id: z.string(),
+  plate: z
+    .string()
+    .min(1, "La placa es obligatoria")
+    .max(6, "La placa no puede tener más de 6 caracteres"),
+  vehicleKind: z.string(),
+  datetime: z.date(),
 });

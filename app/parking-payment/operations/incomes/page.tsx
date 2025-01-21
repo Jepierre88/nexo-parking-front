@@ -39,8 +39,10 @@ const initialIncomeEdit: Income = {
   vehicle: "",
   vehicleKind: "",
 };
+
 function Incomes() {
-  const { incomes, getIncomes, updatePlate, loading } = UseIncomes();
+  const { incomes, getIncomes, updatePlate, updateIncome, loading } =
+    UseIncomes();
   const { resolvedTheme } = useTheme();
   const [isDark, setIsDark] = useState(false);
   const { hasPermission } = UsePermissions();
@@ -59,10 +61,21 @@ function Incomes() {
   });
 
   const [plate, setPlate] = useState("");
-  const [IncomeEdit, setIncomeEdit] = useState<Income>(initialIncomeEdit);
+  const [incomeEdit, setIncomeEdit] = useState<Income>(initialIncomeEdit);
   useEffect(() => {
     setIsDark(resolvedTheme === "dark");
   }, [resolvedTheme]);
+
+  const handlePlateChange = (value: string) => {
+    const formattedPlate = value.toUpperCase().slice(0, 6);
+    const lastChar = formattedPlate.slice(-1);
+    const vehicleKind = isNaN(Number(lastChar)) ? "CARRO" : "MOTO";
+    setIncomeEdit((prev) => ({
+      ...prev,
+      plate: formattedPlate,
+      vehicleKind,
+    }));
+  };
 
   const handleFilter = () => {
     if (dateRange.start && dateRange.end) {
@@ -76,6 +89,26 @@ function Incomes() {
   const handleEditIncome = (data: Income) => {
     setIncomeEdit(data);
     onOpenEdit();
+  };
+
+  const handleUpdateIncome = async () => {
+    if (!incomeEdit.id) {
+      toast.error("El ID del ingreso no es válido.");
+      return;
+    }
+
+    try {
+      const updatedIncome = await updateIncome(incomeEdit);
+      if (updatedIncome) {
+        toast.success("Ingreso actualizado con éxito.");
+        onCloseEdit();
+        const updatedIncomes = await getIncomes();
+        console.log("Ingresos actualizados:", updatedIncomes);
+      }
+    } catch (error) {
+      console.error("Error al actualizar el ingreso:", error);
+      toast.error("Hubo un error al intentar actualizar el ingreso.");
+    }
   };
 
   const {
@@ -246,16 +279,12 @@ function Incomes() {
                       <Input
                         className="ml-4 w-2/3"
                         placeholder="Digite la placa"
+                        maxLength={6}
                         type="text"
-                        value={IncomeEdit.plate}
+                        variant="bordered"
+                        value={incomeEdit.plate}
                         onChange={(e) => {
-                          const value = e.target.value.toUpperCase();
-                          if (value.length <= 6) {
-                            setIncomeEdit((prev) => ({
-                              ...prev,
-                              plate: value,
-                            }));
-                          }
+                          handlePlateChange(e.target.value);
                         }}
                       />
                     </div>
@@ -267,13 +296,8 @@ function Incomes() {
                         className="w-2/3"
                         placeholder="Digite el tipo de vehículo"
                         type="text"
-                        value={IncomeEdit.vehicleKind}
-                        onChange={(e) =>
-                          setIncomeEdit((prev) => ({
-                            ...prev,
-                            vehicleKind: e.target.value,
-                          }))
-                        }
+                        value={incomeEdit.vehicleKind}
+                        readOnly
                       />
                     </div>
                     {/* <div className="flex items-center w-full">
@@ -293,7 +317,11 @@ function Incomes() {
                       />
                     </div> */}
                     <div className="flex justify-end w-full mt-4">
-                      <Button color="primary" size="sm" onPress={onCloseEdit}>
+                      <Button
+                        color="primary"
+                        size="sm"
+                        onPress={handleUpdateIncome}
+                      >
                         Guardar Datos
                       </Button>
                     </div>
