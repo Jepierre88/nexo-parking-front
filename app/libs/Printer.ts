@@ -15,6 +15,7 @@ class Operation {
 	}
 }
 
+
 export class Connector {
 	nombre_impresora: string;
 	operaciones: Operation[];
@@ -46,7 +47,22 @@ export class Connector {
 		});
 	}
 
+
 	async imprimirFacturaTransaccion(factura: Invoice): Promise<void> {
+		const addPadding = (text: string, totalWidth: number, padding: number = 2) => {
+			const spaces = " ".repeat(padding); 
+			const contentWidth = totalWidth - 2 * padding;
+			const truncatedText = text.slice(0, contentWidth); 
+			return `${spaces}${truncatedText}${spaces}`;
+		};
+		
+		
+		const totalWidth = 40; 
+		const padding = 4; 
+		this.operaciones.push({
+			accion: "text",
+			datos: "\n",
+		  });
 		// Encabezado de la factura
 		this.operaciones.push({ accion: "textalign", datos: "center" });
 		this.operaciones.push({ accion: "text", datos: factura.empresa });
@@ -54,8 +70,12 @@ export class Connector {
 		this.operaciones.push({ accion: "text", datos: factura.direccion });
 		this.operaciones.push({
 			accion: "text",
-			datos: "---------------------------",
+			datos: addPadding("----------------------------------------",totalWidth, padding) 
 		});
+		this.operaciones.push({
+			accion: "text",
+			datos: "\n",
+		  });
 
 		// Información del encabezado
 		this.operaciones.push({ 
@@ -120,67 +140,101 @@ export class Connector {
 
 		this.operaciones.push({
 			accion: "text",
-			datos: "---------------------------",
+			datos: "----------------------------------------",
 		});
+		this.operaciones.push({
+			accion: "text",
+			datos: "\n",
+		  });
 
 		let auxDesc: any[] = [];
-		let auxTotalDesc: any[] = [];
 
 		factura.description.forEach((element) => {
 			auxDesc.push({
-				description: element.DESCRIPCION,
+				description: ` ${element.DESCRIPCION}`,
 				price: element.VALOR,
 				quantity: element.CANTIDAD,
 			});
 		});
-		factura.descriptionTotal.forEach((element) => {
-			auxDesc.push({
-				...element,
-			});
-		});
+
+		
 		this.operaciones.push({
 			accion: "table",
 			datos: JSON.stringify(auxDesc),
 		});
-		        factura.descriptionTotal.forEach((totalData) => {
+
+		
+
+		factura.descriptionTotal.forEach((totalData) => {
+			const createAlignedText = (
+				label: string,
+				value: any,
+				totalWidth: number,
+				maxLabelWidth: number
+			  ) => {
+				const valueString = value.toString();
+  
+				// Asegura que todos los labels tengan la misma longitud para alinear los ':'
+				const paddedLabel = label.padEnd(maxLabelWidth, " ");
+				
+				// Calcula el espacio restante para centrar el texto completo (label + value)
+				const text = `${paddedLabel}${valueString}`;
+				const leftPadding = Math.max(0, Math.floor((totalWidth - text.length) / 2));
+				const spacesLeft = " ".repeat(leftPadding);
+			  
+				return `${spacesLeft}${text}`; 
+			  };
+
+			  const lineWidth = 40;
+			  const colonPosition = 20; 
+			  
+			  this.operaciones.push({
+				accion: "text",
+				datos: "\n\n",
+			  });
+			  
             this.operaciones.push({
               accion: "text",
-              datos: `Cantidad Total: ${totalData.CANTIDAD_TOTAL || 0}`,
+              datos: createAlignedText("Cantidad Total:", totalData.CANTIDAD_TOTAL || 0, lineWidth, colonPosition),
             });
             this.operaciones.push({
               accion: "text",
-              datos: `Base: ${totalData.BASE || 0}`,
+              datos: createAlignedText("Base:", totalData.BASE || 0, lineWidth, colonPosition)
             });
             this.operaciones.push({
               accion: "text",
-              datos: `Descuento: ${totalData.DESCUENTO || 0}`,
+              datos: createAlignedText("Descuento:", totalData.DESCUENTO || 0, lineWidth, colonPosition)
             });
             this.operaciones.push({
               accion: "text",
-              datos: `Subtotal: ${totalData.SUBTOTAL || 0}`,
+              datos:  createAlignedText("Subtotal:", totalData.SUBTOTAL || 0, lineWidth, colonPosition)
             });
             this.operaciones.push({
               accion: "text",
-              datos: `IVA 19%: ${totalData.IVA_19 || 0}`,
+              datos: createAlignedText("IVA 19%:", totalData.IVA_19 || 0, lineWidth, colonPosition)
             });
             this.operaciones.push({
               accion: "text",
-              datos: `Total: ${totalData.TOTAL || 0}`,
+              datos: createAlignedText("Total:", totalData.TOTAL || 0, lineWidth, colonPosition)
             });
             this.operaciones.push({
               accion: "text",
-              datos: `Recibido: ${totalData.RECIBIDO || 0}`,
+              datos: createAlignedText("Recibido: ", totalData.RECIBIDO || 0, lineWidth, colonPosition)
             });
             this.operaciones.push({
               accion: "text",
-              datos: `Cambio: ${totalData.CAMBIO || 0}`,
+              datos: createAlignedText("Cambio:",totalData.CAMBIO || 0, lineWidth, colonPosition)
             });
 	
 		this.operaciones.push({
 			accion: "text",
-			datos: "---------------------------",
+			datos: "----------------------------------------",
 		});
 	});
+	this.operaciones.push({
+		accion: "text",
+		datos: "\n\n",
+	  });
 		// CUFE y resolución
 		if (factura.infoCufe.CUFE) {
 			const urlDian = `https://catalogo-vpfe.dian.gov.co/document/searchqr?documentkey=${factura.infoCufe.CUFE}`;
@@ -208,7 +262,10 @@ export class Connector {
 		});
 		this.operaciones.push({ accion: "text", datos: "\n" });
 		this.operaciones.push({ accion: "text", datos: factura.infoPolice });
-
+		this.operaciones.push({
+			accion: "text",
+			datos: "\n\n",
+		  });
 		// Llamar al backend
 		return this.imprimir(); // Devuelve la promesa generada por imprimir
 	}
