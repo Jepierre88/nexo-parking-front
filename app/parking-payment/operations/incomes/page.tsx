@@ -81,16 +81,27 @@ function Incomes() {
     }));
   };
 
-  const handleFilter = () => {
+  const handleFilter = async () => {
     setLoading(true);
-    if (dateRange.start && dateRange.end) {
-      getIncomes(
-        dateRange.start.toDate(getLocalTimeZone()),
-        dateRange.end.toDate(getLocalTimeZone()),
-        plate
-      );
+    try {
+      if (dateRange.start && dateRange.end) {
+        await getIncomes(
+          dateRange.start.toDate(getLocalTimeZone()),
+          dateRange.end.toDate(getLocalTimeZone()),
+          plate
+        );
+        toast.success("Datos filtrados con éxito.");
+      } else {
+        toast.error("Por favor selecciona un rango de fechas válido.");
+      }
+    } catch (error) {
+      console.error("Error al filtrar los datos:", error);
+      toast.error("Hubo un error al filtrar los datos.");
+    } finally {
+      setLoading(false);
     }
   };
+
   const handleEditIncome = (data: Income) => {
     setIncomeEdit(data);
     onOpenEdit();

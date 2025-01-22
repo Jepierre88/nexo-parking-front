@@ -80,7 +80,7 @@ function ParkingPayment() {
   useEffect(() => {
     if (paymentData?.totalCost) {
       const totalCost = paymentData?.totalCost ?? 0;
-      setCashBack(Math.max(0, moneyReceived - totalCost)); // Calcula devolución si es positiva
+      setCashBack(Math.max(0, moneyReceived - totalCost));
     }
   }, [moneyReceived, paymentData?.totalCost]);
 
@@ -158,7 +158,11 @@ function ParkingPayment() {
       });
     }
     // Envía el pago al backend
-    savePayment(dataToPay, true);
+    savePayment(dataToPay, true).then(() => {
+      // Restablecer valores después del pago
+      setMoneyReceived(0);
+      setCashBack(0);
+    });
   };
 
   // Función para pagar sin impresion
@@ -384,7 +388,7 @@ function ParkingPayment() {
                 ${paymentData.totalCost ?? 0}
               </p>
             </div>
-            <div className="flex mt-2 justify-center items-center font-light">
+            {/* <div className="flex mt-2 justify-center items-center font-light">
               <p className="text-gray-600 my-auto px-4 mb-2">
                 ¿Facturación electrónica?
               </p>
@@ -393,9 +397,9 @@ function ParkingPayment() {
                 color="primary"
                 onChange={() => setIsVisible((prev) => !prev)}
               ></Checkbox>
-            </div>
+            </div> */}
             <div className="flex flex-col place-items-end mb-1 my-5 gap-2 w-full px-2">
-              <div className="flex gap-4 justify-between w-full">
+              {/* <div className="flex gap-4 justify-between w-full">
                 <label className="text-lg font-bold my-auto w-2/5">FE</label>
                 <Input
                   className="w-3/5"
@@ -408,7 +412,7 @@ function ParkingPayment() {
                     }));
                   }}
                 />
-              </div>
+              </div> */}
 
               <div className="flex gap-4 justify-between w-full">
                 <label className="text-md font-bold my-auto w-2/5">
