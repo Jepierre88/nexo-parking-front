@@ -24,6 +24,8 @@ import {
   useDisclosure,
 } from "@nextui-org/modal";
 import { title } from "@/components/primitives";
+import { SubmitHandler, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 
 const initialIncomeEdit: Income = {
   datetime: new Date(),
@@ -41,13 +43,14 @@ const initialIncomeEdit: Income = {
 };
 
 function Incomes() {
-  const { incomes, getIncomes, updatePlate, updateIncome, loading } =
-    UseIncomes();
+  const { incomes, getIncomes, updatePlate, updateIncome } = UseIncomes();
   const { resolvedTheme } = useTheme();
   const [isDark, setIsDark] = useState(false);
   const { hasPermission } = UsePermissions();
   const canEditIncome = useMemo(() => hasPermission(38), [hasPermission]);
   const canPrinterIncome = useMemo(() => hasPermission(13), [hasPermission]);
+  const [income, setIncomes] = useState<Income[]>([]);
+  const [loading, setLoading] = useState(false);
   // Rango de Fechas
   const [dateRange, setDateRange] = useState<any>({
     start: parseAbsoluteToLocal(
@@ -62,6 +65,7 @@ function Incomes() {
 
   const [plate, setPlate] = useState("");
   const [incomeEdit, setIncomeEdit] = useState<Income>(initialIncomeEdit);
+
   useEffect(() => {
     setIsDark(resolvedTheme === "dark");
   }, [resolvedTheme]);
@@ -78,6 +82,7 @@ function Incomes() {
   };
 
   const handleFilter = () => {
+    setLoading(true);
     if (dateRange.start && dateRange.end) {
       getIncomes(
         dateRange.start.toDate(getLocalTimeZone()),
@@ -90,27 +95,38 @@ function Incomes() {
     setIncomeEdit(data);
     onOpenEdit();
   };
+  const {
+    register: editRegister,
+    handleSubmit: handleEditSubmit,
+    reset: editReset,
+    formState: { errors: editErrors },
+  } = useForm<Income>({});
 
-  const handleUpdateIncome = async () => {
-    if (!incomeEdit.id) {
-      toast.error("El ID del ingreso no es válido.");
-      return;
-    }
-
+  const handleUpdateIncome: SubmitHandler<Income> = async (data) => {
+    const loadingToastId = toast.loading("Actualizando ingreso...");
     try {
-      const updatedIncome = await updateIncome(incomeEdit);
-      if (updatedIncome) {
-        toast.success("Ingreso actualizado con éxito.");
+      console.log("Editando Incomes con datos:", data);
+      if (incomeEdit.id) {
+        await updateIncome({ ...incomeEdit, ...data });
+        console.log("Ingreso actualizado exitosamente:", data);
+
+        await handleFilter();
+        toast.success("Ingreso actualizado con éxito.", {
+          id: loadingToastId,
+        });
         onCloseEdit();
-        const updatedIncomes = await getIncomes();
-        console.log("Ingresos actualizados:", updatedIncomes);
+      } else {
+        throw new Error("id no valido");
       }
     } catch (error) {
-      console.error("Error al actualizar el ingreso:", error);
-      toast.error("Hubo un error al intentar actualizar el ingreso.");
+      console.error("Error desconocido:", error);
+      toast.error("Ocurrió un error desconocido. Inténtalo de nuevo.", {
+        id: loadingToastId,
+      });
+    } finally {
+      setLoading(false);
     }
   };
-
   const {
     isOpen: isOpenEdit,
     onOpen: onOpenEdit,
@@ -268,7 +284,10 @@ function Incomes() {
               <h1 className={`text-2xl  font-bold ${title()}`}>INGRESO</h1>
             </ModalHeader>
             <ModalBody className="flex flex-col w-full mt-4 gap-4">
-              <form className="flex flex-grow flex-col items-start w-full gap-4">
+              <form
+                className="flex flex-grow flex-col items-start w-full gap-4"
+                onSubmit={handleEditSubmit(handleUpdateIncome)}
+              >
                 {/*Editar Entrada*/}
                 <div className="flex flex-col itms-star w-98">
                   <div className="flex flex-col mt-2 mb-2 w-96">
@@ -297,6 +316,9 @@ function Incomes() {
                         placeholder="Digite el tipo de vehículo"
                         type="text"
                         value={incomeEdit.vehicleKind}
+                        onChange={(e) => {
+                          handlePlateChange(e.target.value);
+                        }}
                         readOnly
                       />
                     </div>
@@ -317,11 +339,7 @@ function Incomes() {
                       />
                     </div> */}
                     <div className="flex justify-end w-full mt-4">
-                      <Button
-                        color="primary"
-                        size="sm"
-                        onPress={handleUpdateIncome}
-                      >
+                      <Button color="primary" size="sm" type="submit">
                         Guardar Datos
                       </Button>
                     </div>

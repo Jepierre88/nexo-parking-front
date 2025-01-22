@@ -75,7 +75,7 @@ export default function UseIncomes() {
     }
   };
 
-  const updateIncome = async (income: Income) => {
+  const updateIncome = async (income: Income): Promise<Income | null> => {
     setLoading(true);
     try {
       const response = await axios.patch(
@@ -88,10 +88,10 @@ export default function UseIncomes() {
       );
 
       console.log("Ingreso actualizado:", response.data);
-
       return response.data;
     } catch (error) {
       console.error("Error al actualizar el ingreso:", error);
+      return null;
     } finally {
       setLoading(false);
     }

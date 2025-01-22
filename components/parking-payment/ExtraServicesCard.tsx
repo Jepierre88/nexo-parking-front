@@ -230,7 +230,7 @@ export default function ExtraServices(props: {
           <Button
             variant="light"
             color="danger"
-            className="min-w-2 self-start flex items-center"
+            className=" -right-56 m-2 flex items-center"
             onPress={() => props.setShowCart(false)}
           >
             <CancelIcon />

@@ -95,7 +95,7 @@ const ingresoSalida = () => {
       return false;
     }
 
-    const validationSchemas = vehicleEntrySchema.safeParse({ placa });
+    const validationSchemas = vehicleEntrySchema.safeParse({ plate: placa });
     if (!validationSchemas.success) {
       toast.error(validationSchemas.error.issues[0].message);
       setPlacaIn((prevPlaca) => prevPlaca.slice(0, -1));
