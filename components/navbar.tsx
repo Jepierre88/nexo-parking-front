@@ -191,7 +191,10 @@ export const Navbar = () => {
             </DropdownTrigger>
           </NavbarItem>
           <DropdownMenu aria-label="Usuario" className="w-full p-0 -mx-0">
-            <DropdownItem key="perfil" onClick={() => router.push("/perfil")}>
+            <DropdownItem
+              key="perfil"
+              onClick={() => router.push("/parking-payment/profile")}
+            >
               Perfil
             </DropdownItem>
             <DropdownItem key="cerrarSesion" onClick={cerrarSesion}>

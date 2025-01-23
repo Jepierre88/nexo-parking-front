@@ -163,3 +163,60 @@ export const incomeSchema = z.object({
   vehicleKind: z.string(),
   datetime: z.date(),
 });
+
+export const editProfileSchema = (
+  existingUsernames: string[],
+  existingUserEmails: string[]
+) =>
+  z.object({
+    username: z
+      .string()
+      .min(1, "El usuario es obligatorio")
+      .max(20, "Este campo no debe exceder lo 20 caracteres")
+      .regex(
+        /^[A-Za-z0-9\s]+$/,
+        "El usuario solo puede contener letras, números y espacios"
+      )
+      .transform((value) =>
+        value
+          .toLowerCase()
+          .replace(/(^\w|\s\w)/g, (match) => match.toUpperCase())
+      )
+      .refine((value) => !existingUsernames.includes(value), {
+        message: "Este usuario de usuario ya está en uso",
+      }),
+
+    email: z
+      .string()
+      .min(1, "El email es obligatorio")
+      .email("El email no es válido")
+      .refine((value) => !existingUserEmails.includes(value), {
+        message: "Este email ya está en uso",
+      }),
+    password: z
+      .string()
+      .min(8, "La contraseña debe tener al menos 8 caracteres"),
+
+    realm: z.string().min(1, "El perfil es obligatorio"),
+    name: z
+      .optional(z.string())
+      .transform((value) =>
+        value
+          ? value
+              .toLowerCase()
+              .replace(/(^\w|\s\w)/g, (match) => match.toUpperCase())
+          : ""
+      ),
+    lastName: z
+      .optional(z.string())
+      .transform((value) =>
+        value
+          ? value
+              .toLowerCase()
+              .replace(/(^\w|\s\w)/g, (match) => match.toUpperCase())
+          : ""
+      ),
+    cellPhoneNumber: z
+      .string()
+      .regex(/^\d*$/, "El número de celular solo puede contener números"),
+  });

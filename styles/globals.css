@@ -46,3 +46,10 @@ body {
 .dropdown-link {
 	@apply block w-full px-4 py-2 text-left text-sm font-medium text-gray-700 hover:text-white hover:bg-primary-500 focus:outline-none focus:bg-primary-600 focus:text-white rounded-md transition;
 }
+
+.separator {
+	border: 0;
+	height: 2px;
+	background-color: #33baff;
+  	margin: 20px 0px;
+}

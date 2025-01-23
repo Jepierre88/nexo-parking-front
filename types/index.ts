@@ -61,3 +61,13 @@ export interface ValidationDetail {
 	paidDatetime: string;
 	expectedOutcomeDatetime: string;
 }
+
+export interface UserData {
+    username: string;
+    password: string;
+    email: string;
+    name: string;
+    lastName: string;
+    cellPhoneNumber: string;
+    realm: string;
+  }

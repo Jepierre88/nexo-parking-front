@@ -296,7 +296,7 @@ function ParkingPayment() {
                 <span className="w-full">
                   <strong>Punto de pago:</strong>
                 </span>
-                <span className="w-full">{paymentData?.deviceId}</span>
+                <span className="w-full">{paymentData.deviceId}</span>
               </div>
               <div className="text-base text-start mb-1 flex gap-4 justify-between">
                 <span className="w-full">
