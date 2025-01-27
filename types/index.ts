@@ -70,4 +70,5 @@ export interface UserData {
     lastName: string;
     cellPhoneNumber: string;
     realm: string;
+	confirmPassword: string;
   }

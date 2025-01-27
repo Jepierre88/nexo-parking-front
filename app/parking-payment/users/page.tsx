@@ -51,6 +51,8 @@ const initialUserEdit: User = {
   verificationToken: "",
   zoneId: 0,
   permissions: [],
+  deviceNme: "",
+  eliminated: false,
 };
 
 const initialNewUser: Signup = {
@@ -76,6 +78,7 @@ const Users = () => {
     updateUser,
     getUsers,
     createUser,
+    deleteUser,
     existingUsernames,
     existingUserEmails,
   } = UseUsers();
@@ -174,7 +177,6 @@ const Users = () => {
   };
 
   const buttonDelete = (data: User) => {
-    console.log(data);
     setUserEdit(data);
     onOpenDelete();
   };
@@ -212,7 +214,7 @@ const Users = () => {
     }
   };
 
-  const columns: GridColDef[] = [
+  const columns: GridColDef<User>[] = [
     {
       field: "name",
       headerName: "Nombre",
@@ -249,6 +251,16 @@ const Users = () => {
       align: "center",
     },
     {
+      field: "eliminated",
+      headerName: "Estado",
+      flex: 1,
+      headerAlign: "center",
+      align: "center",
+      renderCell: (params) => (
+        <span>{params.row.eliminated ? "Inactivo" : "Activo"}</span>
+      ),
+    },
+    {
       field: "actions",
       headerName: "Acciones",
       flex: 1,
@@ -276,18 +288,32 @@ const Users = () => {
           <ActionButton
             permission={11}
             label={<Image alt="iconoBasurero" src={ICONOBASURERO} width={20} />}
-            onClick={() => {
-              buttonDelete(params.row);
-              setIsView(true);
-            }}
+            onClick={() => buttonDelete(params.row)}
           />
         </div>
       ),
     },
   ];
 
-  const handleDelete = (username: string) => {
-    console.log("Eliminado usuario con ID: ", username);
+  const handleDelete = async () => {
+    setLoading(true);
+    try {
+      if (userEdit.id) {
+        await deleteUser(userEdit.id);
+        setMessage("Usuario eliminado exitosamente.");
+        onOpenExitoModal();
+        await getUsers();
+      } else {
+        throw new Error("ID del usuario no válido.");
+      }
+    } catch (error) {
+      console.error("Error eliminando usuario:", error);
+      setMessage("Error al eliminar el usuario.");
+      onOpenErrorModal();
+    } finally {
+      setLoading(false);
+      onCloseDelete();
+    }
   };
 
   return (
@@ -301,7 +327,7 @@ const Users = () => {
           onClick={onOpen}
         />
       </div>
-      <CustomDataGrid columns={columns} rows={users || []} />
+      <CustomDataGrid columns={columns} rows={users as User[]} />
       <Modal
         aria-describedby="user-modal-description"
         aria-labelledby="user-modal-title"
@@ -620,7 +646,7 @@ const Users = () => {
               ?
             </p>
             <div className="flex justify-between ">
-              <Button color="primary" type="submit">
+              <Button color="primary" onClick={handleDelete}>
                 Eliminar
               </Button>
               <Button color="primary" onClick={onCloseDelete}>

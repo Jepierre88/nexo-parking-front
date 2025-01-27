@@ -75,7 +75,7 @@ export default function Login() {
     setLoading(true);
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/users/login`,
+        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/users/loginNewPP`,
         data
       );
 
@@ -100,6 +100,10 @@ export default function Login() {
           lastName: response.data.lastName,
           realm: response.data.realm,
           permissions: response.data.permissions,
+          deviceNme: response.data.deviceNme,
+          cellPhoneNumber: response.data.cellPhoneNumber,
+          username: response.data.username,
+          email: response.data.email,
         });
         setIsAuthenticated(true);
         router.push("/parking-payment");

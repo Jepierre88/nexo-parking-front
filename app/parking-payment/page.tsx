@@ -38,6 +38,7 @@ import { Connector } from "../libs/Printer";
 import Cookies from "js-cookie";
 import { useMemo } from "react";
 import UsePermissions from "../hooks/UsePermissions";
+
 function ParkingPayment() {
   // Contexto de autenticación para obtener el usuario actual
   const { user } = UseAuthContext();
@@ -296,7 +297,7 @@ function ParkingPayment() {
                 <span className="w-full">
                   <strong>Punto de pago:</strong>
                 </span>
-                <span className="w-full">{paymentData.deviceId}</span>
+                <span className="w-full">{user.deviceNme}</span>
               </div>
               <div className="text-base text-start mb-1 flex gap-4 justify-between">
                 <span className="w-full">

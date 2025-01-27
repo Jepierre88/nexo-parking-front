@@ -14,4 +14,8 @@ export default interface User {
 	verificationToken: string;
 	zoneId: number;
 	permissions:[];
+	deviceNme: string;
+	eliminated: boolean;
+	
+	
 }
