@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Button } from "@nextui-org/button";
 import { GridColDef } from "@mui/x-data-grid";
-import { DateRangePicker, Input } from "@nextui-org/react";
+import { DateInput, DateRangePicker, Input } from "@nextui-org/react";
 import { useTheme } from "next-themes";
 import UsePermissions from "@/app/hooks/UsePermissions";
 import UseIncomes from "@/app/hooks/incomes/UseIncomes";
@@ -11,6 +11,7 @@ import { PencilIcon, PrinterIcon } from "@/components/icons";
 import {
   getLocalTimeZone,
   parseAbsoluteToLocal,
+  parseDate,
 } from "@internationalized/date";
 import withPermission from "@/app/withPermission";
 import { Connector } from "@/app/libs/Printer";
@@ -26,9 +27,13 @@ import {
 import { title } from "@/components/primitives";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  CalendarDate,
+  CalendarDateTime,
+  ZonedDateTime,
+} from "@internationalized/date";
 
 const initialIncomeEdit: Income = {
-  datetime: new Date(),
   id: 0,
   identificationId: "",
   identificationMethod: "",
@@ -43,6 +48,18 @@ const initialIncomeEdit: Income = {
 };
 
 function Incomes() {
+  const [tryDate, setTryDate] = useState(
+    parseAbsoluteToLocal(new Date().toISOString())
+  );
+
+  const handleCurrentDateChangeTRY = (
+    value: CalendarDate | CalendarDateTime | ZonedDateTime | any
+  ) => {
+    if (value) {
+      setTryDate(value);
+    }
+  };
+
   const { incomes, getIncomes, updatePlate, updateIncome } = UseIncomes();
   const { resolvedTheme } = useTheme();
   const [isDark, setIsDark] = useState(false);
@@ -104,7 +121,30 @@ function Incomes() {
 
   const handleEditIncome = (data: Income) => {
     setIncomeEdit(data);
+    const parsedDate = parseAbsoluteToLocal(
+      new Date(data.datetime).toISOString()
+    );
+    setTryDate(parsedDate);
     onOpenEdit();
+  };
+
+  const handleUpdateIncome: SubmitHandler<Income> = async (data) => {
+    try {
+      const formattedData = {
+        ...incomeEdit,
+        datetime: tryDate.toDate(),
+      };
+      await updateIncome(formattedData);
+
+      toast.success("Ingreso actualizado con éxito.");
+      onCloseEdit();
+      await handleFilter();
+    } catch (error) {
+      console.error("Error al actualizar el ingreso:", error);
+      toast.error("Hubo un error al actualizar el ingreso.");
+    } finally {
+      setLoading(false);
+    }
   };
   const {
     register: editRegister,
@@ -113,31 +153,6 @@ function Incomes() {
     formState: { errors: editErrors },
   } = useForm<Income>({});
 
-  const handleUpdateIncome: SubmitHandler<Income> = async (data) => {
-    const loadingToastId = toast.loading("Actualizando ingreso...");
-    try {
-      console.log("Editando Incomes con datos:", data);
-      if (incomeEdit.id) {
-        await updateIncome({ ...incomeEdit, ...data });
-        console.log("Ingreso actualizado exitosamente:", data);
-
-        await handleFilter();
-        toast.success("Ingreso actualizado con éxito.", {
-          id: loadingToastId,
-        });
-        onCloseEdit();
-      } else {
-        throw new Error("id no valido");
-      }
-    } catch (error) {
-      console.error("Error desconocido:", error);
-      toast.error("Ocurrió un error desconocido. Inténtalo de nuevo.", {
-        id: loadingToastId,
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
   const {
     isOpen: isOpenEdit,
     onOpen: onOpenEdit,
@@ -194,8 +209,6 @@ function Incomes() {
       headerName: "Acciones",
       minWidth: 300,
       headerAlign: "center",
-      sortable: false,
-      filterable: false,
       align: "center",
       renderCell: (params) => (
         <div className="flex h-full justify-center items-center w-full overflow-hidden">
@@ -323,9 +336,10 @@ function Incomes() {
                         Tipo de Vehículo
                       </label>
                       <Input
-                        className="w-2/3"
+                        className="ml-4 w-2/3"
                         placeholder="Digite el tipo de vehículo"
                         type="text"
+                        variant="bordered"
                         value={incomeEdit.vehicleKind}
                         onChange={(e) => {
                           handlePlateChange(e.target.value);
@@ -333,22 +347,21 @@ function Incomes() {
                         readOnly
                       />
                     </div>
-                    {/* <div className="flex items-center w-full">
+                    <div className="flex items-center w-full">
                       <label className="text-xl font-bold w-1/3">
                         Fecha y Hora
                       </label>
-                      <Input
-                        className="w-2/3"
-                        type="text"
-                        value={IncomeEdit.datetime.toISOString().slice(0, 16)}
-                        onChange={(e) =>
-                          setIncomeEdit((prev) => ({
-                            ...prev,
-                            datetime: new Date(e.target.value),
-                          }))
-                        }
+                      <DateInput
+                        className="ml-4 w-2/3"
+                        lang="es-ES"
+                        hideTimeZone
+                        variant="bordered"
+                        label="Rango de Fechas"
+                        size="md"
+                        value={tryDate}
+                        onChange={handleCurrentDateChangeTRY}
                       />
-                    </div> */}
+                    </div>
                     <div className="flex justify-end w-full mt-4">
                       <Button color="primary" size="sm" type="submit">
                         Guardar Datos

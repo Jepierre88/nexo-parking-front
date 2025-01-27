@@ -8,7 +8,13 @@ import { Checkbox } from "@nextui-org/checkbox";
 import { Button } from "@nextui-org/button";
 import { Select, SelectItem } from "@nextui-org/select";
 import { Input } from "@nextui-org/input";
-import { useDisclosure } from "@nextui-org/modal";
+import {
+  Modal,
+  ModalBody,
+  ModalContent,
+  ModalHeader,
+  useDisclosure,
+} from "@nextui-org/modal";
 
 // Importación de contextos y hooks personalizados
 import { UseAuthContext } from "../context/AuthContext";
@@ -20,6 +26,7 @@ import QrPerdido from "../../components/parking-payment/tabs/QrLost";
 import Mensualidad from "../../components/parking-payment/tabs/MontlySubscription";
 import VisitanteQr from "../../components/parking-payment/tabs/QrVisitor";
 import { ModalConfirmation } from "@/components/modales";
+
 import CardPropierties from "@/components/parking-payment/cardPropierties";
 import ExtraServices from "@/components/parking-payment/ExtraServicesCard";
 
@@ -77,15 +84,24 @@ function ParkingPayment() {
     onOpenChange: onOpenChangeModalConfirmationDos,
   } = useDisclosure();
 
-  // useEffect para calcular automáticamente la devolución
+  const {
+    isOpen: isOpenStatusModal,
+    onOpen: onOpenStatusModal,
+    onClose: onCloseStatusModal,
+  } = useDisclosure();
+
   useEffect(() => {
     if (paymentData?.totalCost) {
       const totalCost = paymentData?.totalCost ?? 0;
       setCashBack(Math.max(0, moneyReceived - totalCost));
     }
   }, [moneyReceived, paymentData?.totalCost]);
+  useEffect(() => {
+    if (paymentData?.status === 110) {
+      onOpenStatusModal();
+    }
+  }, [paymentData?.status]);
 
-  // Función para limpiar el carrito de pagos
   const clearCart = () => {
     dispatch({ type: "CLEAR_PAYMENTS" });
   };
@@ -502,6 +518,31 @@ function ParkingPayment() {
           </Button>
         </CardFooter>
       </CardPropierties>
+      <Modal
+        isOpen={isOpenStatusModal}
+        onOpenChange={onCloseStatusModal}
+        size="lg"
+      >
+        <ModalContent>
+          <ModalHeader>
+            <h1 className="flex flex-center">
+              {paymentData?.messageTitle || "Información"}
+            </h1>
+          </ModalHeader>
+          <ModalBody>
+            <p>{paymentData?.messageBody || "No hay mensaje disponible."}</p>
+            <Button
+              color="primary"
+              onClick={() => {
+                setPaymentData(initialPaymentData);
+                onCloseStatusModal();
+              }}
+            >
+              Okey
+            </Button>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
       <ModalConfirmation
         message={`Su pago se va a realizar en ${paymentMethod} ¿esta seguro de realizar el pago?`}
         modalControl={{

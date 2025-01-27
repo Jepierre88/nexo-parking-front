@@ -1,5 +1,7 @@
+import { CalendarDate, ZonedDateTime } from "@internationalized/date";
+
 export default interface Ingreso {
-	datetime: Date;
+	datetime?: any;
 	id: number;
 	identificationId: string;
 	identificationMethod: string;

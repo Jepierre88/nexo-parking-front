@@ -1,3 +1,4 @@
+import { parseAbsoluteToLocal } from "@internationalized/date";
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -74,14 +75,16 @@ export default function UseIncomes() {
       setLoading(false);
     }
   };
-
+  const [currentDate, setCurrentDate] = useState(
+    parseAbsoluteToLocal(new Date().toISOString())
+  );
   const updateIncome = async (income: Income): Promise<Income | null> => {
     setLoading(true);
     try {
       const response = await axios.patch(
         `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/incomes/${income.id}`,
         {
-          datetime: income.datetime,
+          datetime: income.datetime || new Date().toISOString(),
           vehicleKind: income.vehicleKind,
           plate: income.plate,
         }
