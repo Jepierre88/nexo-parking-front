@@ -56,6 +56,7 @@ export default function UseUsers() {
           username: user.username,
           email: user.email,
           realm: user.realm,
+          eliminated: user.eliminated,
         }
       );
 

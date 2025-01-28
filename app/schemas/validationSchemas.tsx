@@ -166,14 +166,12 @@ export const incomeSchema = z.object({
 
 export const editProfileSchema = z
   .object({
-    password: z
-      .string()
-      .min(8, "La contraseña debe tener al menos 8 caracteres"),
+    password: z.string().min(8, "La contraseña debe tener mínimo 8 caracteres"),
     confirmPassword: z
       .string()
       .min(
         8,
-        "La confirmación de la contraseña debe tener al menos 8 caracteres"
+        "La confirmación de la contraseña debe tener mínimo 8 caracteres"
       ),
   })
   .refine((data) => data.password === data.confirmPassword, {

@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button } from "@nextui-org/button";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { GridColDef } from "@mui/x-data-grid";
@@ -10,13 +10,12 @@ import {
   ModalHeader,
   ModalBody,
 } from "@nextui-org/modal";
-import { Input, Select, SelectItem } from "@nextui-org/react";
+import { Input, Select, SelectItem, Switch } from "@nextui-org/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AxiosError } from "axios";
 import { title } from "@/components/primitives";
 import ICONOLAPIZ from "@/public/iconoLapiz.png";
 import ICONOOJO from "@/public/IconoOjo.png";
-import ICONOBASURERO from "@/public/iconoBasurero.png";
 import Signup from "@/types/Auth";
 import User from "@/types/User";
 import UseUsers from "@/app/hooks/users/UseUsers";
@@ -26,14 +25,12 @@ import Loading from "@/app/loading";
 import { createUserSchema } from "@/app/schemas/validationSchemas";
 import { editUserSchema } from "@/app/schemas/validationSchemas";
 import CustomDataGrid from "@/components/customDataGrid";
-import { Preview } from "@mui/icons-material";
-import { match } from "assert";
-import { error } from "console";
 import withPermission from "@/app/withPermission";
 import ActionButton from "@/components/actionButtonProps";
 import MessageError from "@/components/menssageError";
 import Image from "next/image";
-import SelectPermission from "@/app/selectPermission";
+import UsePermissions from "@/app/hooks/UsePermissions";
+import { toast } from "sonner";
 
 const initialUserEdit: User = {
   cellPhoneNumber: "",
@@ -73,22 +70,23 @@ const Users = () => {
   const [isView, setIsView] = useState(false);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
+  const [isSelected, setIsSelected] = useState(userEdit.eliminated);
+
+  const { hasPermission, permissions } = UsePermissions();
+  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
+
   const {
     users,
     updateUser,
     getUsers,
     createUser,
-    deleteUser,
     existingUsernames,
     existingUserEmails,
   } = UseUsers();
 
-  const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-
   const {
     register,
     handleSubmit,
-    reset,
     setValue,
     formState: { errors },
   } = useForm<UserData>({
@@ -112,19 +110,15 @@ const Users = () => {
       )
     ),
   });
+  useEffect(() => {
+    setIsSelected(userEdit.eliminated);
+  }, [userEdit.eliminated]);
 
   const {
     isOpen: isOpenEdit,
     onOpen: onOpenEdit,
     onOpenChange: onOpenChangeEdit,
     onClose: onCloseEdit,
-  } = useDisclosure();
-
-  const {
-    isOpen: isOpenDelete,
-    onOpen: onOpenDelete,
-    onOpenChange: onOpenChangeDelete,
-    onClose: onCloseDelete,
   } = useDisclosure();
 
   const {
@@ -141,29 +135,20 @@ const Users = () => {
     onClose: onCloseErrorModal,
   } = useDisclosure();
 
-  const [paginationModel, setPaginationModel] = useState({
-    pageSize: 5,
-    page: 0,
-  });
-
   const onEditSubmit: SubmitHandler<UserData> = async (data) => {
     setLoading(true);
     try {
       console.log("Editando usuario con datos:", data);
-      if (userEdit.id) {
-        await updateUser({ ...userEdit, ...data });
-        console.log("Usuario actualizado exitosamente:", data);
-        setMessage("Usuario actualizado con éxito");
-        onOpenExitoModal();
-        await getUsers();
-        onCloseEdit();
-      } else {
-        throw new Error("id no validoooooooooooo");
-      }
+      const updatedUser = { ...userEdit, ...data, eliminated: isSelected };
+
+      await updateUser(updatedUser);
+      console.log("Usuario actualizado exitosamente:", data);
+      toast.success("Usuario actualizado con éxito");
+      onCloseEdit();
+      await getUsers();
     } catch (error) {
       console.error("Error desconocidi:", error);
-      setMessage("Ocurrió un error desconocido. Inténtalo de nuevo.");
-      onOpenErrorModal();
+      toast.error("Ocurrió un error desconocido. Inténtalo de nuevo.");
     } finally {
       setLoading(false);
     }
@@ -172,13 +157,9 @@ const Users = () => {
   const handleButtonClick = (data: User) => {
     setUserEdit(data);
     editReset(data);
+    setIsSelected(data.eliminated);
     setIsView(false);
     onOpenEdit();
-  };
-
-  const buttonDelete = (data: User) => {
-    setUserEdit(data);
-    onOpenDelete();
   };
 
   interface UserData {
@@ -190,6 +171,7 @@ const Users = () => {
     cellPhoneNumber: string;
     realm: string;
     permissions: [];
+    eliminated: boolean;
   }
   const onSubmit: SubmitHandler<UserData> = async (data) => {
     setLoading(true);
@@ -284,37 +266,10 @@ const Users = () => {
               setIsView(true);
             }}
           />
-
-          <ActionButton
-            permission={11}
-            label={<Image alt="iconoBasurero" src={ICONOBASURERO} width={20} />}
-            onClick={() => buttonDelete(params.row)}
-          />
         </div>
       ),
     },
   ];
-
-  const handleDelete = async () => {
-    setLoading(true);
-    try {
-      if (userEdit.id) {
-        await deleteUser(userEdit.id);
-        setMessage("Usuario eliminado exitosamente.");
-        onOpenExitoModal();
-        await getUsers();
-      } else {
-        throw new Error("ID del usuario no válido.");
-      }
-    } catch (error) {
-      console.error("Error eliminando usuario:", error);
-      setMessage("Error al eliminar el usuario.");
-      onOpenErrorModal();
-    } finally {
-      setLoading(false);
-      onCloseDelete();
-    }
-  };
 
   return (
     <section className="relative flex-col overflow-hidden h-full">
@@ -510,9 +465,12 @@ const Users = () => {
           {() => (
             <div className="flex flex-col items-start w-full p-4">
               <ModalHeader className="flex justify-between w-full">
-                <h1 className={`text-2xl ${title()}`}>USUARIO</h1>
+                <h1 className="text-center text-xl text-nowrap font-bold">
+                  USUARIO
+                </h1>
               </ModalHeader>
               <ModalBody className="flex w-full mt-4">
+                <hr className="separator mb-4 mt-1" />
                 <form
                   className="flex flex-grow flex-col items-start w-98"
                   onSubmit={handleEditSubmit(onEditSubmit)}
@@ -523,7 +481,7 @@ const Users = () => {
                   <div className="flex flex-col itms-star w-98">
                     <div className="flex flex-col mt-2 mb-2 w-96">
                       <div className="flex items-center mt-2 mb-2 w-96">
-                        <label className="text-xl font-bold text-nowrap w-1/3">
+                        <label className="text-lg font-bold text-nowrap w-1/3">
                           Nombre
                         </label>
                         <Input
@@ -585,6 +543,7 @@ const Users = () => {
                     {editErrors.email && (
                       <MessageError message={editErrors.email.message} />
                     )}
+
                     <div className="flex items-center mt-2 mb-2 w-96">
                       <label className="text-xl font-bold text-nowrap w-1/3">
                         Perfil
@@ -608,15 +567,36 @@ const Users = () => {
                           </SelectItem>
                         )}
                       </Select>
+                      {editErrors.realm && (
+                        <MessageError message={editErrors.realm.message} />
+                      )}
                     </div>
-                    {editErrors.realm && (
-                      <MessageError message={editErrors.realm.message} />
-                    )}
+                    {hasPermission(11) && (
+                      <div className="flex items-center mt-2 mb-2 w-96">
+                        <label className="text-xl font-bold text-nowrap w-1/3">
+                          Estado
+                        </label>
 
+                        <Switch
+                          className="ml-4 w-2/3"
+                          isSelected={!userEdit.eliminated}
+                          onValueChange={(value) =>
+                            setUserEdit((prev) => ({
+                              ...prev,
+                              eliminated: !value,
+                            }))
+                          }
+                        >
+                          <p className="text-sm text-default-500">
+                            {userEdit.eliminated ? "Inactivo" : "Activo"}
+                          </p>
+                        </Switch>
+                      </div>
+                    )}
                     <div
                       className={`flex justify-center w-96 mt-4 ${isView ? "hidden" : ""}`}
                     >
-                      <Button color="primary" type="submit">
+                      <Button variant="ghost" color="primary" type="submit">
                         Guardar datos
                       </Button>
                     </div>
@@ -625,35 +605,6 @@ const Users = () => {
               </ModalBody>
             </div>
           )}
-        </ModalContent>
-      </Modal>
-      <Modal
-        aria-describedby="user-modal-description"
-        aria-labelledby="user-modal-title"
-        isOpen={isOpenDelete}
-        onOpenChange={onOpenChangeDelete}
-      >
-        <ModalContent>
-          <ModalHeader>
-            <h1 className={`text-xl ${title()}`}>Eliminar Usuario</h1>
-          </ModalHeader>
-          <ModalBody>
-            <p>
-              ¿Está seguro que desea eliminar al usuario:
-              <span className="ml-1 font-bold">
-                {userEdit.name} {userEdit.lastName}
-              </span>
-              ?
-            </p>
-            <div className="flex justify-between ">
-              <Button color="primary" onClick={handleDelete}>
-                Eliminar
-              </Button>
-              <Button color="primary" onClick={onCloseDelete}>
-                Volver
-              </Button>
-            </div>
-          </ModalBody>
         </ModalContent>
       </Modal>
       <ModalError

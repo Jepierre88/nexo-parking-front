@@ -54,19 +54,22 @@ const Profile = () => {
   return (
     <main className="container mx-auto max-w-7x1 pt-4 flex-grow">
       <section className="flex flex-col items-center h-full ">
-        <Card className="flex flex-col justify-center h-4/6 w-full max-w-xl ">
-          <CardHeader className="flex justify-center items-center h-1/3">
-            <h1 className="font-bold text-4xl text-center -mb-4">Mi perfil</h1>
+        <Card className="flex flex-col justify-center h-auto w-full max-w-xl p-6 shadow-lg rounded-xl">
+          <CardHeader className="flex justify-center items-center h-5 mb-2">
+            <h1 className="font-bold text-4xl text-center">Mi perfil</h1>
           </CardHeader>
           <CardBody>
             <h2 className="font-semibold">Datos de cuenta</h2>
-            <hr className="separator" />
+            <hr className="separator mb-4 mt-1" />
 
-            <div className="flex justify-between mt-2">
-              <div className="flex flex-col w-full  mr-8 ">
-                <label className="font-semibold">Nombre de usuario</label>
+            <div className="flex justify-between mt-2 space-x-6">
+              <div className="flex flex-col w-full ">
+                <label className="font-semibold text-sm">
+                  Nombre de usuario
+                </label>
                 <Input
-                  size="md"
+                  className="text-xs"
+                  size="sm"
                   variant="faded"
                   type="text"
                   isDisabled
@@ -75,21 +78,27 @@ const Profile = () => {
               </div>
 
               <div className="flex flex-col w-full ">
-                <label className="font-semibold">Correo electrónico</label>
+                <label className="font-semibold text-sm">
+                  Correo electrónico
+                </label>
                 <Input
-                  size="md"
+                  className="text-xs"
+                  size="sm"
                   variant="faded"
                   isDisabled
                   value={user.email}
                 />
               </div>
             </div>
-            <div className="flex justify-between w-full mb-8 mt-4">
-              <div className="flex flex-col w-full mr-8">
-                <label className="font-semibold">Nueva contraseña</label>
+            <div className="flex justify-between w-full mb-8 mt-4 space-x-6">
+              <div className="flex flex-col w-full">
+                <label className="font-semibold text-sm">
+                  Nueva contraseña
+                </label>
                 <Input
+                  className="text-xs"
                   placeholder="Digite la contraseña"
-                  size="md"
+                  size="sm"
                   variant="faded"
                   {...register("password")}
                   endContent={
@@ -107,18 +116,21 @@ const Profile = () => {
                     </button>
                   }
                   type={visiblePassword1 ? "text" : "password"}
-                ></Input>
+                />
+                <div className="h-2">
+                  {errors.password && (
+                    <MessageError message={errors.password.message} />
+                  )}
+                </div>
               </div>
-              {errors.password && (
-                <MessageError message={errors.password.message} />
-              )}
               <div className="flex flex-col w-full ">
-                <label className="font-semibold">
+                <label className="font-semibold text-sm">
                   Repetir nueva contraseña
                 </label>
                 <Input
+                  className="text-xs"
                   placeholder="Repita la contraseña"
-                  size="md"
+                  size="sm"
                   variant="faded"
                   {...register("confirmPassword")}
                   endContent={
@@ -136,21 +148,18 @@ const Profile = () => {
                     </button>
                   }
                   type={visiblePassword2 ? "text" : "password"}
-                ></Input>
+                />
+                <div className="h-2">
+                  {errors.confirmPassword && (
+                    <MessageError message={errors.confirmPassword.message} />
+                  )}
+                </div>
               </div>
-              {errors.confirmPassword && (
-                <MessageError message={errors.confirmPassword.message} />
-              )}
             </div>
-            <div className="flex text-center justify-center mb-4">
+            <div className="flex text-center justify-center mb-4 mt-4">
               <Button
+                className="text-sm"
                 color="primary"
-                style={{
-                  padding: "1px 4px",
-                  fontSize: "14px",
-                  minHeight: "30px",
-                  width: "160px",
-                }}
                 onPress={() => handleSubmit(reset)()}
               >
                 Actualizar contraseña
@@ -158,12 +167,13 @@ const Profile = () => {
             </div>
 
             <h2 className="font-semibold">Datos de usuario</h2>
-            <hr className="separator" />
-            <div className="flex justify-between mt-2">
-              <div className="flex flex-col w-full  mr-8">
-                <label className="font-semibold">Nombre</label>
+            <hr className="separator mb-4 mt-1" />
+            <div className="flex justify-between mt-2 space-x-6">
+              <div className="flex flex-col w-full">
+                <label className="font-semibold text-sm">Nombre</label>
                 <Input
-                  size="md"
+                  className="text-xs"
+                  size="sm"
                   variant="faded"
                   type="text"
                   isDisabled
@@ -172,32 +182,34 @@ const Profile = () => {
               </div>
 
               <div className="flex flex-col w-full ">
-                <label className="font-semibold">Apellido</label>
+                <label className="font-semibold text-sm">Apellido</label>
                 <Input
-                  size="md"
+                  className="text-xs"
+                  size="sm"
                   variant="faded"
                   value={user.lastName}
                   isDisabled
                 />
               </div>
             </div>
-            <div className="flex justify-between mt-2">
-              <div className="flex flex-col w-full  mr-8 ">
-                <label className="font-semibold">Celular</label>
+            <div className="flex justify-between mt-2 space-x-6">
+              <div className="flex flex-col w-full">
+                <label className="font-semibold text-sm ">Celular</label>
                 <Input
-                  size="md"
+                  className="text-xs mb-4"
+                  size="sm"
                   variant="faded"
-                  type="number"
+                  type="text"
                   isDisabled
-                  placeholder="Digite el celular"
                   value={user.cellPhoneNumber}
                 />
               </div>
 
               <div className="flex flex-col w-full">
-                <label className="font-semibold">Perfil</label>
+                <label className="font-semibold text-sm ">Perfil</label>
                 <Input
-                  size="md"
+                  className="text-xs mb-4"
+                  size="sm"
                   variant="faded"
                   value={user.realm}
                   isDisabled
