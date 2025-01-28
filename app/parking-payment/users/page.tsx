@@ -456,6 +456,7 @@ const Users = () => {
       </Modal>
       {/* Modal de Edicion y vista */}
       <Modal
+        className="p-6 m-8"
         aria-describedby="user-modal-description"
         aria-labelledby="user-modal-title"
         isOpen={isOpenEdit}
@@ -463,138 +464,162 @@ const Users = () => {
       >
         <ModalContent>
           {() => (
-            <div className="flex flex-col items-start w-full p-4">
-              <ModalHeader className="flex justify-between w-full">
-                <h1 className="text-center text-xl text-nowrap font-bold">
-                  USUARIO
+            <div className="flex flex-col items-start w-full p-4 ">
+              <ModalHeader className="flex justify-between w-full p-0">
+                <h1 className="text-center text-2xl font-bold mb-0">
+                  Editar Usuario
                 </h1>
               </ModalHeader>
-              <ModalBody className="flex w-full mt-4">
-                <hr className="separator mb-4 mt-1" />
+              <ModalBody className="flex w-full p-0 ">
+                <hr className="separator mt-0 w-full" />
                 <form
-                  className="flex flex-grow flex-col items-start w-98"
+                  className="flex flex-col space-y-4"
                   onSubmit={handleEditSubmit(onEditSubmit)}
                 >
-                  <div className="flex-grow" />
-
                   {/* Campos para editar usuario */}
-                  <div className="flex flex-col itms-star w-98">
-                    <div className="flex flex-col mt-2 mb-2 w-96">
-                      <div className="flex items-center mt-2 mb-2 w-96">
-                        <label className="text-lg font-bold text-nowrap w-1/3">
+                  <div className="flex flex-col items-start w-98">
+                    <div className="flex flex-col mb-4 w-96">
+                      <div className="flex items-center w-96">
+                        <label className="text-lg font-bold text-nowrap  w-1/3">
                           Nombre
                         </label>
-                        <Input
-                          className="ml-4 w-2/3"
-                          disabled={isView}
-                          placeholder="Digite el nombre"
-                          type="text"
-                          {...editRegister("name")}
-                        />
+                        <div className="flex flex-col  w-2/3">
+                          <Input
+                            disabled={isView}
+                            placeholder="Digite el nombre"
+                            type="text"
+                            {...editRegister("name")}
+                          />
+                          <div className="h-6">
+                            {editErrors.name && (
+                              <MessageError message={editErrors.name.message} />
+                            )}
+                          </div>
+                        </div>
                       </div>
-                      {editErrors.name && (
-                        <MessageError message={editErrors.name.message} />
-                      )}
                     </div>
-                    <div className="flex items-center mt-2 mb-2 w-96">
-                      <label className="text-xl font-bold text-nowrap w-1/3">
-                        Apellido
-                      </label>
-                      <Input
-                        className="ml-4 w-2/3"
-                        disabled={isView}
-                        placeholder="Digite el apellido"
-                        type="text"
-                        {...editRegister("lastName")}
-                      />
+                    <div className="flex flex-col mb-4 w-96">
+                      <div className="flex items-center w-96">
+                        <label className="text-lg font-bold text-nowrap w-1/3">
+                          Apellido
+                        </label>
+                        <div className="flex flex-col w-2/3">
+                          <Input
+                            disabled={isView}
+                            placeholder="Digite el apellido"
+                            type="text"
+                            {...editRegister("lastName")}
+                          />
+                        </div>
+                        <div className="h-6">
+                          {editErrors.lastName && (
+                            <MessageError
+                              message={editErrors.lastName.message}
+                            />
+                          )}
+                        </div>
+                      </div>
                     </div>
-                    {editErrors.lastName && (
-                      <MessageError message={editErrors.lastName.message} />
-                    )}
-
-                    <div className="flex items-center mt-2 mb-2 w-96">
-                      <label className="text-xl font-bold text-nowrap w-1/3">
-                        Usuario
-                      </label>
-                      <Input
-                        className="ml-4 w-2/3"
-                        disabled={isView}
-                        placeholder="Digite el usuario"
-                        type="text"
-                        {...editRegister("username")}
-                      />
+                    <div className="flex flex-col mb-4 w-96">
+                      <div className="flex items-center  w-96">
+                        <label className="text-lg font-bold text-nowrap w-1/3">
+                          Usuario
+                        </label>
+                        <div className="flex flex-col w-2/3">
+                          <Input
+                            disabled={isView}
+                            placeholder="Digite el usuario"
+                            type="text"
+                            {...editRegister("username")}
+                          />
+                        </div>
+                        <div className="h-4">
+                          {editErrors.username && (
+                            <MessageError
+                              message={editErrors.username.message}
+                            />
+                          )}
+                        </div>
+                      </div>
                     </div>
-                    {editErrors.username && (
-                      <MessageError message={editErrors.username.message} />
-                    )}
-
-                    <div className="flex items-center mt-2 mb-2 w-96">
-                      <label className="text-xl font-bold text-nowrap w-1/3">
-                        Email
-                      </label>
-                      <Input
-                        className="ml-4 w-2/3"
-                        disabled={isView}
-                        placeholder="Digite el email"
-                        type="email"
-                        {...editRegister("email")}
-                      />
+                    <div className="flex flex-col mb-4 w-96">
+                      <div className="flex items-center w-96">
+                        <label className="text-lg font-bold text-nowrap w-1/3">
+                          Email
+                        </label>
+                        <div className="flex flex-col  w-2/3">
+                          <Input
+                            disabled={isView}
+                            placeholder="Digite el email"
+                            type="email"
+                            {...editRegister("email")}
+                          />
+                        </div>
+                        <div className="h-4">
+                          {editErrors.email && (
+                            <MessageError message={editErrors.email.message} />
+                          )}
+                        </div>
+                      </div>{" "}
                     </div>
-                    {editErrors.email && (
-                      <MessageError message={editErrors.email.message} />
-                    )}
-
-                    <div className="flex items-center mt-2 mb-2 w-96">
-                      <label className="text-xl font-bold text-nowrap w-1/3">
-                        Perfil
-                      </label>
-                      <Select
-                        className="ml-4 w-2/3"
-                        isDisabled={isView}
-                        placeholder="Seleccione el Rol"
-                        variant="faded"
-                        {...editRegister("realm")}
-                      >
-                        {roles.length > 0 ? (
-                          roles.map((rol) => (
-                            <SelectItem key={rol.name} value={rol.name}>
-                              {rol.name}
+                    <div className="flex flex-col mb-4 w-96">
+                      <div className="flex items-center w-96">
+                        <label className="text-lg font-bold text-nowrap w-1/3">
+                          Perfil
+                        </label>
+                        <Select
+                          className=" w-2/3"
+                          isDisabled={isView}
+                          placeholder="Seleccione el Rol"
+                          variant="faded"
+                          {...editRegister("realm")}
+                        >
+                          {roles.length > 0 ? (
+                            roles.map((rol) => (
+                              <SelectItem key={rol.name} value={rol.name}>
+                                {rol.name}
+                              </SelectItem>
+                            ))
+                          ) : (
+                            <SelectItem key="cargando" value="">
+                              Cargando roles...
                             </SelectItem>
-                          ))
-                        ) : (
-                          <SelectItem key="cargando" value="">
-                            Cargando roles...
-                          </SelectItem>
+                          )}
+                        </Select>
+                      </div>
+                      <div className="h-4">
+                        {editErrors.realm && (
+                          <MessageError message={editErrors.realm.message} />
                         )}
-                      </Select>
-                      {editErrors.realm && (
-                        <MessageError message={editErrors.realm.message} />
-                      )}
+                      </div>{" "}
                     </div>
                     {hasPermission(11) && (
-                      <div className="flex items-center mt-2 mb-2 w-96">
-                        <label className="text-xl font-bold text-nowrap w-1/3">
-                          Estado
-                        </label>
-
-                        <Switch
-                          className="ml-4 w-2/3"
-                          isSelected={!userEdit.eliminated}
-                          onValueChange={(value) =>
-                            setUserEdit((prev) => ({
-                              ...prev,
-                              eliminated: !value,
-                            }))
-                          }
-                        >
-                          <p className="text-sm text-default-500">
-                            {userEdit.eliminated ? "Inactivo" : "Activo"}
-                          </p>
-                        </Switch>
+                      <div className="flex flex-col mb-4 w-96">
+                        <div className="flex items-center w-96">
+                          <label className="text-lg font-bold text-nowrap w-1/3">
+                            Estado
+                          </label>
+                          <Switch
+                            className=" w-2/3"
+                            isSelected={!userEdit.eliminated}
+                            onValueChange={(value) =>
+                              setUserEdit((prev) => ({
+                                ...prev,
+                                eliminated: !value,
+                              }))
+                            }
+                          >
+                            <p className="text-sm text-default-500">
+                              {userEdit.eliminated ? "Inactivo" : "Activo"}
+                            </p>
+                          </Switch>
+                        </div>
                       </div>
                     )}
                     <div
-                      className={`flex justify-center w-96 mt-4 ${isView ? "hidden" : ""}`}
+                      className={`flex justify-center w-96 mt-4 ${
+                        isView ? "hidden" : ""
+                      }`}
                     >
                       <Button variant="ghost" color="primary" type="submit">
                         Guardar datos

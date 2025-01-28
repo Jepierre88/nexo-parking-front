@@ -123,6 +123,7 @@ const Profile = () => {
                   )}
                 </div>
               </div>
+
               <div className="flex flex-col w-full ">
                 <label className="font-semibold text-sm">
                   Repetir nueva contraseña
