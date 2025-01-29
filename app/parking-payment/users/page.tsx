@@ -20,7 +20,6 @@ import Signup from "@/types/Auth";
 import User from "@/types/User";
 import UseUsers from "@/app/hooks/users/UseUsers";
 import UseRol from "@/app/hooks/UseRol";
-import { ModalError, ModalExito } from "@/components/modales";
 import Loading from "@/app/loading";
 import { createUserSchema } from "@/app/schemas/validationSchemas";
 import { editUserSchema } from "@/app/schemas/validationSchemas";
@@ -128,13 +127,6 @@ const Users = () => {
     onClose: onCloseExitoModal,
   } = useDisclosure();
 
-  const {
-    isOpen: isOpenErrorModal,
-    onOpen: onOpenErrorModal,
-    onOpenChange: onOpenChangeErrorModal,
-    onClose: onCloseErrorModal,
-  } = useDisclosure();
-
   const onEditSubmit: SubmitHandler<UserData> = async (data) => {
     setLoading(true);
     try {
@@ -185,12 +177,10 @@ const Users = () => {
     } catch (error) {
       if (error instanceof AxiosError && error.response) {
         console.error("Error creando el usuario:", error);
-        setMessage("Error al crear el usuario");
-        onOpenErrorModal();
+        toast.error("Error al crear el usuario");
       } else {
-        setMessage("Ocurrió un error desconocido. Inténtalo de nuevo.");
+        toast.error("Ocurrió un error desconocido. Inténtalo de nuevo.");
       }
-      onOpenErrorModal();
     } finally {
       setLoading(false);
     }
@@ -464,54 +454,51 @@ const Users = () => {
       >
         <ModalContent>
           {() => (
-            <div className="flex flex-col items-start w-full p-4 ">
+            <div className="flex flex-col items-start w-full p-4">
               <ModalHeader className="flex justify-between w-full p-0">
-                <h1 className="text-center text-2xl font-bold mb-0">
+                <h1 className="text-center text-2xl font-bold mb-2">
                   Editar Usuario
                 </h1>
               </ModalHeader>
-              <ModalBody className="flex w-full p-0 ">
-                <hr className="separator mt-0 w-full" />
+              <ModalBody className="flex w-full p-0">
+                <hr className="separator mt-0 mb-6 w-full" />
                 <form
-                  className="flex flex-col space-y-4"
+                  className="flex flex-col space-y-6" // Uniform spacing between inputs
                   onSubmit={handleEditSubmit(onEditSubmit)}
                 >
                   {/* Campos para editar usuario */}
-                  <div className="flex flex-col items-start w-98">
-                    <div className="flex flex-col mb-4 w-96">
-                      <div className="flex items-center w-96">
-                        <label className="text-lg font-bold text-nowrap  w-1/3">
-                          Nombre
-                        </label>
-                        <div className="flex flex-col  w-2/3">
-                          <Input
-                            disabled={isView}
-                            placeholder="Digite el nombre"
-                            type="text"
-                            {...editRegister("name")}
-                          />
-                          <div className="h-6">
-                            {editErrors.name && (
-                              <MessageError message={editErrors.name.message} />
-                            )}
-                          </div>
+                  <div className="flex flex-col w-full">
+                    {/* Campo Nombre */}
+                    <div className="flex items-center w-full">
+                      <label className="text-lg font-bold w-1/3">Nombre</label>
+                      <div className="flex flex-col w-2/3">
+                        <Input
+                          disabled={isView}
+                          placeholder="Digite el nombre"
+                          type="text"
+                          {...editRegister("name")}
+                        />
+                        <div className="h-6 mt-1">
+                          {editErrors.name && (
+                            <MessageError message={editErrors.name.message} />
+                          )}
                         </div>
                       </div>
                     </div>
-                    <div className="flex flex-col mb-4 w-96">
-                      <div className="flex items-center w-96">
-                        <label className="text-lg font-bold text-nowrap w-1/3">
-                          Apellido
-                        </label>
-                        <div className="flex flex-col w-2/3">
-                          <Input
-                            disabled={isView}
-                            placeholder="Digite el apellido"
-                            type="text"
-                            {...editRegister("lastName")}
-                          />
-                        </div>
-                        <div className="h-6">
+
+                    {/* Campo Apellido */}
+                    <div className="flex items-center w-full">
+                      <label className="text-lg font-bold w-1/3">
+                        Apellido
+                      </label>
+                      <div className="flex flex-col w-2/3">
+                        <Input
+                          disabled={isView}
+                          placeholder="Digite el apellido"
+                          type="text"
+                          {...editRegister("lastName")}
+                        />
+                        <div className="h-6 mt-1">
                           {editErrors.lastName && (
                             <MessageError
                               message={editErrors.lastName.message}
@@ -520,20 +507,18 @@ const Users = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="flex flex-col mb-4 w-96">
-                      <div className="flex items-center  w-96">
-                        <label className="text-lg font-bold text-nowrap w-1/3">
-                          Usuario
-                        </label>
-                        <div className="flex flex-col w-2/3">
-                          <Input
-                            disabled={isView}
-                            placeholder="Digite el usuario"
-                            type="text"
-                            {...editRegister("username")}
-                          />
-                        </div>
-                        <div className="h-4">
+
+                    {/* Campo Usuario */}
+                    <div className="flex items-center w-full">
+                      <label className="text-lg font-bold w-1/3">Usuario</label>
+                      <div className="flex flex-col w-2/3">
+                        <Input
+                          disabled={isView}
+                          placeholder="Digite el usuario"
+                          type="text"
+                          {...editRegister("username")}
+                        />
+                        <div className="h-6 mt-1">
                           {editErrors.username && (
                             <MessageError
                               message={editErrors.username.message}
@@ -542,33 +527,31 @@ const Users = () => {
                         </div>
                       </div>
                     </div>
-                    <div className="flex flex-col mb-4 w-96">
-                      <div className="flex items-center w-96">
-                        <label className="text-lg font-bold text-nowrap w-1/3">
-                          Email
-                        </label>
-                        <div className="flex flex-col  w-2/3">
-                          <Input
-                            disabled={isView}
-                            placeholder="Digite el email"
-                            type="email"
-                            {...editRegister("email")}
-                          />
-                        </div>
-                        <div className="h-4">
+
+                    {/* Campo Email */}
+                    <div className="flex items-center w-full">
+                      <label className="text-lg font-bold w-1/3">Email</label>
+                      <div className="flex flex-col w-2/3">
+                        <Input
+                          disabled={isView}
+                          placeholder="Digite el email"
+                          type="email"
+                          {...editRegister("email")}
+                        />
+                        <div className="h-6 mt-1">
                           {editErrors.email && (
                             <MessageError message={editErrors.email.message} />
                           )}
                         </div>
-                      </div>{" "}
+                      </div>
                     </div>
-                    <div className="flex flex-col mb-4 w-96">
-                      <div className="flex items-center w-96">
-                        <label className="text-lg font-bold text-nowrap w-1/3">
-                          Perfil
-                        </label>
+
+                    {/* Campo Perfil */}
+                    <div className="flex items-center w-full">
+                      <label className="text-lg font-bold w-1/3">Perfil</label>
+                      <div className="flex flex-col w-2/3">
                         <Select
-                          className=" w-2/3"
+                          className="w-full"
                           isDisabled={isView}
                           placeholder="Seleccione el Rol"
                           variant="faded"
@@ -586,21 +569,23 @@ const Users = () => {
                             </SelectItem>
                           )}
                         </Select>
+                        <div className="h-6 mt-1">
+                          {editErrors.realm && (
+                            <MessageError message={editErrors.realm.message} />
+                          )}
+                        </div>
                       </div>
-                      <div className="h-4">
-                        {editErrors.realm && (
-                          <MessageError message={editErrors.realm.message} />
-                        )}
-                      </div>{" "}
                     </div>
+
+                    {/* Campo Estado */}
                     {hasPermission(11) && (
-                      <div className="flex flex-col mb-4 w-96">
-                        <div className="flex items-center w-96">
-                          <label className="text-lg font-bold text-nowrap w-1/3">
-                            Estado
-                          </label>
+                      <div className="flex items-center w-full">
+                        <label className="text-lg font-bold w-1/3">
+                          Estado
+                        </label>
+                        <div className="w-2/3 mb-6">
                           <Switch
-                            className=" w-2/3"
+                            className="w-full"
                             isSelected={!userEdit.eliminated}
                             onValueChange={(value) =>
                               setUserEdit((prev) => ({
@@ -616,15 +601,13 @@ const Users = () => {
                         </div>
                       </div>
                     )}
-                    <div
-                      className={`flex justify-center w-96 mt-4 ${
-                        isView ? "hidden" : ""
-                      }`}
-                    >
-                      <Button variant="ghost" color="primary" type="submit">
-                        Guardar datos
-                      </Button>
-                    </div>
+                  </div>
+
+                  {/* Botón de guardar */}
+                  <div className="flex justify-center">
+                    <Button variant="ghost" color="primary" type="submit">
+                      Guardar datos
+                    </Button>
                   </div>
                 </form>
               </ModalBody>
@@ -632,24 +615,6 @@ const Users = () => {
           )}
         </ModalContent>
       </Modal>
-      <ModalError
-        message={message}
-        modalControl={{
-          isOpen: isOpenErrorModal,
-          onOpen: onOpenErrorModal,
-          onClose: onCloseErrorModal,
-          onOpenChange: onOpenChangeErrorModal,
-        }}
-      />
-      <ModalExito
-        message={message}
-        modalControl={{
-          isOpen: isOpenExitoModal,
-          onOpen: onOpenExitoModal,
-          onClose: onCloseExitoModal,
-          onOpenChange: onOpenChangeExitoModal,
-        }}
-      />
     </section>
   );
 };

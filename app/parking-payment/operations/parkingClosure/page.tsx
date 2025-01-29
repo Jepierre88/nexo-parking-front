@@ -11,8 +11,7 @@ import {
   ModalBody,
 } from "@nextui-org/modal";
 import { Input } from "@nextui-org/react";
-
-import UseIncomes from "@/app/hooks/incomes/UseIncomes";
+import UseClosure from "@/app/hooks/parking-payment/UseClosure";
 import ICONOIMPRESORA from "@/public/IconoImpresora.png";
 import { title } from "@/components/primitives";
 import CustomDataGrid from "@/components/customDataGrid";
@@ -20,7 +19,7 @@ import CustomDataGrid from "@/components/customDataGrid";
 import withPermission from "@/app/withPermission";
 
 function parkingClosure() {
-  const { incomes, getIncomes, loading } = UseIncomes();
+  const { closure, getClosure, loading } = UseClosure();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
 
   const columns: GridColDef[] = [
@@ -39,29 +38,15 @@ function parkingClosure() {
       align: "center",
     },
     {
-      field: "",
+      field: "initialConsecutive",
       headerName: "Consecutivo inicial",
       flex: 1,
       headerAlign: "center",
       align: "center",
     },
     {
-      field: "",
+      field: "finalConsecutive",
       headerName: "Consecutivo final",
-      flex: 1,
-      headerAlign: "center",
-      align: "center",
-    },
-    {
-      field: "",
-      headerName: "Concecutivo inicial FE",
-      flex: 1,
-      headerAlign: "center",
-      align: "center",
-    },
-    {
-      field: "",
-      headerName: "Concecutipo final FE",
       flex: 1,
       headerAlign: "center",
       align: "center",
@@ -102,7 +87,7 @@ function parkingClosure() {
         </div>
       </div>
 
-      <CustomDataGrid columns={columns} rows={incomes} loading={loading} />
+      <CustomDataGrid columns={columns} rows={closure} loading={loading} />
       <Modal
         aria-describedby="user-modal-description"
         aria-labelledby="user-modal-title"
