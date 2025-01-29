@@ -72,3 +72,8 @@ export interface UserData {
     realm: string;
 	confirmPassword: string;
   }
+
+  export interface LoginData{
+	password: string;
+    email: string;
+  }

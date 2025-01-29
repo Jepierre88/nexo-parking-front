@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { Button } from "@nextui-org/button";
 import { Card, CardBody, CardHeader } from "@nextui-org/card";
 import { Input } from "@nextui-org/input";
@@ -13,16 +13,18 @@ import {
   ModalHeader,
   useDisclosure,
 } from "@nextui-org/modal";
-
-import OPERATIONLOGO from "@/public/LOGO.png";
-import ICONOWHATSAPP from "@/public/iconoWhatsapp.png";
 import { UseNavigateContext } from "@/app/context/NavigateContext";
 import { UseAuthContext } from "@/app/context/AuthContext";
 import { ModalError, ModalExito } from "@/components/modales";
 import UseResetPassword from "@/app/hooks/UseResetPassword";
 import { EyeFilledIcon, EyeSlashFilledIcon } from "@/components/icons";
 import Cookies from "js-cookie";
-import { redirect } from "next/navigation";
+import { Envelope, Lock } from "@/components/icons";
+import MessageError from "@/components/menssageError";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema } from "@/app/schemas/validationSchemas";
+import { LoginData } from "@/types";
+import { toast } from "sonner";
 
 export default function Login() {
   const { router } = UseNavigateContext();
@@ -48,7 +50,14 @@ export default function Login() {
     password: string;
   }
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-  const { register, handleSubmit, getValues, reset } = useForm();
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<LoginData>({
+    resolver: zodResolver(loginSchema),
+  });
+
   const {
     register: registerModal,
     handleSubmit: handleSubmitModal,
@@ -59,10 +68,10 @@ export default function Login() {
   const { resetPassword, loading: loadingReset } = UseResetPassword();
   const [showAdditionalInputs, setShowAdditionalInputs] = useState(false);
   const [showEmailInput, setShowEmailInput] = useState(true);
-
   const [isVisiblePassword1, setIsVisiblePassword1] = useState(false);
   const [isVisiblePassword2, setIsVisiblePassword2] = useState(false);
   const [isVisiblePassword3, setIsVisiblePassword3] = useState(false);
+  const [theme, setTheme] = useState("light");
 
   const toggleVisibilityPassword1 = () =>
     setIsVisiblePassword1(!isVisiblePassword1);
@@ -78,9 +87,7 @@ export default function Login() {
         `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/users/loginNewPP`,
         data
       );
-
       console.log(response.data);
-
       // Guardar el token y lo permisos en una cookie
       //Y el expires es para poner el tiempo de caducacion de la cookie
       Cookies.set("auth_token", response.data.token, {
@@ -92,7 +99,6 @@ export default function Login() {
         secure: false,
       });
       console.log("Permissions from cookie:", Cookies.get("permissions"));
-
       if (response.data.token) {
         setToken(response.data.token);
         setUser({
@@ -108,12 +114,17 @@ export default function Login() {
         setIsAuthenticated(true);
         router.push("/parking-payment");
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error(error);
+      if (error.response?.status === 401) {
+        toast.error("Usuario o contraseña incorrectos");
+      } else {
+        toast.error(
+          "Error en el inicio de sesión, por favor intente nuevamente"
+        );
+      }
       setToken("");
       setIsAuthenticated(false);
-      console.log(error);
-      alert("Error en el inicio de sesión");
     } finally {
       setLoading(false);
     }
@@ -127,10 +138,9 @@ export default function Login() {
       const result = await resetPassword(email);
 
       if (result) {
-        setMessage("Nueva contraseña enviada con éxito");
+        toast.success("Código enviado con éxito");
         onOpenExitoModal();
       } else {
-        setMessage("Error al enviar el correo");
         onOpenErrorModal();
       }
     } catch (error) {
@@ -150,80 +160,109 @@ export default function Login() {
   };
 
   return (
-    <main className="container mx-auto max-w-7xl pt-16 px-6 flex-grow">
+    <main
+      className="min-h-screen flex items-center justify-center bg-cover bg-center"
+      style={{
+        backgroundImage: "url('/background_login.png')",
+      }}
+    >
       <section className="flex flex-col items-center h-full">
-        <header className="flex justify-center w-full my-3">
-          <Image alt="..." src={OPERATIONLOGO} width={400} />
-        </header>
-        <Card className="flex flex-col justify-center h-4/6 w-full max-w-xl">
-          <CardHeader className="h-1/3">
-            <h1 className="font-bold text-4xl mx-auto">Iniciar sesión</h1>
+        <Card className="flex flex-col justify-center h-full w-full max-w-96">
+          <CardHeader
+            className={`"flex justify-center w-full  " ${theme === "dark" ? "bg-gray-800" : "bg-blue-500"}`}
+          >
+            <div className="flex flex-col items-center">
+              <Image
+                src={"/logo-dark.png"}
+                alt="Logo"
+                width={120}
+                height={50}
+              />
+              <h1 className="text-center  text-sm text-white text-shadow font-medium">
+                Sistema de Análisis de información Coins Tech
+              </h1>
+            </div>
           </CardHeader>
+
           <CardBody>
             <form
               className="flex flex-col justify-evenly h-full"
               onSubmit={handleSubmit(onSubmit)}
             >
-              <Input
-                placeholder={"Correo electronico"}
-                size="lg"
-                type="email"
-                variant="faded"
-                {...register("email", { required: true })}
-              />
-              <Input
-                placeholder="Contraseña"
-                size="lg"
-                variant="faded"
-                {...register("password", { required: true })}
-                endContent={
-                  <button
-                    aria-label="toggle password visibility"
-                    className="focus:outline-none"
-                    type="button"
-                    onClick={toggleVisibilityPassword1}
-                  >
-                    {isVisiblePassword1 ? (
-                      <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-                    ) : (
-                      <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
-                    )}
-                  </button>
-                }
-                type={isVisiblePassword1 ? "text" : "password"}
-              />
+              <h1 className="font-bold text-4xl mx-auto">Inicio de Sesión</h1>
+              <div className="flex flex-col w-full ">
+                <label className="font-bold">Correo electrónico</label>
+                <Input
+                  placeholder={"Correo electronico"}
+                  size="lg"
+                  className="border-2 border-blue-500 focus:border-blue-500 focus:ring-blue-500 rounded-lg"
+                  startContent={<Envelope />}
+                  {...register("email", { required: true })}
+                />
+                <div className="h-2">
+                  {errors.email && (
+                    <MessageError message={errors.email.message} />
+                  )}
+                </div>
+              </div>
+              <div className="flex flex-col w-full ">
+                <label className="font-bold ">Contraseña</label>
+                <Input
+                  placeholder="Contraseña"
+                  size="lg"
+                  className="border-2 border-blue-500 focus:border-blue-500 focus:ring-blue-500 rounded-lg"
+                  startContent={<Lock />}
+                  {...register("password", { required: true })}
+                  endContent={
+                    <button
+                      aria-label="toggle password visibility"
+                      className="focus:outline-none"
+                      type="button"
+                      onClick={toggleVisibilityPassword1}
+                    >
+                      {isVisiblePassword1 ? (
+                        <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                      ) : (
+                        <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                      )}
+                    </button>
+                  }
+                  type={isVisiblePassword1 ? "text" : "password"}
+                />
+                <div className="h-2">
+                  {errors.password && (
+                    <MessageError message={errors.password.message} />
+                  )}
+                </div>
+              </div>
               <Button
                 className="mx-auto w-full"
                 color="primary"
                 size="lg"
                 type="submit"
-                variant="ghost"
+                variant="shadow"
                 isLoading={loading}
               >
-                Continuar
+                Iniciar Sesión
               </Button>
             </form>
 
             <span
-              style={{
-                color: "primary",
-                cursor: "pointer",
-                textDecoration: "underline",
-              }}
+              className="text-blue-500 cursor-pointer text-center"
               onClick={onOpen}
             >
-              ¿Olvidaste tu contraseña?
+              ¿Haz olvidado tu contraseña?
+              <span className="underline font-bold">Click aquí</span>
             </span>
           </CardBody>
         </Card>
         <div className="flex justify-between w-full mt-4">
           <h3>Todos los derechos reservados</h3>
-          <Button color="primary" onPress={onOpen}>
-            <Image alt="IconoWhatsapp" src={ICONOWHATSAPP} width={20} />
-          </Button>
           <h6>©2024, HECHO POR COINS</h6>
         </div>
       </section>
+
+      {/*Primera modal para buscar el correo y enviar el codigo*/}
       <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
         <ModalContent>
           <ModalHeader className="flex justify-center items-center">
@@ -240,18 +279,22 @@ export default function Login() {
                   placeholder="Correo Electrónico"
                   type="email"
                   {...registerModal("recoveryEmail", { required: true })}
-                  className="mb-4"
                 />
+                <div className="h-2">
+                  {message && (
+                    <p className="text-center text-red-500">{message}</p>
+                  )}
+                </div>
                 <div className="flex justify-end gap-4 w-full">
-                  <Button color="primary" variant="ghost" onClick={onClose}>
-                    Cancelar
-                  </Button>
                   <Button
                     color="primary"
                     disabled={loadingReset}
                     onClick={handleResetPassword}
                   >
                     {loadingReset ? "Cargando..." : "Buscar"}
+                  </Button>
+                  <Button color="primary" variant="ghost" onClick={onClose}>
+                    Cancelar
                   </Button>
                 </div>
               </>
@@ -261,7 +304,7 @@ export default function Login() {
               <RecoveryInputs
                 setModalMessage={setMessage}
                 onClose={onClose}
-                onOpenExitoModal={onOpenExitoModal} // Pasa la función para abrir el modal de éxito
+                onOpenExitoModal={onOpenExitoModal}
               />
             )}
           </ModalBody>
@@ -350,14 +393,14 @@ const RecoveryInputs = ({
       );
 
       setMessage("Contraseña actualizada con éxito");
-      setModalMessage("Contraseña actualizada con éxito");
+      toast.success("Contraseña actualizada con éxito");
       console.log(response.data);
       onOpenExitoModal(); // Abre el modal de éxito
       onClose(); // Cierra el modal actual
     } catch (error) {
       console.error(error);
       setMessage("Error al actualizar la contraseña");
-      setModalMessage("Error al actualizar la contraseña");
+      toast.error("Error al actualizar la contraseña");
     } finally {
       setLoading(false);
     }
@@ -429,17 +472,11 @@ const RecoveryInputs = ({
         type={isVisiblePassword3 ? "text" : "password"}
         variant="faded"
       />
+      <div className="h-2">
+        {message && <p className="text-center text-red-500">{message}</p>}
+      </div>
+
       <div className="flex justify-center space-x-4 mt-6 mb-6 px-4 ">
-        <Button
-          className=" w-full"
-          color="primary"
-          size="lg"
-          type="button"
-          variant="ghost"
-          onClick={onClose}
-        >
-          Cancelar
-        </Button>
         <Button
           className="w-full"
           color="primary"
@@ -451,8 +488,17 @@ const RecoveryInputs = ({
         >
           {loading ? "Guardando..." : "Guardar"}
         </Button>
+        <Button
+          className=" w-full"
+          color="primary"
+          size="lg"
+          type="button"
+          variant="ghost"
+          onClick={onClose}
+        >
+          Cancelar
+        </Button>
       </div>
-      {message && <p className="text-center text-red-500">{message}</p>}
     </div>
   );
 };

@@ -53,3 +53,24 @@ body {
 	background-color: #33baff;
   	
 }
+
+.logo{
+	width: 200px;
+	height: auto;
+	display: inline-block;
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+@media (prefers-color-scheme: dark) {
+	.logo {
+	  content: url('/new-ppa/public/logo-dark.png');
+	}
+  }
+  
+  @media (prefers-color-scheme: light) {
+	.logo {
+	  content: url('/new-ppa/public/logo-light.png');
+	}
+  }

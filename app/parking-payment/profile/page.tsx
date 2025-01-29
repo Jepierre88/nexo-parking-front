@@ -36,7 +36,6 @@ const Profile = () => {
 
   const reset = async (data: UserData) => {
     const { password, confirmPassword } = data;
-
     try {
       const response = await resetPassword(
         user.username,

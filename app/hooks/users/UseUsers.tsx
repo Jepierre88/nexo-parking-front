@@ -10,6 +10,7 @@ export default function UseUsers() {
   const [loading, setLoading] = useState(true);
   const [existingUsernames, setExistingUsernames] = useState<string[]>([]);
   const [existingUserEmails, setExistingEmails] = useState<string[]>([]);
+
   const getUsers = async () => {
     setLoading(true);
     try {

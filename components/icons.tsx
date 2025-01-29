@@ -1,6 +1,87 @@
 import * as React from "react";
 
 import { IconSvgProps } from "@/types";
+export const Lock: React.FC<IconSvgProps> = ({
+  size = 40,
+  width,
+  height,
+  ...props
+}) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 64 64"
+    width={size || width || 30}
+    height={size || height || 30}
+    fill="none"
+    {...props}
+  >
+    <rect
+      x="16"
+      y="28"
+      width="32"
+      height="24"
+      rx="4"
+      ry="4"
+      fill="#f5f5f5"
+      stroke="#007bff"
+      strokeWidth="2"
+    />
+    <path
+      d="M20 28V20C20 14.477 24.477 10 30 10C35.523 10 40 14.477 40 20V28"
+      fill="none"
+      stroke="#007bff"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <circle cx="32" cy="38" r="3" fill="#007bff" />
+    <line
+      x1="32"
+      y1="41"
+      x2="32"
+      y2="46"
+      stroke="#007bff"
+      strokeWidth="2"
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
+export const Envelope: React.FC<IconSvgProps> = ({
+  size = 30,
+  width,
+  height,
+  ...props
+}) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    viewBox="0 0 64 64"
+    width={size || width || 30}
+    height={size || height || 30}
+    fill="none"
+    {...props}
+  >
+    <rect
+      x="4"
+      y="12"
+      width="56"
+      height="40"
+      rx="4"
+      ry="4"
+      fill="#f5f5f5"
+      stroke="#007bff"
+      strokeWidth="2"
+    />
+    <line x1="4" y1="12" x2="32" y2="36" stroke="#007bff" strokeWidth="2" />
+    <line x1="60" y1="12" x2="32" y2="36" stroke="#007bff" strokeWidth="2" />
+    <polygon
+      points="4,12 32,36 60,12"
+      fill="#f5f5f5"
+      stroke="#007bff"
+      strokeWidth="2"
+    />
+  </svg>
+);
 
 export const Logo: React.FC<IconSvgProps> = ({
   size = 36,
