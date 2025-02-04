@@ -56,6 +56,7 @@ function ParkingPayment() {
 
   // Estados principales del componente
   const [subHeaderTitle, setSubHeaderTitle] = useState("Visitante (QR)"); // Controla el subtítulo según la pestaña activa
+  const [cardSize, setCard] = useState();
   const [isVisible, setIsVisible] = useState(false); // Controla la visibilidad del campo de facturación electrónica
   const [paymentMethod, setPaymentMethod] = useState(""); // Método de pago seleccionado
   const [moneyReceived, setMoneyReceived] = useState<number>(0); // Monto recibido del cliente

@@ -172,23 +172,28 @@ export default function Mensualidad() {
       <h2 className="font-bold text-2xl text-center">Datos de mensualidad</h2>
       <div className="min-h-[0.3rem]"></div>
       <form className="flex flex-col gap-0">
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex flex-col sm:flex-row items-center justify-between mb-2 gap-2">
           <label className="text-base font-bold">Tipo de mensualidad</label>
           {canViewSelect && (
             <Select
-              className="w-1/2"
+              className="w-full sm:w-1/2"
               size="sm"
               variant="bordered"
               label="Seleccionar"
             >
               {services.map((service) => (
-                <SelectItem key={service.id} value={service.id}>
+                <SelectItem
+                  key={service.id}
+                  value={service.id}
+                  className="whitespace-normal break-words"
+                >
                   {service.name}
                 </SelectItem>
               ))}
             </Select>
           )}
         </div>
+
         <div className="min-h-[0.2rem]"></div>
 
         <div className="flex flex-col gap-0">
@@ -202,9 +207,12 @@ export default function Mensualidad() {
               className="w-1/2"
             />
           </div>
-          <div className="min-h-[0.2rem] text-red-500 text-xs">
-            {numberMonthsErrorMessage}
-          </div>
+          {/* <div className="h-2">
+                  {errors.password && (
+                    <MessageError message={errors.password.message} />
+                  )}
+                </div> */}
+          <div className="h-2">{numberMonthsErrorMessage}</div>
         </div>
 
         <div className="flex flex-col gap-0">

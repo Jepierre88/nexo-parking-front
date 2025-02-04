@@ -141,7 +141,7 @@ export const Navbar = () => {
         as="li"
         className="gap-3 my-auto self-start max-w-md flex justify-start"
       >
-        <Image alt="Logo" className="my-auto" height={65} src={COINSLOGO} />
+        {/* <Image alt="Logo" className="my-auto" height={65} src={COINSLOGO} /> */}
       </NavbarBrand>
 
       <NavbarContent className="flex flex-row gap-4 justify-center">

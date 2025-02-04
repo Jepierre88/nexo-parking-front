@@ -193,7 +193,7 @@ export default function Login() {
               <div className="flex flex-col w-full ">
                 <label className="font-bold">Correo electrónico</label>
                 <Input
-                  placeholder={"Correo electronico"}
+                  placeholder="Correo electronico"
                   size="lg"
                   className="border-2 border-blue-500 focus:border-blue-500 focus:ring-blue-500 rounded-lg"
                   startContent={<Envelope />}

@@ -11,7 +11,7 @@ export interface Email {
 export interface IdentificationCode {
 	identificationCode:string;
 }
-export interface IngresoSalida {
+export interface enterExit {
 	identificationType: "QR";
 	plate: string;
 	vehicleKind: "CARRO" | "MOTO";

@@ -115,7 +115,7 @@ export const editUserSchema = (
 export const vehicleEntrySchema = z.object({
   plate: z
     .string()
-    .min(1, "La placa no puede estar vacía")
+    .min(1, "La placa debe tener 6 caracteres")
     .max(6, "La placa debe tener exactamente 6 caracteres")
     .regex(/^[A-Za-z0-9]+$/, "La placa no puede tener caracteres especiales"),
 });
