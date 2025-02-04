@@ -4,6 +4,7 @@ import axios from "axios";
 import Invoice from "@/types/Invoice";
 import Income from "@/types/Income";
 import { Description, Payment } from "@mui/icons-material";
+import Closure from "@/types/Closure";
 const DEFAULT_PLUGIN_URL = "http://localhost:8080";
 
 class Operation {
@@ -293,6 +294,33 @@ export class Connector {
 		this.operaciones.push({
 			accion: `qr`,
 			datos: `${ingreso.identificationId}`,
+		});
+		await this.imprimir();
+	}
+
+	async imprimirCierre(cierre: Closure) {
+		const fechaCierre = new Date(cierre.datetime);
+		//Encabezado
+		this.operaciones.push({
+			accion: "textalign",
+			datos: "center",
+		});
+		this.operaciones.push({
+			accion: "text",
+			datos: `Fecha de ingreso: ${fechaCierre.toLocaleString()}`,
+		});
+		this.operaciones.push({
+			accion: "text",
+			datos: `id: ${cierre.id}`,
+		});
+		this.operaciones.push({
+			accion: "text",
+			datos: `Consecutivo inicial: ${cierre.initialConsecutive}`,
+		});
+		//QR
+		this.operaciones.push({
+			accion: `text`,
+			datos: `Consecutivo final: ${cierre.finalConsecutive}`,
 		});
 		await this.imprimir();
 	}
