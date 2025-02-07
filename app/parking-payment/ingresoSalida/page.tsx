@@ -46,7 +46,7 @@ const enterExit = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [vehicleType, setVehicleType] = useState("CARRO");
   const [vehicleTypeOut, setVehicleTypeOut] = useState("CARRO");
-  const [currentDate, setCurrentDate] = useState(
+  const [currentDate, setCurrentDate] = useState<any>(
     parseAbsoluteToLocal(new Date().toISOString())
   );
 

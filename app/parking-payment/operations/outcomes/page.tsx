@@ -43,10 +43,7 @@ function Outcomes() {
   let [endDatetime, setEndDatetime] = useState<DateValue>(
     parseAbsoluteToLocal(new Date().toISOString())
   );
-  const [dateRange, setDateRange] = useState<{
-    start: DateValue;
-    end: DateValue;
-  }>({
+  const [dateRange, setDateRange] = useState<any>({
     start: parseAbsoluteToLocal(
       new Date(
         new Date().getFullYear(),

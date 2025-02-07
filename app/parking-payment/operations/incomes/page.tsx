@@ -48,7 +48,7 @@ const initialIncomeEdit: Income = {
 };
 
 function Incomes() {
-  const [tryDate, setTryDate] = useState(
+  const [tryDate, setTryDate] = useState<any>(
     parseAbsoluteToLocal(new Date().toISOString())
   );
 

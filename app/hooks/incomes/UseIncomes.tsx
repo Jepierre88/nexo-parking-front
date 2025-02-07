@@ -75,7 +75,7 @@ export default function UseIncomes() {
       setLoading(false);
     }
   };
-  const [currentDate, setCurrentDate] = useState(
+  const [currentDate, setCurrentDate] = useState<any>(
     parseAbsoluteToLocal(new Date().toISOString())
   );
   const updateIncome = async (income: Income): Promise<Income | null> => {

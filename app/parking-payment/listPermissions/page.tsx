@@ -9,20 +9,20 @@ export default function ListPermissions() {
       {permissionsById?.length > 0 ? (
         permissionsById.map((relationpermissions, i) => (
           <div
-            key={relationpermissions.id || i}
+            key={relationpermissions || i}
             className="flex flex-col items-start w-98 gap-2"
           >
             <div className="flex justify-between gap-2 items-start w-98">
               <label>Los id de la relacion son: </label>
-              <label>{relationpermissions.id}</label>
+              <label>{relationpermissions}</label>
             </div>
             <div className="flex justify-between gap-2 items-start w-98">
               <label>el rol es: </label>
-              <label>{relationpermissions.rolId}</label>
+              <label>{relationpermissions}</label>
             </div>
             <div className="flex justify-between gap-2 items-start w-98">
               <label>el permiso que tiene es: </label>
-              <label>{relationpermissions.permissionsId}</label>
+              <label>{relationpermissions}</label>
             </div>
           </div>
         ))
