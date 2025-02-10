@@ -6,7 +6,6 @@ import {
   NavbarBrand,
   NavbarItem,
 } from "@nextui-org/navbar";
-import Image from "next/image";
 import {
   Dropdown,
   DropdownItem,
@@ -47,7 +46,7 @@ export const Navbar = () => {
       key: 2,
       items: [
         {
-          label: "Ingreso",
+          label: "Ingresos",
           key: 2,
           href: "/parking-payment/operations/incomes",
           permission: 2,
@@ -65,7 +64,7 @@ export const Navbar = () => {
           permission: 5,
         },
         {
-          label: "Realizar Cierre",
+          label: "Realizar Cierres",
           key: 6,
           href: "/parking-payment/operations/parkingClosure",
           permission: 6,
@@ -146,31 +145,47 @@ export const Navbar = () => {
 
       <NavbarContent className="flex flex-row gap-4 justify-center">
         {filteredNavbarOptions.map((option) => (
-          <ul className="flex gap-5 " key={option.key}>
-            <Dropdown>
+          <ul className="flex gap-5" key={option.key}>
+            {option.items.length === 1 ? (
+              // Si solo hay una opción, redirigir directamente con un botón
               <NavbarItem>
-                <DropdownTrigger>
-                  <Button
-                    disableRipple
-                    className="p-0 bg-transparent data-[hover=true]:bg-transparent"
-                    radius="sm"
-                    variant="light"
-                  >
-                    {option.label}
-                  </Button>
-                </DropdownTrigger>
+                <Button
+                  onClick={() => router.push(option.items[0].href)}
+                  className="p-0 bg-transparent data-[hover=true]:bg-transparent"
+                  radius="md"
+                  variant="light"
+                >
+                  {option.label}
+                </Button>
               </NavbarItem>
-              <DropdownMenu
-                aria-label={option.label}
-                className="w-full p-0 -mx-0"
-              >
-                {option.items.map((item) => (
-                  <DropdownItem key={item.key}>
-                    <Link href={item.href}>{item.label}</Link>
-                  </DropdownItem>
-                ))}
-              </DropdownMenu>
-            </Dropdown>
+            ) : (
+              // Si hay varias opciones, usar Dropdown
+              <Dropdown>
+                <NavbarItem>
+                  <DropdownTrigger>
+                    <Button
+                      disableRipple
+                      className="p-0 bg-transparent data-[hover=true]:bg-transparent"
+                      radius="sm"
+                      variant="light"
+                    >
+                      {option.label}
+                    </Button>
+                  </DropdownTrigger>
+                </NavbarItem>
+                <DropdownMenu aria-label={option.label}>
+                  {option.items.map((item) => (
+                    <DropdownItem
+                      key={item.key}
+                      onClick={() => router.push(item.href)}
+                      className="px-3 py-1 text-sm cursor-pointer "
+                    >
+                      {item.label}
+                    </DropdownItem>
+                  ))}
+                </DropdownMenu>
+              </Dropdown>
+            )}
           </ul>
         ))}
       </NavbarContent>
@@ -190,7 +205,10 @@ export const Navbar = () => {
               </Button>
             </DropdownTrigger>
           </NavbarItem>
-          <DropdownMenu aria-label="Usuario" className="w-full p-0 -mx-0">
+          <DropdownMenu
+            aria-label="Usuario"
+            className="w-full p-0 -m-0 border-none "
+          >
             <DropdownItem
               key="perfil"
               onClick={() => router.push("/parking-payment/profile")}

@@ -13,19 +13,19 @@ export default function UseResetPassword() {
         `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/reset-password/init`,
         {
           email: email,
-        },
+        }
       );
 
       console.log(
         "Solicitud de restablecimiento de contraseña enviada:",
-        response.data,
+        response.data
       );
 
       return response.data;
     } catch (error) {
       console.error(
         "Error al enviar la solicitud de restablecimiento de contraseña:",
-        error,
+        error
       );
     } finally {
       setLoading(false);
