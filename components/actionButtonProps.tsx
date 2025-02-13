@@ -27,8 +27,10 @@ const ActionButton: React.FC<actionButtonProps> = ({
 
   return (
     <Button
+      className="text-black font-bold"
+      variant="bordered"
       onPress={onClick}
-      color="primary"
+      color="secondary"
       style={{
         padding: "8px 16px",
         fontSize: "16px",

@@ -4,6 +4,7 @@ import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 import ActionButton from "./actionButtonProps";
+import { Download } from "@mui/icons-material";
 
 const CustomDataGrid = (props: DataGridProps) => {
   const { resolvedTheme } = useTheme();
@@ -79,10 +80,22 @@ const CustomDataGrid = (props: DataGridProps) => {
   return (
     <div className="relative">
       <div className="flex flex-col min-h-[35rem]">
-        <div style={{ height: "50px", display: "flex", alignItems: "center" }}>
+        <div
+          style={{
+            height: "50px",
+            display: "flex",
+            alignItems: "center",
+            marginBottom: "12px",
+          }}
+        >
           <ActionButton
-            permission={14} // Permiso necesario para el botón
-            label="Exportar a Excel"
+            permission={14}
+            label={
+              <div className="flex items-center gap-2">
+                <Download className="w-5 h-5" />
+                <span>Exportar a Excel</span>
+              </div>
+            }
             onClick={exportToExcel}
           />
         </div>

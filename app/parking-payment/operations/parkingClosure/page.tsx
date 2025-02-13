@@ -25,7 +25,7 @@ import {
   getLocalTimeZone,
   parseAbsoluteToLocal,
 } from "@internationalized/date";
-import { Select } from "@mui/material";
+import { Select, SelectItem } from "@nextui-org/select";
 
 function parkingClosure() {
   const { hasPermission } = UsePermissions();
@@ -171,26 +171,37 @@ function parkingClosure() {
   return (
     <section className="h-full">
       <h1 className="text-4xl font-bold  h-12 ">Cierres</h1>
-
-      <div className="flex  gap-4 items-center justify-center h-min flex-wrap md:flex-nowrap">
-        <DateRangePicker
-          lang="es-ES"
-          hideTimeZone
-          label="Rango de Fechas"
-          size="md"
-          value={dateRange}
-          onChange={setDateRange}
-          style={{ width: "200px" }}
-        />
-        <Select
-          lang="es-ES"
-          label="Realizó el cierre"
-          style={{ width: "300px" }}
-        />
+      <div className="flex my-4 gap-4 items-end justify-start h-min flex-wrap md:flex-nowrap">
+        <div className="flex flex-col items-start">
+          <label className=" text-black font-bold">Fecha de cierre:</label>
+          <DateRangePicker
+            lang="es-ES"
+            hideTimeZone
+            value={dateRange}
+            onChange={setDateRange}
+            className="w-[350px] min-w-[350px] max-w-[350px]"
+            size="md"
+          />
+        </div>
+        <div className="flex flex-col items-start">
+          <label className=" text-black font-bold">Realizó el cierre:</label>
+          <Select
+            className="w-[320px] min-w-[320px] max-w-[320px] "
+            variant="bordered"
+            lang="es-ES"
+            radius="md"
+            size="md"
+            classNames={{ trigger: "bg-gray-100" }}
+          >
+            <SelectItem key="opcion1">Opción 1</SelectItem>
+            <SelectItem key="opcion2">Opción 2</SelectItem>
+            <SelectItem key="opcion3">Opción 3</SelectItem>
+          </Select>
+        </div>
 
         <Button
-          className="bg-primary text-white my-auto"
-          size="lg"
+          className="bg-primary  text-white px-2 py-2 text-sm w-[100px] min-w-0"
+          size="md"
           isDisabled={loading}
           variant="shadow"
           onPress={handleFilter}
@@ -198,17 +209,21 @@ function parkingClosure() {
           Filtrar
         </Button>
       </div>
-      <div className="flex justify-between items-center flex-col xl:flex-row overflow-hidden">
-        <div className="flex my-3 gap-4 items-center justify-center h-min flex-wrap md:flex-nowrap">
-          <Button className="p-6 px-16 w-2" color="primary" variant="bordered">
-            Informe parcial
-          </Button>
+      <div className="flex items-end flex-col xl:flex-row overflow-hidden -mb-14">
+        <div className="flex my-3 justify-end gap-4 items-center h-min flex-wrap md:flex-nowrap w-full">
           <Button
             className="p-6 px-20 bg-primary w-2 text-white"
             color="primary"
             variant="shadow"
           >
             Realizar cierre
+          </Button>
+          <Button
+            className="p-6 px-20 w-2 text-black font-bold"
+            color="primary"
+            variant="bordered"
+          >
+            Informe parcial
           </Button>
         </div>
       </div>

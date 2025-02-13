@@ -344,33 +344,23 @@ export const ChevronDown: React.FC<IconSvgProps> = ({
   );
 };
 
-// export const TrashIcon = (props: IconSvgProps) => (
-// 	<svg
-// 		aria-hidden="true"
-// 		fill="none"
-// 		focusable="false"
-// 		height="1em"
-// 		role="presentation"
-// 		viewBox="0 0 24 24"
-// 		width="1em"
-// 		{...props}
-// 	>
-// 		<path
-// 			d="M1 2h6"
-// 			stroke="currentColor"
-// 			strokeLinecap="round"
-// 			strokeLinejoin="round"
-// 			strokeWidth="2"
-// 		/>
-// 		<path
-// 			d="M3 6h18M5 6l1 16h12l1-16H5z"
-// 			stroke="currentColor"
-// 			strokeLinecap="round"
-// 			strokeLinejoin="round"
-// 			strokeWidth="2"
-// 		/>
-// 	</svg>
-// );
+export const Downloads = (props: IconSvgProps) => (
+  <svg
+    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+  >
+    <path
+      d="M4 16V17C4 17.7956 4.31607 18.5587 4.87868 19.1213C5.44129 19.6839 6.20435 20 7 20H17C17.7956 20 18.5587 19.6839 19.1213 19.1213C19.6839 18.5587 20 17.7956 20 17V16M16 12L12 16M12 16L8 12M12 16V4"
+      stroke="black"
+      stroke-width="2"
+      stroke-linecap="round"
+      stroke-linejoin="round"
+    />
+  </svg>
+);
 
 export const LoaderIcon = (props: IconSvgProps) => (
   <svg
