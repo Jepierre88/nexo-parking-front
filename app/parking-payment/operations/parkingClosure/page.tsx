@@ -93,21 +93,18 @@ function parkingClosure() {
       headerAlign: "center",
       align: "center",
       renderCell: (params) => (
-        <div className="flex justify-center items-center">
+        <div className="flex justify-center items-center gap-2">
           <Button
-            className="w-1 h-full p-1 flex items-center"
+            className="w-auto h-auto flex items-center justify-center p-0 min-w-0"
             color="default"
             variant="light"
             isDisabled={!canSeeClouse}
-            // onPress={() => {
-            //   handleButtonClick(params.row);
-            //   setIsView(true);
-            // }}
+            size="sm"
           >
-            <LargeEyeIcon fill={isDark ? "#FFF" : "#000"} size={24} />
+            <LargeEyeIcon fill={isDark ? "#FFF" : "#000"} />
           </Button>
           <Button
-            className="w-1 h-full p-1 flex items-center"
+            className="w-auto h-auto flex items-center justify-center p-0 min-w-0"
             color="default"
             radius="none"
             variant="light"
@@ -116,21 +113,16 @@ function parkingClosure() {
           >
             <PrinterIcon
               fill={isDark ? "#000" : "#FFF"}
-              size={28}
               stroke={isDark ? "#FFF" : "#000"}
             />
           </Button>
           <Button
-            className="w-1 h-full p-1 flex items-center"
+            className="w-auto h-auto flex items-center justify-center p-0 min-w-0"
             color="default"
             variant="light"
             isDisabled={!canSendClouse}
-            // onPress={() => {
-            //   handleButtonClick(params.row);
-            //   setIsView(true);
-            // }}
           >
-            <LargeSendIcon fill={isDark ? "#FFF" : "#000"} size={24} />
+            <LargeSendIcon fill={isDark ? "#FFF" : "#000"} />
           </Button>
         </div>
       ),
