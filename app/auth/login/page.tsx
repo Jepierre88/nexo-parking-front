@@ -145,7 +145,6 @@ export default function Login() {
 
   const handleResetPassword = async () => {
     const email = getValuesModal("recoveryEmail");
-
     setLoading(true);
     try {
       const result = await resetPassword(email);
@@ -273,7 +272,7 @@ export default function Login() {
           </Card>
           <div className="flex justify-between w-full mt-4">
             <h3>Todos los derechos reservados</h3>
-            <h6>©2024, HECHO POR COINS</h6>
+            <h6>©2025, HECHO POR COINS</h6>
           </div>
         </section>
 
@@ -305,11 +304,11 @@ export default function Login() {
                     <Button
                       color="primary"
                       disabled={loadingReset}
-                      onClick={handleResetPassword}
+                      onPress={handleResetPassword}
                     >
                       {loadingReset ? "Cargando..." : "Continuar"}
                     </Button>
-                    <Button color="primary" variant="ghost" onClick={onClose}>
+                    <Button color="primary" variant="ghost" onPress={onClose}>
                       Cancelar
                     </Button>
                   </div>
@@ -501,7 +500,7 @@ const RecoveryInputs = ({
           size="lg"
           type="button"
           variant="solid"
-          onClick={handleSubmit}
+          onPress={handleSubmit}
         >
           {loading ? "Guardando..." : "Guardar"}
         </Button>
@@ -511,7 +510,7 @@ const RecoveryInputs = ({
           size="lg"
           type="button"
           variant="ghost"
-          onClick={onClose}
+          onPress={onClose}
         >
           Cancelar
         </Button>

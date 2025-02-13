@@ -1,5 +1,5 @@
 "use client";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Button } from "@nextui-org/button";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { GridColDef } from "@mui/x-data-grid";
@@ -27,9 +27,10 @@ import CustomDataGrid from "@/components/customDataGrid";
 import withPermission from "@/app/withPermission";
 import ActionButton from "@/components/actionButtonProps";
 import MessageError from "@/components/menssageError";
-import Image from "next/image";
+import { PencilIcon, LargeEyeIcon } from "@/components/icons";
 import UsePermissions from "@/app/hooks/UsePermissions";
 import { toast } from "sonner";
+import memoTheme from "@mui/material/utils/memoTheme";
 
 const initialUserEdit: User = {
   cellPhoneNumber: "",
@@ -70,10 +71,11 @@ const Users = () => {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [isSelected, setIsSelected] = useState(userEdit.eliminated);
-
-  const { hasPermission, permissions } = UsePermissions();
+  const { hasPermission } = UsePermissions();
+  const canEditUser = useMemo(() => hasPermission(9), [hasPermission]);
+  const canSeeUser = useMemo(() => hasPermission(10), [hasPermission]);
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
-
+  const [isDark, setIsDark] = useState(false);
   const {
     users,
     updateUser,
@@ -239,23 +241,32 @@ const Users = () => {
       headerAlign: "center",
       align: "center",
       renderCell: (params) => (
-        <div className="flex justify-center items-center">
-          <ActionButton
-            permission={9}
-            label={<Image alt="IconoLapiz" src={ICONOLAPIZ} width={20} />}
-            onClick={() => {
+        <div className="flex h-full justify-center items-center w-full overflow-hidden">
+          <Button
+            className="w-1 h-full p-1 flex items-center"
+            color="default"
+            variant="light"
+            isDisabled={!canEditUser}
+            onPress={() => {
               handleButtonClick(params.row);
-              setIsView(false);
             }}
-          />
-          <ActionButton
-            permission={10}
-            label={<Image alt="IconoOjo" src={ICONOOJO} width={20} />}
-            onClick={() => {
+          >
+            {" "}
+            <PencilIcon fill={isDark ? "#FFF" : "#000"} size={24} />
+          </Button>
+
+          <Button
+            className="w-1 h-full p-1 flex items-center"
+            color="default"
+            variant="light"
+            isDisabled={!canSeeUser}
+            onPress={() => {
               handleButtonClick(params.row);
               setIsView(true);
             }}
-          />
+          >
+            <LargeEyeIcon fill={isDark ? "#FFF" : "#000"} size={24} />
+          </Button>
         </div>
       ),
     },

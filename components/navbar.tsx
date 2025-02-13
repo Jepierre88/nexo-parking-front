@@ -15,12 +15,12 @@ import {
 import { Button } from "@nextui-org/button";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
-import COINSLOGO from "@/public/LOGO.png";
 import { Avatar } from "@nextui-org/react";
-import Link from "next/link";
+
 export const Navbar = () => {
   const [loading, setLoading] = useState(false);
   const [permissions, setPermissions] = useState<number[]>([]);
+  const [userName, setUserName] = useState<string | null>(null);
   const router = useRouter();
 
   // Leer permisos desde cookies al cargar el componente
@@ -33,6 +33,10 @@ export const Navbar = () => {
         console.error("Error parsing permissions:", error);
         setPermissions([]);
       }
+    }
+    const storedUserName = Cookies.get("userName");
+    if (storedUserName) {
+      setUserName(storedUserName);
     }
   }, []);
 
@@ -125,6 +129,7 @@ export const Navbar = () => {
     setLoading(true);
     Cookies.remove("auth_token");
     Cookies.remove("permissions");
+    Cookies.remove("userName");
     localStorage.removeItem("token");
     localStorage.clear();
     router.replace("/auth/login");

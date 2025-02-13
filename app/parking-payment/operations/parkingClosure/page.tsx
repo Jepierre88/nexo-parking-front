@@ -16,7 +16,7 @@ import { title } from "@/components/primitives";
 import CustomDataGrid from "@/components/customDataGrid";
 
 import withPermission from "@/app/withPermission";
-import { PrinterIcon } from "@/components/icons";
+import { LargeEyeIcon, LargeSendIcon, PrinterIcon } from "@/components/icons";
 import UsePermissions from "@/app/hooks/UsePermissions";
 import Closure from "@/types/Closure";
 import { toast } from "sonner";
@@ -25,6 +25,7 @@ import {
   getLocalTimeZone,
   parseAbsoluteToLocal,
 } from "@internationalized/date";
+import { Select } from "@mui/material";
 
 function parkingClosure() {
   const { hasPermission } = UsePermissions();
@@ -32,6 +33,9 @@ function parkingClosure() {
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [isDark, setIsDark] = useState(false);
   const canPrinterIncome = useMemo(() => hasPermission(25), [hasPermission]);
+  const canSeeClouse = useMemo(() => hasPermission(24), [hasPermission]);
+  const canSendClouse = useMemo(() => hasPermission(42), [hasPermission]);
+
   useEffect(() => {
     getClosure();
   }, []);
@@ -47,33 +51,41 @@ function parkingClosure() {
   });
   const columns: GridColDef[] = [
     {
-      field: "id",
-      headerName: "ID",
+      field: "datetime",
+      headerName: "Fecha de cierre",
       flex: 1,
       headerAlign: "center",
       align: "center",
     },
     {
-      field: "datetime",
-      headerName: "Fecha",
+      field: "name",
+      headerName: "Realizo el cierre",
       flex: 1,
       headerAlign: "center",
       align: "center",
     },
     {
       field: "initialConsecutive",
-      headerName: "Consecutivo inicial",
+      headerName: "Corte inicial",
       flex: 1,
       headerAlign: "center",
       align: "center",
     },
     {
       field: "finalConsecutive",
-      headerName: "Consecutivo final",
+      headerName: "Corte final",
       flex: 1,
       headerAlign: "center",
       align: "center",
     },
+    {
+      field: "paymentPoint",
+      headerName: "Punto de pago",
+      flex: 1,
+      headerAlign: "center",
+      align: "center",
+    },
+
     {
       field: "actions",
       headerName: "Acciones",
@@ -82,6 +94,18 @@ function parkingClosure() {
       align: "center",
       renderCell: (params) => (
         <div className="flex justify-center items-center">
+          <Button
+            className="w-1 h-full p-1 flex items-center"
+            color="default"
+            variant="light"
+            isDisabled={!canSeeClouse}
+            // onPress={() => {
+            //   handleButtonClick(params.row);
+            //   setIsView(true);
+            // }}
+          >
+            <LargeEyeIcon fill={isDark ? "#FFF" : "#000"} size={24} />
+          </Button>
           <Button
             className="w-1 h-full p-1 flex items-center"
             color="default"
@@ -95,6 +119,18 @@ function parkingClosure() {
               size={28}
               stroke={isDark ? "#FFF" : "#000"}
             />
+          </Button>
+          <Button
+            className="w-1 h-full p-1 flex items-center"
+            color="default"
+            variant="light"
+            isDisabled={!canSendClouse}
+            // onPress={() => {
+            //   handleButtonClick(params.row);
+            //   setIsView(true);
+            // }}
+          >
+            <LargeSendIcon fill={isDark ? "#FFF" : "#000"} size={24} />
           </Button>
         </div>
       ),
@@ -134,29 +170,35 @@ function parkingClosure() {
   };
   return (
     <section className="h-full">
+      <h1 className="text-4xl font-bold  h-12 ">Cierres</h1>
+
+      <div className="flex  gap-4 items-center justify-center h-min flex-wrap md:flex-nowrap">
+        <DateRangePicker
+          lang="es-ES"
+          hideTimeZone
+          label="Rango de Fechas"
+          size="md"
+          value={dateRange}
+          onChange={setDateRange}
+          style={{ width: "200px" }}
+        />
+        <Select
+          lang="es-ES"
+          label="Realizó el cierre"
+          style={{ width: "300px" }}
+        />
+
+        <Button
+          className="bg-primary text-white my-auto"
+          size="lg"
+          isDisabled={loading}
+          variant="shadow"
+          onPress={handleFilter}
+        >
+          Filtrar
+        </Button>
+      </div>
       <div className="flex justify-between items-center flex-col xl:flex-row overflow-hidden">
-        <h1 className="text-4xl font-bold my-3 h-20 text-center items-center content-center">
-          Cierres
-        </h1>
-        <div className="flex my-3 gap-4 items-center justify-center h-min flex-wrap md:flex-nowrap">
-          <DateRangePicker
-            lang="es-ES"
-            hideTimeZone
-            label="Rango de Fechas"
-            size="md"
-            value={dateRange}
-            onChange={setDateRange}
-          />
-          <Button
-            className="bg-primary text-white my-auto"
-            size="lg"
-            isDisabled={loading}
-            variant="shadow"
-            onPress={handleFilter}
-          >
-            Filtrar
-          </Button>
-        </div>
         <div className="flex my-3 gap-4 items-center justify-center h-min flex-wrap md:flex-nowrap">
           <Button className="p-6 px-16 w-2" color="primary" variant="bordered">
             Informe parcial
