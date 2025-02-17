@@ -15,13 +15,17 @@ import {
 import { Button } from "@nextui-org/button";
 import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
-import { Avatar } from "@nextui-org/react";
+import { UseAuthContext } from "@/app/context/AuthContext";
+import { Arrow, Data, Money, User, Key } from "./icons";
+import { usePathname } from "next/navigation";
 
 export const Navbar = () => {
   const [loading, setLoading] = useState(false);
   const [permissions, setPermissions] = useState<number[]>([]);
   const [userName, setUserName] = useState<string | null>(null);
   const router = useRouter();
+  const { user } = UseAuthContext();
+  const pathname = usePathname();
 
   // Leer permisos desde cookies al cargar el componente
   useEffect(() => {
@@ -46,7 +50,44 @@ export const Navbar = () => {
 
   const navbarOptions = [
     {
-      label: "Operación",
+      label: (
+        <div className=" flex bg-secondary items-center gap-2 text-white rounded-sm px-4 py-3">
+          <Money size={20} /> Pagar
+        </div>
+      ),
+      key: 1,
+      items: [
+        {
+          label: "Procesos De Pago",
+          key: 4,
+          href: "/parking-payment",
+          permission: 4,
+        },
+      ],
+    },
+    {
+      label: (
+        <div className="flex items-center gap-2">
+          <Arrow size={20} /> Ingreso y salida de vehículos
+        </div>
+      ),
+
+      key: 3,
+      items: [
+        {
+          label: "Ingreso Manual Por Placa",
+          key: 7,
+          href: "/parking-payment/ingresoSalida",
+          permission: 7,
+        },
+      ],
+    },
+    {
+      label: (
+        <div className="flex items-center text-white  gap-2">
+          <Data size={20} /> Informes
+        </div>
+      ),
       key: 2,
       items: [
         {
@@ -75,32 +116,13 @@ export const Navbar = () => {
         },
       ],
     },
+
     {
-      label: "Pagar",
-      key: 1,
-      items: [
-        {
-          label: "Procesos De Pago",
-          key: 4,
-          href: "/parking-payment",
-          permission: 4,
-        },
-      ],
-    },
-    {
-      label: "Ingreso Por Placa",
-      key: 3,
-      items: [
-        {
-          label: "Ingreso Manual Por Placa",
-          key: 7,
-          href: "/parking-payment/ingresoSalida",
-          permission: 7,
-        },
-      ],
-    },
-    {
-      label: "Administrador",
+      label: (
+        <div className="flex items-center gap-2">
+          <Key size={20} /> Administrador
+        </div>
+      ),
       key: 1,
       items: [
         {
@@ -137,7 +159,7 @@ export const Navbar = () => {
 
   return (
     <NextUINavbar
-      className="flex flex-row justify-between items-center"
+      className="flex flex-row justify-between items-center bg-primary rounded-md"
       maxWidth="xl"
       position="sticky"
     >
@@ -156,7 +178,11 @@ export const Navbar = () => {
               <NavbarItem>
                 <Button
                   onClick={() => router.push(option.items[0].href)}
-                  className="p-0 bg-transparent data-[hover=true]:bg-transparent"
+                  className={`p-0 bg-transparent text-white data-[hover=true]:bg-transparent ${
+                    pathname === option.items[0].href
+                      ? "bg-white bg-opacity-20 rounded-md"
+                      : ""
+                  }`}
                   radius="md"
                   variant="light"
                 >
@@ -170,7 +196,13 @@ export const Navbar = () => {
                   <DropdownTrigger>
                     <Button
                       disableRipple
-                      className="p-0 bg-transparent data-[hover=true]:bg-transparent"
+                      className={`p-0 bg-transparent data-[hover=true]:bg-transparent ${
+                        option.items.some((item) =>
+                          pathname.startsWith(item.href)
+                        )
+                          ? "bg-white bg-opacity-20 rounded-md"
+                          : ""
+                      }`}
                       radius="sm"
                       variant="light"
                     >
@@ -178,7 +210,13 @@ export const Navbar = () => {
                     </Button>
                   </DropdownTrigger>
                 </NavbarItem>
-                <DropdownMenu aria-label={option.label}>
+                <DropdownMenu
+                  aria-label={
+                    typeof option.label === "string"
+                      ? option.label
+                      : "Menú de opciones"
+                  }
+                >
                   {option.items.map((item) => (
                     <DropdownItem
                       key={item.key}
@@ -201,12 +239,12 @@ export const Navbar = () => {
             <DropdownTrigger>
               <Button
                 disableRipple
-                className="p-0 bg-transparent data-[hover=true]:bg-transparent"
+                className="p-0 bg-transparent text-white  data-[hover=true]:bg-transparent"
                 radius="sm"
                 variant="light"
               >
-                <Avatar color="primary"></Avatar>
-                Perfil
+                <User></User>
+                Bienvenid@ {user.name}
               </Button>
             </DropdownTrigger>
           </NavbarItem>

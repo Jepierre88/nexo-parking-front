@@ -59,7 +59,7 @@ function parkingClosure() {
     },
     {
       field: "name",
-      headerName: "Realizo el cierre",
+      headerName: "Realizó el cierre",
       flex: 1,
       headerAlign: "center",
       align: "center",
