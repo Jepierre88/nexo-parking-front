@@ -70,14 +70,14 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   useEffect(() => {
     if (token) {
-      Cookies.set("auth_token", token, { expires: 1, secure: true });
+      Cookies.set("auth_token", token, { expires: 1, secure: false });
     } else {
       Cookies.remove("auth_token");
     }
 
     if (user && user.name) {
       try {
-        Cookies.set("user", JSON.stringify(user), { expires: 1, secure: true });
+        Cookies.set("user", JSON.stringify(user), { expires: 1, secure: false });
       } catch (error) {
         console.error("Error al guardar user en Cookies:", error);
       }

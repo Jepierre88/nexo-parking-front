@@ -112,7 +112,7 @@ export default function Login() {
           username: response.data.username,
           email: response.data.email,
         }),
-        { expires: 1, secure: true }
+        { expires: 1, secure: false }
       );
 
       if (response.data.token) {
