@@ -24,9 +24,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Guardar la última ruta visitada en localStorage
   useEffect(() => {
-    if (pathname !== "/auth/login") {
-      localStorage.setItem("last_path", pathname);
-    }
+    localStorage.setItem("last_path", pathname);
   }, [pathname]);
 
   useEffect(() => {
