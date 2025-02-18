@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import * as XLSX from "xlsx";
 import ActionButton from "./actionButtonProps";
 import { Download } from "@mui/icons-material";
+import { Downloads } from "./icons";
 
 const CustomDataGrid = (props: DataGridProps) => {
   const { resolvedTheme } = useTheme();
@@ -92,7 +93,7 @@ const CustomDataGrid = (props: DataGridProps) => {
             permission={14}
             label={
               <div className="flex items-center gap-2">
-                <Download className="w-5 h-5" />
+                <Downloads className="w-5 h-5" />
                 <span>Exportar a Excel</span>
               </div>
             }

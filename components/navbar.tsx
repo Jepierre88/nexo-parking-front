@@ -244,11 +244,7 @@ export const Navbar = () => {
                 variant="light"
               >
                 <User></User>
-                {user ? (
-                  <p>Bienvenido, {user.name}</p>
-                ) : (
-                  <p>Cargando usuario...</p>
-                )}
+                {user ? <p>Hola, {user.name}</p> : <p>Cargando usuario...</p>}
               </Button>
             </DropdownTrigger>
           </NavbarItem>

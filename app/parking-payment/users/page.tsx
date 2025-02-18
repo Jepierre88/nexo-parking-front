@@ -63,6 +63,8 @@ const initialNewUser: Signup = {
   permissions: [],
 };
 
+export const dynamic = "force-dynamic";
+
 const Users = () => {
   const { roles } = UseRol();
   const [userEdit, setUserEdit] = useState<User>(initialUserEdit);
