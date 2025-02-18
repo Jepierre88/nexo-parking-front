@@ -89,7 +89,8 @@ export default function Login() {
         data
       );
 
-      // Guardar token y permisos en cookies
+      console.log(response.data);
+
       Cookies.set("auth_token", response.data.token, {
         expires: 1,
         secure: false,
@@ -99,7 +100,21 @@ export default function Login() {
         secure: false,
       });
 
-      // Actualizar contexto de autenticación
+      Cookies.set(
+        "user",
+        JSON.stringify({
+          name: response.data.name,
+          lastName: response.data.lastName,
+          realm: response.data.realm,
+          permissions: response.data.permissions,
+          deviceNme: response.data.deviceNme,
+          cellPhoneNumber: response.data.cellPhoneNumber,
+          username: response.data.username,
+          email: response.data.email,
+        }),
+        { expires: 1, secure: true }
+      );
+
       if (response.data.token) {
         setToken(response.data.token);
         setUser({
@@ -117,24 +132,7 @@ export default function Login() {
       }
     } catch (error: any) {
       console.error("Error capturado:", error);
-      if (axios.isAxiosError(error)) {
-        if (error.response) {
-          if (error.response.status === 401) {
-            toast.error("Usuario o contraseña inválidos");
-          } else {
-            const backendMessage =
-              error.response.data?.error?.message ||
-              error.response.data?.message ||
-              "Error desconocido desde el servidor";
-
-            toast.error(backendMessage);
-          }
-        } else {
-          toast.error("Error de red. Por favor, intente nuevamente.");
-        }
-      } else {
-        toast.error("Error inesperado. Intente nuevamente.");
-      }
+      toast.error("Error de autenticación.");
 
       setToken("");
       setIsAuthenticated(false);

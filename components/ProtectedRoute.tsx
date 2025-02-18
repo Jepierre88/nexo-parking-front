@@ -1,19 +1,22 @@
 "use client";
 import { UseAuthContext } from "@/app/context/AuthContext";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
   const { isAuthenticated } = UseAuthContext();
   const router = useRouter();
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     if (!isAuthenticated) {
-      router.push("/auth/login"); // Redirigir al login si no está autenticado
+      router.replace("/auth/login");
+    } else {
+      setLoading(false);
     }
   }, [isAuthenticated, router]);
 
-  if (!isAuthenticated) return null; // Muestra nada mientras redirige
+  if (loading) return null;
 
   return <>{children}</>;
 };

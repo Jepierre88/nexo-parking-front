@@ -244,7 +244,11 @@ export const Navbar = () => {
                 variant="light"
               >
                 <User></User>
-                Bienvenid@ {user.name}
+                {user ? (
+                  <p>Bienvenido, {user.name}</p>
+                ) : (
+                  <p>Cargando usuario...</p>
+                )}
               </Button>
             </DropdownTrigger>
           </NavbarItem>
