@@ -51,9 +51,9 @@ export const Navbar = () => {
   const navbarOptions = [
     {
       label: (
-        <div className=" flex bg-secondary items-center gap-2 text-white rounded-sm px-4 py-3">
+        <>
           <Money size={20} /> Pagar
-        </div>
+        </>
       ),
       key: 1,
       items: [
@@ -64,12 +64,14 @@ export const Navbar = () => {
           permission: 4,
         },
       ],
+      //Se crea esta propiedad aca
+      background: "bg-secondary",
     },
     {
       label: (
-        <div className="flex items-center gap-2">
+        <>
           <Arrow size={20} /> Ingreso y salida de vehículos
-        </div>
+        </>
       ),
 
       key: 3,
@@ -84,9 +86,9 @@ export const Navbar = () => {
     },
     {
       label: (
-        <div className="flex items-center text-white  gap-2">
+        <>
           <Data size={20} /> Informes
-        </div>
+        </>
       ),
       key: 2,
       items: [
@@ -119,9 +121,9 @@ export const Navbar = () => {
 
     {
       label: (
-        <div className="flex items-center gap-2">
+        <>
           <Key size={20} /> Administrador
-        </div>
+        </>
       ),
       key: 1,
       items: [
@@ -174,15 +176,17 @@ export const Navbar = () => {
         {filteredNavbarOptions.map((option) => (
           <ul className="flex gap-5" key={option.key}>
             {option.items.length === 1 ? (
-              // Si solo hay una opción, redirigir directamente con un botón
               <NavbarItem>
                 <Button
                   onClick={() => router.push(option.items[0].href)}
-                  className={`p-0 bg-transparent text-white data-[hover=true]:bg-transparent ${
+                  className={`px-4 bg-transparent text-white  ${
                     pathname === option.items[0].href
-                      ? "bg-white bg-opacity-20 rounded-md"
+                      ? `${option.background ? option.background : "bg-white"}  bg-opacity-20  rounded-md`
                       : ""
-                  }`}
+
+                    //Llamamos a la propiedad
+                  } ${option.background ? option.background : ""}
+                  ${option.background === "bg-secondary" ? "button-secondary" : "hover:bg-white  hover:bg-opacity-20"}`}
                   radius="md"
                   variant="light"
                 >
@@ -190,13 +194,12 @@ export const Navbar = () => {
                 </Button>
               </NavbarItem>
             ) : (
-              // Si hay varias opciones, usar Dropdown
               <Dropdown>
                 <NavbarItem>
                   <DropdownTrigger>
                     <Button
                       disableRipple
-                      className={`p-0 bg-transparent data-[hover=true]:bg-transparent ${
+                      className={`px-4 bg-transparent text-white  ${
                         option.items.some((item) =>
                           pathname.startsWith(item.href)
                         )
@@ -239,7 +242,11 @@ export const Navbar = () => {
             <DropdownTrigger>
               <Button
                 disableRipple
-                className="p-0 bg-transparent text-white  data-[hover=true]:bg-transparent"
+                className={`px-4 bg-transparent text-white transition-all ${
+                  pathname.startsWith("/parking-payment/profile")
+                    ? "bg-white bg-opacity-20 rounded-md"
+                    : ""
+                } hover:bg-white hover:bg-opacity-20`}
                 radius="sm"
                 variant="light"
               >

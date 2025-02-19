@@ -149,7 +149,12 @@ export default function Login() {
 
       if (result) {
         toast.success("Código enviado con éxito");
-        onOpenExitoModal();
+        setShowEmailInput(false); // Oculta el input del correo
+        setShowAdditionalInputs(true); // Muestra la modal de código
+
+        // 👇 Cierra la primera modal y la reabre con la nueva vista
+        onClose();
+        setTimeout(() => onOpen(), 300);
       } else {
         toast.error("Correo electrónico no válido");
       }
@@ -261,7 +266,11 @@ export default function Login() {
 
               <span
                 className="text-blue-500 cursor-pointer text-center"
-                onClick={onOpen}
+                onClick={() => {
+                  setShowEmailInput(true);
+                  setShowAdditionalInputs(false);
+                  onOpen();
+                }}
               >
                 ¿Haz olvidado tu contraseña?
                 <span className="underline font-bold">Click aquí</span>
@@ -317,7 +326,10 @@ export default function Login() {
                 <RecoveryInputs
                   setModalMessage={setMessage}
                   onClose={onClose}
+                  onOpen={onOpen}
                   onOpenExitoModal={onOpenExitoModal}
+                  setShowEmailInput={setShowEmailInput}
+                  setShowAdditionalInputs={setShowAdditionalInputs}
                 />
               )}
             </ModalBody>
@@ -348,12 +360,18 @@ export default function Login() {
 
 const RecoveryInputs = ({
   onClose,
+  onOpen,
   onOpenExitoModal,
   setModalMessage,
+  setShowEmailInput,
+  setShowAdditionalInputs,
 }: {
   onClose: () => void;
+  onOpen: () => void;
   onOpenExitoModal: () => void;
   setModalMessage: (message: string) => void;
+  setShowEmailInput: (value: boolean) => void;
+  setShowAdditionalInputs: (value: boolean) => void;
 }) => {
   const codeInputRefs = useRef<Array<HTMLInputElement | null>>([]);
   const passwordInputRef = useRef<HTMLInputElement | null>(null);
@@ -390,7 +408,7 @@ const RecoveryInputs = ({
 
     if (newPassword !== confirmPassword) {
       setMessage("Las contraseñas no coinciden");
-
+      toast.error("Las contraseñas no coinciden");
       return;
     }
 
@@ -409,7 +427,6 @@ const RecoveryInputs = ({
       setMessage("Contraseña actualizada con éxito");
       toast.success("Contraseña actualizada con éxito");
       console.log(response.data);
-      onOpenExitoModal(); // Abre el modal de éxito
       onClose(); // Cierra el modal actual
     } catch (error) {
       console.error(error);
@@ -508,7 +525,12 @@ const RecoveryInputs = ({
           size="lg"
           type="button"
           variant="ghost"
-          onPress={onClose}
+          onPress={() => {
+            setShowAdditionalInputs(false); // Oculta la segunda modal
+            setShowEmailInput(true); // Muestra la primera modal
+            onClose(); // Cierra la modal actual
+            setTimeout(() => onOpen(), 300); // Reabre la primera modal con un pequeño delay
+          }}
         >
           Cancelar
         </Button>
