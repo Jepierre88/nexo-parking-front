@@ -108,7 +108,7 @@ function Outcomes() {
     },
     {
       field: "vehicleKind",
-      headerName: "Tipo V",
+      headerName: "Tipo Vehículo",
       flex: 1,
       headerAlign: "center",
       align: "center",
