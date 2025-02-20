@@ -176,14 +176,14 @@ export default function Login() {
 
   return (
     <>
-      <Toaster />
+      <Toaster richColors duration={2000} />
       <main
         className="min-h-screen flex items-center justify-center bg-cover bg-center"
         style={{
           backgroundImage: "url('/background_login.png')",
         }}
       >
-        <section className="flex flex-col items-center h-full">
+        <section className="flex flex-col items-center h-max">
           <Card className="flex flex-col justify-center h-full w-full max-w-96">
             <CardHeader
               className={`"flex justify-center w-full  " ${theme === "dark" ? "bg-gray-800" : "bg-primary"}`}
@@ -203,10 +203,10 @@ export default function Login() {
 
             <CardBody>
               <form
-                className="flex flex-col justify-evenly h-full"
+                className="flex flex-col justify-evenly h-80"
                 onSubmit={handleSubmit(onSubmit)}
               >
-                <h1 className="font-bold text-4xl mx-auto">Inicio de Sesión</h1>
+                <h1 className="font-bold text-3xl mx-auto">Inicio de Sesión</h1>
                 <div className="flex flex-col w-full ">
                   <label className="font-bold">Correo electrónico</label>
                   <Input
@@ -265,7 +265,7 @@ export default function Login() {
               </form>
 
               <span
-                className="text-blue-500 cursor-pointer text-center"
+                className="text-black cursor-pointer text-center "
                 onClick={() => {
                   setShowEmailInput(true);
                   setShowAdditionalInputs(false);
@@ -273,14 +273,23 @@ export default function Login() {
                 }}
               >
                 ¿Haz olvidado tu contraseña?
-                <span className="underline font-bold">Click aquí</span>
+                <span className="text-primary underline font-bold">
+                  Click aquí
+                </span>
               </span>
             </CardBody>
           </Card>
-          <div className="flex justify-between w-full mt-4">
-            <h3>Todos los derechos reservados</h3>
-            <h6>©2025, HECHO POR COINS</h6>
-          </div>
+          <div
+            className="flex z-30 justify-between w-full mt-16"
+            style={{
+              backgroundImage: "url('/LogoCoins.png')",
+              backgroundSize: "contain",
+              backgroundRepeat: "no-repeat",
+              backgroundPosition: "center",
+              height: "80px",
+              width: "150px",
+            }}
+          ></div>
         </section>
 
         {/*Primera modal para buscar el correo y enviar el codigo*/}
