@@ -211,7 +211,7 @@ export default function Login() {
                   <label className="font-bold">Correo electrónico</label>
                   <Input
                     placeholder="Correo electronico"
-                    size="lg"
+                    size="md"
                     className="border-2 border-primary focus:border-blue-500 focus:ring-blue-500 rounded-lg"
                     startContent={<Envelope />}
                     {...register("email", { required: true })}
@@ -226,7 +226,7 @@ export default function Login() {
                   <label className="font-bold ">Contraseña</label>
                   <Input
                     placeholder="Contraseña"
-                    size="lg"
+                    size="md"
                     className="border-2 border-primary focus:border-blue-500 focus:ring-blue-500 rounded-lg"
                     startContent={<Lock />}
                     {...register("password", { required: true })}
@@ -255,7 +255,7 @@ export default function Login() {
                 <Button
                   className="mx-auto w-full"
                   color="primary"
-                  size="lg"
+                  size="md"
                   type="submit"
                   variant="shadow"
                   isLoading={loading}
@@ -264,19 +264,19 @@ export default function Login() {
                 </Button>
               </form>
 
-              <span
-                className="text-black cursor-pointer text-center "
+              <div
+                className="space-x-2 "
                 onClick={() => {
                   setShowEmailInput(true);
                   setShowAdditionalInputs(false);
                   onOpen();
                 }}
               >
-                ¿Haz olvidado tu contraseña?
-                <span className="text-primary underline font-bold">
-                  Click aquí
+                <span className="text-black cursor-pointer   text-center ">
+                  ¿Haz olvidado tu contraseña?
                 </span>
-              </span>
+                <span className="text-primary  font-bold">Click aquí</span>
+              </div>
             </CardBody>
           </Card>
           <div
