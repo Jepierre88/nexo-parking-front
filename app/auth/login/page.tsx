@@ -186,7 +186,7 @@ export default function Login() {
         <section className="flex flex-col items-center h-full">
           <Card className="flex flex-col justify-center h-full w-full max-w-96">
             <CardHeader
-              className={`"flex justify-center w-full  " ${theme === "dark" ? "bg-gray-800" : "bg-blue-500"}`}
+              className={`"flex justify-center w-full  " ${theme === "dark" ? "bg-gray-800" : "bg-primary"}`}
             >
               <div className="flex flex-col items-center">
                 <Image
@@ -212,7 +212,7 @@ export default function Login() {
                   <Input
                     placeholder="Correo electronico"
                     size="lg"
-                    className="border-2 border-blue-500 focus:border-blue-500 focus:ring-blue-500 rounded-lg"
+                    className="border-2 border-primary focus:border-blue-500 focus:ring-blue-500 rounded-lg"
                     startContent={<Envelope />}
                     {...register("email", { required: true })}
                   />
@@ -227,7 +227,7 @@ export default function Login() {
                   <Input
                     placeholder="Contraseña"
                     size="lg"
-                    className="border-2 border-blue-500 focus:border-blue-500 focus:ring-blue-500 rounded-lg"
+                    className="border-2 border-primary focus:border-blue-500 focus:ring-blue-500 rounded-lg"
                     startContent={<Lock />}
                     {...register("password", { required: true })}
                     endContent={

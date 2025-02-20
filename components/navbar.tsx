@@ -65,7 +65,7 @@ export const Navbar = () => {
         },
       ],
       //Se crea esta propiedad aca
-      background: "bg-secondary",
+      background: "bg-secondary bg-opacity-80",
     },
     {
       label: (
@@ -161,7 +161,7 @@ export const Navbar = () => {
 
   return (
     <NextUINavbar
-      className="flex flex-row justify-between items-center bg-primary rounded-md"
+      className="flex flex-row justify-between items-center bg-primary rounded-md mb-8"
       maxWidth="xl"
       position="sticky"
     >
@@ -186,7 +186,7 @@ export const Navbar = () => {
 
                     //Llamamos a la propiedad
                   } ${option.background ? option.background : ""}
-                  ${option.background === "bg-secondary" ? "button-secondary" : "hover:bg-white  hover:bg-opacity-20"}`}
+                  ${option.background?.includes("bg-secondary") ? "button-secondary" : "hover:bg-white  hover:bg-opacity-20"}`}
                   radius="md"
                   variant="light"
                 >

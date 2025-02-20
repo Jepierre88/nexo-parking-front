@@ -78,6 +78,7 @@ const Users = () => {
   const canSeeUser = useMemo(() => hasPermission(10), [hasPermission]);
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [isDark, setIsDark] = useState(false);
+  const canCreateUser = useMemo(() => hasPermission(8), [hasPermission]);
   const {
     users,
     updateUser,
@@ -214,8 +215,9 @@ const Users = () => {
     },
     {
       field: "email",
+      minWidth: 250,
       headerName: "Email",
-      flex: 1,
+
       headerAlign: "center",
       align: "center",
     },
@@ -279,11 +281,22 @@ const Users = () => {
       {loading && <Loading />}{" "}
       <div className="flex justify-between">
         <h1 className={title()}>Usuarios</h1>
-        <ActionButton
-          permission={8}
-          label={"+Agregar usuario"}
-          onClick={onOpen}
-        />
+        {canCreateUser && (
+          <Button
+            className="z-10 right-0 -bottom-14"
+            color="primary"
+            style={{
+              padding: "8px 16px",
+              fontSize: "16px",
+              lineHeight: "1.5",
+              minHeight: "40px",
+            }}
+            onPress={onOpen}
+          >
+            {" "}
+            +Agregar usuario{" "}
+          </Button>
+        )}
       </div>
       <CustomDataGrid columns={columns} rows={users as User[]} />
       <Modal
