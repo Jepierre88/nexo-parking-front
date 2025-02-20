@@ -272,10 +272,12 @@ export default function Login() {
                   onOpen();
                 }}
               >
-                <span className="text-black cursor-pointer   text-center ">
+                <span className="text-black dark:text-white cursor-pointer   text-center ">
                   ¿Haz olvidado tu contraseña?
                 </span>
-                <span className="text-primary  font-bold">Click aquí</span>
+                <span className="text-primary cursor-pointer text-center font-bold">
+                  Click aquí
+                </span>
               </div>
             </CardBody>
           </Card>
