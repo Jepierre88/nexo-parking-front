@@ -68,7 +68,7 @@ const Profile = () => {
                 </label>
                 <Input
                   className="text-xs"
-                  size="sm"
+                  size="md"
                   variant="faded"
                   type="text"
                   isDisabled
@@ -82,7 +82,7 @@ const Profile = () => {
                 </label>
                 <Input
                   className="text-xs"
-                  size="sm"
+                  size="md"
                   variant="faded"
                   isDisabled
                   value={user.email}
@@ -97,7 +97,7 @@ const Profile = () => {
                 <Input
                   className="text-xs"
                   placeholder="Digite la contraseña"
-                  size="sm"
+                  size="md"
                   variant="faded"
                   {...register("password")}
                   endContent={
@@ -130,7 +130,7 @@ const Profile = () => {
                 <Input
                   className="text-xs"
                   placeholder="Repita la contraseña"
-                  size="sm"
+                  size="md"
                   variant="faded"
                   {...register("confirmPassword")}
                   endContent={
@@ -173,7 +173,7 @@ const Profile = () => {
                 <label className="font-semibold text-sm">Nombre</label>
                 <Input
                   className="text-xs"
-                  size="sm"
+                  size="md"
                   variant="faded"
                   type="text"
                   isDisabled
@@ -185,7 +185,7 @@ const Profile = () => {
                 <label className="font-semibold text-sm">Apellido</label>
                 <Input
                   className="text-xs"
-                  size="sm"
+                  size="md"
                   variant="faded"
                   value={user.lastName}
                   isDisabled
@@ -197,7 +197,7 @@ const Profile = () => {
                 <label className="font-semibold text-sm ">Celular</label>
                 <Input
                   className="text-xs mb-4"
-                  size="sm"
+                  size="md"
                   variant="faded"
                   type="text"
                   isDisabled
@@ -209,7 +209,7 @@ const Profile = () => {
                 <label className="font-semibold text-sm ">Perfil</label>
                 <Input
                   className="text-xs mb-4"
-                  size="sm"
+                  size="md"
                   variant="faded"
                   value={user.realm}
                   isDisabled

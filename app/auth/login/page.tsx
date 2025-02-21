@@ -253,7 +253,7 @@ export default function Login() {
                   </div>
                 </div>
                 <Button
-                  className="mx-auto w-full"
+                  className="border-2 border-primary focus:border-blue-500 focus:ring-blue-500 rounded-lg mx-auto w-full"
                   color="primary"
                   size="md"
                   type="submit"
@@ -265,7 +265,7 @@ export default function Login() {
               </form>
 
               <div
-                className="space-x-2 "
+                className="space-x-2 mb-4"
                 onClick={() => {
                   setShowEmailInput(true);
                   setShowAdditionalInputs(false);

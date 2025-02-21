@@ -1,6 +1,5 @@
 "use client";
 
-// Importación de componentes de UI y hooks
 import { CardBody, CardFooter, CardHeader } from "@nextui-org/card";
 import { Tab, Tabs } from "@nextui-org/tabs";
 import { useEffect, useState } from "react";
@@ -16,12 +15,10 @@ import {
   useDisclosure,
 } from "@nextui-org/modal";
 
-// Importación de contextos y hooks personalizados
 import { UseAuthContext } from "../context/AuthContext";
 import UseListsPaymentMethods from "../hooks/parking-payment/UseListsPaymentMethods";
 import { usePaymentContext } from "../context/PaymentContext";
 
-// Importación de componentes específicos
 import QrPerdido from "../../components/parking-payment/tabs/QrLost";
 import Mensualidad from "../../components/parking-payment/tabs/MontlySubscription";
 import VisitanteQr from "../../components/parking-payment/tabs/QrVisitor";
@@ -30,7 +27,6 @@ import { ModalConfirmation } from "@/components/modales";
 import CardPropierties from "@/components/parking-payment/cardPropierties";
 import ExtraServices from "@/components/parking-payment/ExtraServicesCard";
 
-// Librerías auxiliares
 import axios from "axios";
 import { formatDate } from "../libs/utils";
 import { Form, Tooltip } from "@nextui-org/react";
@@ -47,30 +43,26 @@ import { useMemo } from "react";
 import UsePermissions from "../hooks/UsePermissions";
 
 function ParkingPayment() {
-  // Contexto de autenticación para obtener el usuario actual
   const { user } = UseAuthContext();
 
-  // Lista de métodos de pago disponibles desde un hook personalizado
   const { namePaymentType } = UseListsPaymentMethods("namePaymentType");
   const { getTransactionForPrint } = UseTransactions();
 
   // Estados principales del componente
-  const [subHeaderTitle, setSubHeaderTitle] = useState("Visitante (QR)"); // Controla el subtítulo según la pestaña activa
+  const [subHeaderTitle, setSubHeaderTitle] = useState("Visitante (QR)");
   const [cardSize, setCard] = useState();
-  const [isVisible, setIsVisible] = useState(false); // Controla la visibilidad del campo de facturación electrónica
-  const [paymentMethod, setPaymentMethod] = useState(""); // Método de pago seleccionado
-  const [moneyReceived, setMoneyReceived] = useState<number>(0); // Monto recibido del cliente
-  const [cashBack, setCashBack] = useState<number>(0); // Monto de devolución
-  const [showCart, setShowCart] = useState<boolean>(false); // Controla la visibilidad del carrito de servicios adicionales
-  const [loadingPayment, setLoadingPayment] = useState(false); // Indica si se está procesando un pago
+  const [isVisible, setIsVisible] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState("");
+  const [moneyReceived, setMoneyReceived] = useState<number>(0);
+  const [cashBack, setCashBack] = useState<number>(0);
+  const [showCart, setShowCart] = useState<boolean>(false);
+  const [loadingPayment, setLoadingPayment] = useState(false);
   const { hasPermission } = UsePermissions();
   const canViewCart = useMemo(() => hasPermission(37), [hasPermission]);
-  const [resetKey, setResetKey] = useState(0); // Indica si
+  const [resetKey, setResetKey] = useState(0);
 
-  // Contexto de pago, incluye estado del carrito y datos del pago
   const { state, dispatch, paymentData, setPaymentData } = usePaymentContext();
 
-  // Hooks para manejar la apertura/cierre de modales
   const {
     isOpen: isOpenModalConfirmation,
     onOpen: onOpenModalConfirmation,
@@ -107,8 +99,7 @@ function ParkingPayment() {
     dispatch({ type: "CLEAR_PAYMENTS" });
   };
 
-  // Función para pagar con impresion
-  const onConfirmAction = async () => {
+  const handlePayment = async (shouldPrint: boolean) => {
     const services = [];
 
     // Recopila servicios adicionales del carrito
@@ -121,46 +112,40 @@ function ParkingPayment() {
           total: service.quantity * service.price,
         });
       });
+
       // Agrega el servicio principal (parqueadero)
       services.push({
         name: "parqueadero",
         quantity: 1,
-        price: paymentData.totalParking,
-        total: paymentData.totalParking,
+        price: paymentData.totalParking || 0,
+        total: paymentData.totalParking || 0,
       });
     }
 
-    // Actualiza los datos de pago con los servicios recopilados
-    const updatedPaymentData = { ...paymentData, services };
-    setPaymentData(updatedPaymentData);
-
-    console.log(paymentData);
-
-    // Estructura los datos del pago para enviarlos al backend
     const dataToPay: PaymentGenerate = {
-      cashier: user.name,
-      cashValue: moneyReceived,
-      concept: paymentData.concept,
+      cashier: user.name || "No Asignado",
+      cashValue: moneyReceived || 0,
+      concept: paymentData.concept || "Desconocido",
       discountCode: "",
       datetime: new Date().toISOString(),
       discountTotal: 0,
-      // extraServices: [...paymentData.extraServices],
-      extraServices: paymentData.extraServices.map(
-        ({ isLocked, ...rest }) => rest
-      ),
+      extraServices:
+        paymentData.extraServices?.map(({ isLocked, ...rest }) => rest) || [],
       identificationCode: paymentData.identificationCode,
-      identificationType: paymentData.identificationType,
-      IVAPercentage: paymentData.IVAPercentage,
-      IVATotal: Number(paymentData.subtotal.toFixed(2)),
-      paymentType: namePaymentType.find(
-        (e) => e.namePaymentType === paymentMethod
-      ).id,
-      plate: paymentData.plate,
-      processId: paymentData.validationDetail.processId,
-      processPaidDatetime: paymentData.validationDetail.expectedOutcomeDatetime,
-      total: paymentData.totalCost ?? 0,
-      vehicleKind: paymentData.vehicleKind,
-      vehicleParkingTime: paymentData.validationDetail.timeInParking,
+      identificationType: paymentData.identificationType || "N/A",
+      IVAPercentage: paymentData.IVAPercentage || 0,
+      IVATotal: Number(paymentData.subtotal?.toFixed(2) || 0),
+      paymentType:
+        namePaymentType.find((e) => e.namePaymentType === paymentMethod)?.id ||
+        0,
+      plate: paymentData.plate || "N/A",
+      processId: paymentData.validationDetail?.processId || 0,
+      processPaidDatetime:
+        paymentData.validationDetail?.expectedOutcomeDatetime ||
+        new Date().toISOString(),
+      total: paymentData.totalCost || 0,
+      vehicleKind: paymentData.vehicleKind || "Desconocido",
+      vehicleParkingTime: paymentData.validationDetail?.timeInParking || "0",
     };
 
     if (paymentData.concept !== "Servicios varios") {
@@ -175,44 +160,26 @@ function ParkingPayment() {
         netTotal: paymentData.subtotal,
       });
     }
-    // Envía el pago al backend
-    savePayment(dataToPay, true).then(() => {
-      // Restablecer valores después del pago
+
+    // Enviar pago al backend
+    savePayment(dataToPay, shouldPrint).then(() => {
       setMoneyReceived(0);
       setCashBack(0);
     });
   };
 
-  // Función para pagar sin impresion
-  // TODO organizar datos de parqueadero
-  const onCancelAction = async () => {
-    const dataToPay = {
-      deviceId: paymentData.deviceId,
-      identificationType: paymentData.identificationType,
-      identificationCode: paymentData.identificationCode,
-      concept: paymentData.concept,
-      cashier: user.name,
-      plate: paymentData.plate,
-      datetime: paymentData.datetime,
-      subtotal: paymentData.subtotal,
-      IVAPercentage: paymentData.IVAPercentage,
-      IVATotal: paymentData.IVATotal,
-      total: paymentData.total,
-      processId: paymentData.validationDetail.processId,
-      generationDetail: {
-        internalId: 1,
-        internalConsecutive: "1",
-        paymentType: paymentMethod,
-      },
-    };
-
-    // Envía el pago al backend sin marcar como impreso
-    savePayment(dataToPay, false);
+  // Pagar e imprimir factura
+  const onConfirmAction = async () => {
+    handlePayment(true); // Con impresión
   };
 
-  // Función para guardar el pago en el backend
-  const savePayment = async (data: any, print: boolean) => {
-    setLoadingPayment(true); // Activa el indicador de carga
+  // Pagar SIN imprimir factura
+  const onCancelAction = async () => {
+    handlePayment(false); // Sin impresión
+  };
+
+  const savePayment = async (data: any, shouldPrint: boolean) => {
+    setLoadingPayment(true);
 
     toast.promise(
       axios
@@ -224,50 +191,45 @@ function ParkingPayment() {
           console.log("Pago registrado:", response.data);
           setPaymentData(initialPaymentData);
 
-          if (print) {
-            // Inicia el flujo de impresión
-            await toast.promise(
-              (async () => {
-                const factura: Invoice = await getTransactionForPrint(
-                  response.data.transactionId
-                );
-                console.log("FACTURA");
-                console.log(factura);
+          const printInvoice = async (transactionId: any) => {
+            try {
+              const factura: Invoice =
+                await getTransactionForPrint(transactionId);
+              console.log("FACTURA", factura);
 
-                // Conectar e imprimir factura
-                const impresora = new Connector("EPSON");
-                await impresora.imprimirFacturaTransaccion(factura);
+              const impresora = new Connector("EPSON");
+              await impresora.imprimirFacturaTransaccion(factura);
 
-                return "Factura impresa correctamente.";
-              })(),
-              {
-                loading: "Imprimiendo factura...",
-                success: "Factura impresa exitosamente.",
-                error: "Error al imprimir la factura.",
-              }
-            );
+              toast.success("Factura impresa exitosamente.");
+            } catch (error) {
+              console.error("Error al imprimir la factura:", error);
+              toast.error("Error al imprimir la factura.");
+            }
+          };
+
+          if (shouldPrint) {
+            await printInvoice(response.data.transactionId);
           }
+
           setResetKey(resetKey + 1);
           return "Pago registrado correctamente";
         }),
       {
         loading: "Procesando el pago...",
-        success: (response: any) => {
-          return "Pago registrado correctamente";
-        },
+        success: "Pago registrado correctamente",
         error: (error) => {
           setPaymentData(initialPaymentData);
           console.error("Error al registrar el pago:", error);
-          return "Error al registrar el pago. Por favor, inténtalo de nuevo.";
+          return "Error al registrar el pago. Intenta de nuevo.";
         },
         finally: () => {
-          console.log(initialPaymentData);
-          setLoadingPayment(false); // Desactiva el indicador de carga
-          onCloseModalConfirmationDos(); // Cierra el modal de confirmación
+          setLoadingPayment(false);
+          onCloseModalConfirmationDos();
         },
       }
     );
   };
+
   return (
     <section
       className="flex flex-col lg:flex-row flex-grow flex-1 gap-1 justify-center items-center h-full w-full"
@@ -445,22 +407,23 @@ function ParkingPayment() {
                   size="sm"
                   onChange={(e) => {
                     const selectedPaymentMethod = namePaymentType.find(
-                      (item) => e.target.value == item.id
+                      (item) => String(item.id) === e.target.value
                     );
 
-                    console.log(selectedPaymentMethod);
-
-                    setPaymentMethod(
-                      selectedPaymentMethod?.namePaymentType || ""
+                    console.log(
+                      "Método de pago seleccionado:",
+                      selectedPaymentMethod
                     );
+
+                    if (selectedPaymentMethod) {
+                      setPaymentMethod(selectedPaymentMethod.namePaymentType);
+                    } else {
+                      setPaymentMethod("");
+                    }
                   }}
                 >
                   {namePaymentType.map((item) => (
-                    <SelectItem
-                      key={item.id}
-                      color="primary"
-                      value={item.namePaymentType}
-                    >
+                    <SelectItem key={item.id} value={String(item.id)}>
                       {item.namePaymentType}
                     </SelectItem>
                   ))}
@@ -498,7 +461,7 @@ function ParkingPayment() {
               console.log(state.payments);
               console.log(paymentData);
               if (!paymentMethod) {
-                toast.error("Porfavor, selecciona un medio de pago válido");
+                toast.error("Por favor, selecciona un medio de pago válido");
                 // TODO Modal de error para decir que se seleccione el tipo de pago
               } else if (moneyReceived < (paymentData.totalCost || 0)) {
                 toast.error(
@@ -509,10 +472,6 @@ function ParkingPayment() {
                 onOpenModalConfirmation();
               }
             }}
-            // onClick={() => {
-            // 	addItem(2);
-            // 	console.log(state.payments, state.total);
-            // }}
             isLoading={loadingPayment}
           >
             Realizar pago
@@ -539,7 +498,7 @@ function ParkingPayment() {
                 onCloseStatusModal();
               }}
             >
-              Okey
+              Cerrar
             </Button>
           </ModalBody>
         </ModalContent>

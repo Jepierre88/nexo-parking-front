@@ -168,7 +168,7 @@ export default function VisitanteQr() {
           </label>
           <Select
             className="w-1/2"
-            value={paymentData.selectedService?.id}
+            value={paymentData.selectedService?.id || services[0]?.id}
             variant="bordered"
             label="Seleccionar"
             radius="lg"

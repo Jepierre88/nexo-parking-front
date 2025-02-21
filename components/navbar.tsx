@@ -161,7 +161,7 @@ export const Navbar = () => {
 
   return (
     <NextUINavbar
-      className="flex flex-row justify-between items-center bg-primary rounded-md mb-8"
+      className="flex flex-row justify-between items-center bg-primary rounded-md mb-8 px-4"
       maxWidth="xl"
       position="sticky"
     >
@@ -172,7 +172,7 @@ export const Navbar = () => {
         {/* <Image alt="Logo" className="my-auto" height={65} src={COINSLOGO} /> */}
       </NavbarBrand>
 
-      <NavbarContent className="flex flex-row gap-4 justify-center">
+      <NavbarContent className="flex flex-row gap-4 justify-center ml-auto">
         {filteredNavbarOptions.map((option) => (
           <ul className="flex gap-5" key={option.key}>
             {option.items.length === 1 ? (
@@ -236,7 +236,7 @@ export const Navbar = () => {
         ))}
       </NavbarContent>
 
-      <ul className="flex  justify-end">
+      <ul className="flex  justify-end ml-auto">
         <Dropdown>
           <NavbarItem>
             <DropdownTrigger>
