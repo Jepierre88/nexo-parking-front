@@ -51,6 +51,7 @@ export interface PaymentData {
 	netTotal?: number;
 	totalCost?: number;
 	extraServices: any[];
+	customType: string;
 }
 
 export interface ValidationDetail {
@@ -76,4 +77,11 @@ export interface UserData {
   export interface LoginData{
 	password: string;
     email: string;
+  }
+
+  export interface data{
+	identificationType: string;
+	identificationCode: string;
+	plate: string;
+   customType: string;
   }

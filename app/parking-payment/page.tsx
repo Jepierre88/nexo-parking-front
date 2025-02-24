@@ -480,7 +480,13 @@ function ParkingPayment() {
       </CardPropierties>
       <Modal
         isOpen={isOpenStatusModal}
-        onOpenChange={onCloseStatusModal}
+        onOpenChange={(open) => {
+          if (!open) {
+            // Si se cierra el modal, limpia los datos
+            setPaymentData(initialPaymentData);
+            onCloseStatusModal();
+          }
+        }}
         size="lg"
       >
         <ModalContent>

@@ -6,12 +6,13 @@ import { Checkbox } from "@nextui-org/checkbox";
 
 import UseServices from "../../../app/hooks/parking-payment/UseServices";
 
-import { PaymentData } from "@/types";
+import { data, PaymentData } from "@/types";
 import { usePaymentContext } from "@/app/context/PaymentContext";
 import { initialPaymentData } from "@/app/libs/initialStates";
 import { toast } from "sonner";
 import { Autocomplete, AutocompleteItem } from "@nextui-org/react";
 import { animals } from "@/app/libs/data";
+import { custom } from "zod";
 
 export default function VisitanteQr() {
   const { state, dispatch, paymentData, setPaymentData } = usePaymentContext();
@@ -20,84 +21,38 @@ export default function VisitanteQr() {
   // CUANDO SE ESCRIBA EL QR SE REINICIAN LOS CAMPOS Y SE VALIDA EL AGENDAMIENTO
   useEffect(() => {
     if (paymentData.identificationCode.length >= 15 && !hasValidated) {
-      setPaymentData({
+      const newData = {
         ...initialPaymentData,
+        identificationType: paymentData.identificationType,
         identificationCode: paymentData.identificationCode,
-      });
+        plate: paymentData.plate,
+        customType: paymentData.customType,
+        vehicleKind: paymentData.vehicleKind,
+      };
+      setPaymentData(newData);
       dispatch({ type: "CLEAR_PAYMENTS" });
-      setHasValidated(true); // Marca como validado
-      searchDataValidate();
+      setHasValidated(true);
+      console.log("Datos que se enviarán:", newData);
+      searchDataValidate(newData);
     }
-  }, [paymentData.identificationCode, hasValidated]);
+  }, [
+    paymentData.identificationCode,
+    paymentData.plate,
+    paymentData.customType,
+    hasValidated,
+  ]);
 
   const { services } = UseServices("Visitante");
 
-  // CONSUMO VALIDATE
-  // const searchDataValidate = async () => {
-  // 	try {
-  // 		const response = await axios.post(
-  // 			`${process.env.NEXT_PUBLIC_LOCAL_APIURL}/access-control/visitor-service/validateNewPP`,
-  // 			{
-  // 				identificationType: "QR",
-  // 				identificationCode: paymentData.identificationCode,
-  // 				plate: paymentData.plate,
-  // 			}
-  // 		);
-
-  // 		// Procesar servicios recibidos del backend
-  // 		const updatedExtraServices =
-  // 			response.data.extraServices?.map((service: any) => ({
-  // 				code: service.code,
-  // 				name: service.name,
-  // 				quantity: service.quantity || 1,
-  // 				unitPrice: service.unitPrice,
-  // 				totalPrice:
-  // 					service.unitPrice *
-  // 					(service.quantity || 1) *
-  // 					(1 + service.iva / 100),
-  // 				iva: service.iva,
-  // 				ivaAmount:
-  // 					service.unitPrice * (service.quantity || 1) * (service.iva / 100),
-  // 				netTotal: service.unitPrice * (service.quantity || 1),
-  // 			})) || [];
-
-  // 		// Recalcular totales
-  // 		const recalculatedTotals = updatedExtraServices.reduce(
-  // 			(acc: any, service: any) => {
-  // 				acc.netTotalServices += service.netTotal;
-  // 				acc.totalServices += service.totalPrice;
-  // 				acc.totalIVA += service.ivaAmount;
-  // 				return acc;
-  // 			},
-  // 			{ netTotalServices: 0, totalServices: 0, totalIVA: 0 }
-  // 		);
-
-  // 		// Calcular total final, incluyendo totalParking
-  // 		const totalParking = response.data.total || 0; // Valor de totalParking proporcionado por el backend
-  // 		const totalCost = recalculatedTotals.totalServices + totalParking;
-
-  // 		// Actualizar paymentData
-  // 		setPaymentData({
-  // 			...response.data,
-  // 			extraServices: updatedExtraServices,
-  // 			netTotalServices: recalculatedTotals.netTotalServices,
-  // 			totalServices: recalculatedTotals.totalServices,
-  // 			totalParking, // Actualizamos totalParking directamente
-  // 			totalCost, // Incluye totalParking y servicios adicionales
-  // 		});
-  // 	} catch (error) {
-  // 		console.error("Error al validar el QR:", error);
-  // 	}
-  // };
-
-  const searchDataValidate = async () => {
+  const searchDataValidate = async (data: data) => {
     toast.promise(
       axios.post(
         `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/access-control/visitor-service/validateNewPP`,
         {
           identificationType: "QR",
-          identificationCode: paymentData.identificationCode,
-          plate: paymentData.plate,
+          identificationCode: data.identificationCode,
+          plate: data.plate,
+          customType: data.customType,
         }
       ),
       {
@@ -177,10 +132,15 @@ export default function VisitanteQr() {
               const service = services.find(
                 (item) => e.target.value == item.id
               );
-
+              if (!service) {
+                toast.error("Seleccione el tipo de visitante");
+                return;
+              }
+              console.log("Servicio seleccionado ", service);
               setPaymentData({
                 ...paymentData,
                 selectedService: service,
+                customType: service.name,
               });
             }}
           >
@@ -225,12 +185,13 @@ export default function VisitanteQr() {
             className="w-1/2"
             value={paymentData.plate}
             variant="bordered"
-            onChange={(e) =>
+            onChange={(e) => {
               setPaymentData({
                 ...paymentData,
-                plate: e.target.value.toUpperCase(),
-              })
-            }
+                plate: e.target.value,
+              });
+              setHasValidated(false);
+            }}
           />
         </div>
         <div className="flex flex-col place-items-end mb-1 my-2">
