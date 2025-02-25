@@ -14,32 +14,51 @@ import { Autocomplete, AutocompleteItem } from "@nextui-org/react";
 import { animals } from "@/app/libs/data";
 import { custom } from "zod";
 
+
 export default function VisitanteQr() {
   const { state, dispatch, paymentData, setPaymentData } = usePaymentContext();
-  const [hasValidated, setHasValidated] = useState(false); // Control de validación
+  const [hasValidated, setHasValidated] = useState(false);
+  const [debouncedIdentificationCode, setDebouncedIdentificationCode] = useState(paymentData.identificationCode);
 
-  // CUANDO SE ESCRIBA EL QR SE REINICIAN LOS CAMPOS Y SE VALIDA EL AGENDAMIENTO
+  const getCompanyId = (value: string) => {
+    if (!value.includes("http")) return value;
+    const url = new URL(value);
+    return url.searchParams.get("companyId") || "";
+  };
+
+  // Debounce: Espera 2 segundos después del último cambio antes de procesar el QR
   useEffect(() => {
-    if (paymentData.identificationCode.length >= 15 && !hasValidated) {
+    const handler = setTimeout(() => {
+      const companyId = getCompanyId(paymentData.identificationCode);
+      setDebouncedIdentificationCode(companyId);
+    }, 500);
+
+    return () => clearTimeout(handler);
+  }, [paymentData.identificationCode]);
+
+  // Validación después del debounce
+  //? EL debounce es un hook que permite realizar una peticion despues de un tiempo de espera 
+  //? para evitar que se realicen demasiadas peticiones al servidor
+  useEffect(() => {
+    if (debouncedIdentificationCode.length >= 15 && !hasValidated) {
       const newData = {
         ...initialPaymentData,
         identificationType: paymentData.identificationType,
-        identificationCode: paymentData.identificationCode,
+        identificationCode: debouncedIdentificationCode, // Usar el valor procesado
         plate: paymentData.plate,
         customType: paymentData.customType,
         vehicleKind: paymentData.vehicleKind,
       };
+
       setPaymentData(newData);
       dispatch({ type: "CLEAR_PAYMENTS" });
       setHasValidated(true);
       console.log("Datos que se enviarán:", newData);
-      searchDataValidate(newData);
+
+      searchDataValidate(newData); // Solo se ejecuta después del debounce
     }
-  }, [
-    paymentData.identificationCode,
-    paymentData.plate,
-    paymentData.customType,
-    hasValidated,
+  }, [debouncedIdentificationCode, hasValidated,
+    paymentData.customType, paymentData.plate
   ]);
 
   const { services } = UseServices("Visitante");
@@ -159,7 +178,7 @@ export default function VisitanteQr() {
           >
             QR
           </label>
-          <Input
+          {/* <Input
             className="w-1/2"
             variant="bordered"
             required
@@ -172,7 +191,41 @@ export default function VisitanteQr() {
               });
               setHasValidated(false); // Permitir nueva validación si cambia el QR
             }}
+          /> */}
+          <Input
+            className="w-1/2"
+            variant="bordered"
+            required
+            value={paymentData.identificationCode}
+            onChange={(e) => {
+              const value = e.target.value;
+
+              if (!value) {
+                // Si el usuario borra el QR, limpiar completamente el estado
+                setPaymentData({
+                  ...paymentData,
+                  identificationCode: "",
+                  validationDetail: null,
+                  extraServices: [],
+                  netTotalServices: 0,
+                  totalServices: 0,
+                  totalParking: 0,
+                  totalCost: 0,
+                });
+                setDebouncedIdentificationCode(""); // Evita que el useEffect vuelva a escribirlo
+                setHasValidated(false); // Permitir nueva validación
+              } else {
+                // Si el usuario está escribiendo, actualizar normalmente
+                setPaymentData({
+                  ...paymentData,
+                  identificationCode: value,
+                });
+                setHasValidated(false);
+              }
+            }}
           />
+
+
         </div>
         <div className="flex gap-4 justify-between">
           <label
@@ -185,6 +238,7 @@ export default function VisitanteQr() {
             className="w-1/2"
             value={paymentData.plate}
             variant="bordered"
+            isDisabled
             onChange={(e) => {
               setPaymentData({
                 ...paymentData,
