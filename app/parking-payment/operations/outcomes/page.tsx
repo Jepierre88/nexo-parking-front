@@ -20,29 +20,14 @@ import {
 } from "@internationalized/date";
 import { DatePicker, DateRangePicker, Input } from "@nextui-org/react";
 import withPermission from "@/app/withPermission";
+import UseOutcomes from "@/app/hooks/outcomes/UseOutcomes";
 
 function Outcomes() {
-  const { incomes, getIncomes } = UseIncomes();
+  const { outComes, getOutComes } = UseOutcomes();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
 
   const [loading, setLoading] = useState(false);
 
-  let [startDatetime, setStartDatetime] = useState<DateValue>(
-    parseAbsoluteToLocal(
-      new Date(
-        new Date().getFullYear(),
-        new Date().getMonth(),
-        new Date().getDate() - 1, // Resta un día
-        0, // Hora
-        0, // Minuto
-        0, // Segundo
-        0 // Milisegundo
-      ).toISOString()
-    )
-  );
-  let [endDatetime, setEndDatetime] = useState<DateValue>(
-    parseAbsoluteToLocal(new Date().toISOString())
-  );
   const [dateRange, setDateRange] = useState<any>({
     start: parseAbsoluteToLocal(
       new Date(
@@ -69,7 +54,7 @@ function Outcomes() {
   const handleFilter = () => {
     setLoading(true);
 
-    getIncomes(
+    getOutComes(
       dateRange.start.toDate(getLocalTimeZone()),
       dateRange.end.toDate(getLocalTimeZone())
     ).finally(() => {
@@ -140,26 +125,6 @@ function Outcomes() {
             value={dateRange}
             onChange={handleDateRangeChange}
           />
-          {/* <DatePicker
-						lang="es-ES"
-						hideTimeZone
-						showMonthAndYearPickers
-						className="text-sm"
-						label={"Desde"}
-						size="md"
-						value={startDatetime}
-						onChange={setStartDatetime}
-					/>
-					<DatePicker
-						lang="es-ES"
-						hideTimeZone
-						showMonthAndYearPickers
-						className="text-sm"
-						label={"Hasta"}
-						size="md"
-						value={endDatetime}
-						onChange={setEndDatetime}
-					/> */}
           <Input
             label={"Placa"}
             maxLength={6}
@@ -179,7 +144,7 @@ function Outcomes() {
           </Button>
         </div>
       </div>
-      <CustomDataGrid columns={columns} rows={incomes} loading={loading} />
+      <CustomDataGrid columns={columns} rows={outComes} loading={loading} />
       <Modal
         aria-describedby="user-modal-description"
         aria-labelledby="user-modal-title"

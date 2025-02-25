@@ -189,10 +189,16 @@ const enterExit = () => {
 
       setPlacaIn("");
     } catch (error) {
-      toast.error("Error al registrar el vehículo.", {
-        id: loadingToastId,
-      });
       console.error("Error registrando el vehículo:", error);
+      let errorMsg = "Error al registrar el vehículo.";
+      if (axios.isAxiosError(error) && error.response) {
+        errorMsg =
+          error.response.data?.error?.message ||
+          error.response.data?.message ||
+          errorMsg;
+      }
+      toast.error(errorMsg, { id: loadingToastId });
+      setPlacaIn("");
     } finally {
       setIsLoading(false);
     }
