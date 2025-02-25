@@ -33,6 +33,7 @@ export default function VisitanteQr() {
       setDebouncedIdentificationCode(companyId);
     }, 500);
 
+
     return () => clearTimeout(handler);
   }, [paymentData.identificationCode]);
 
@@ -40,6 +41,10 @@ export default function VisitanteQr() {
   //? EL debounce es un hook que permite realizar una peticion despues de un tiempo de espera 
   //? para evitar que se realicen demasiadas peticiones al servidor
   useEffect(() => {
+    setPaymentData({
+      ...paymentData,
+      identificationCode: debouncedIdentificationCode,
+    });
     if (debouncedIdentificationCode.length >= 15 && !hasValidated) {
       const newData = {
         ...initialPaymentData,
