@@ -8,7 +8,10 @@ export interface Email {
 	email: string;
 }
 
-export interface IngresoSalida {
+export interface IdentificationCode {
+	identificationCode:string;
+}
+export interface enterExit {
 	identificationType: "QR";
 	plate: string;
 	vehicleKind: "CARRO" | "MOTO";
@@ -48,6 +51,7 @@ export interface PaymentData {
 	netTotal?: number;
 	totalCost?: number;
 	extraServices: any[];
+	customType: string;
 }
 
 export interface ValidationDetail {
@@ -58,3 +62,26 @@ export interface ValidationDetail {
 	paidDatetime: string;
 	expectedOutcomeDatetime: string;
 }
+
+export interface UserData {
+    username: string;
+    password: string;
+    email: string;
+    name: string;
+    lastName: string;
+    cellPhoneNumber: string;
+    realm: string;
+	confirmPassword: string;
+  }
+
+  export interface LoginData{
+	password: string;
+    email: string;
+  }
+
+  export interface data{
+	identificationType: string;
+	identificationCode: string;
+	plate: string;
+   customType: string;
+  }

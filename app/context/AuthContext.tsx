@@ -1,93 +1,113 @@
 "use client";
-import { createContext, useContext, useEffect, useRef, useState } from "react";
+import User from "@/types/User";
+import { usePathname, useRouter } from "next/navigation";
+import { createContext, useContext, useEffect, useState } from "react";
 import Cookies from "js-cookie";
-import axios, { AxiosError } from "axios";
-import { redirect } from "next/navigation";
-import { UseNavigateContext } from "./NavigateContext";
 
 const AuthContext = createContext<any | undefined>(undefined);
 
 export const UseAuthContext = () => {
-	const context = useContext(AuthContext);
-
-	if (!context) {
-		throw new Error("AuthContext must be used within an AuthProvider");
-	}
-
-	return context;
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error("AuthContext must be used within an AuthProvider");
+  }
+  return context;
 };
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-	const [isAuthenticated, setIsAuthenticated] = useState(false);
-	const { router } = UseNavigateContext();
-	const [user, setUser] = useState<
-		{ name: string; lastName: string; realm: string } | undefined
-	>({
-		name: "",
-		lastName: "",
-		realm: "",
-	});
+  const [token, setToken] = useState<string | null>(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
 
-	useEffect(() => {
-		const validateToken = () => {
-			const token = Cookies.get("authToken");
-			console.log(token);
-			if (!token) {
-				router.push("/auth/login");
-			} else {
-				return;
-			}
-		};
-		validateToken();
-	}, [router.asPath]);
+  const pathname = usePathname();
+  const router = useRouter();
 
-	const signIn = async (email: string, password: string) => {
-		try {
-			const response = await axios.post(
-				`${process.env.NEXT_PUBLIC_LOCAL_APIURL}/users/login`,
-				{
-					email: email,
-					password: password,
-				}
-			);
-			if (response.data.token) {
-				// Actualizar el contexto de autenticación
-				setUser({
-					name: response.data.name,
-					lastName: response.data.lastName,
-					realm: response.data.realm,
-				});
-				setIsAuthenticated(true);
+  // Guardar la última ruta visitada en localStorage
+  useEffect(() => {
+    localStorage.setItem("last_path", pathname);
+  }, [pathname]);
 
-				// Guardar el token en cookies
-				Cookies.set("authToken", response.data.token, {
-					expires: 0.125, // Expira en 7 días
-					secure: process.env.NODE_ENV === "production", // Solo HTTPS en producción
-					sameSite: "strict", // Política de seguridad
-					path: "/", // Disponible en toda la app
-				});
-			} else {
-				throw new Error("Token no recibido");
-			}
-		} catch (error: any) {
-			console.error("Error en inicio de sesión:", error);
-			setIsAuthenticated(false);
-			Cookies.remove("authToken");
-			throw error; // Permitir que el componente maneje el error
-		}
-	};
+  useEffect(() => {
+    try {
+      const storedToken = Cookies.get("auth_token");
+      const storedUser = Cookies.get("user");
 
-	return (
-		<AuthContext.Provider
-			value={{
-				isAuthenticated: isAuthenticated, // Replace with actual authentication logic
-				user: user,
-				setUser,
-				setIsAuthenticated,
-				signIn,
-			}}
-		>
-			{children}
-		</AuthContext.Provider>
-	);
+      if (storedToken) {
+        setToken(storedToken);
+        setIsAuthenticated(true);
+      }
+
+      if (storedUser) {
+        try {
+          const parsedUser = JSON.parse(storedUser);
+          if (parsedUser && typeof parsedUser === "object" && parsedUser.name) {
+            setUser(parsedUser);
+          } else {
+            console.warn("Usuario en cookies no válido, eliminando...");
+            Cookies.remove("user");
+            setUser(null);
+          }
+        } catch (error) {
+          console.error("Error al parsear user desde Cookies:", error);
+          Cookies.remove("user");
+          setUser(null);
+        }
+      }
+    } catch (error) {
+      console.error("Error al cargar datos de autenticación:", error);
+      Cookies.remove("user");
+      setUser(null);
+    }
+  }, []);
+
+  // Restaurar última ruta visitada tras la autenticación
+  useEffect(() => {
+    if (isAuthenticated) {
+      const lastPath = localStorage.getItem("last_path") || "/parking-payment";
+      router.replace(lastPath);
+    }
+  }, [isAuthenticated, router]);
+
+  useEffect(() => {
+    if (token) {
+      Cookies.set("auth_token", token, { expires: 1, secure: false });
+    } else {
+      Cookies.remove("auth_token");
+    }
+
+    if (user && user.name) {
+      try {
+        Cookies.set("user", JSON.stringify(user), { expires: 1, secure: false });
+      } catch (error) {
+        console.error("Error al guardar user en Cookies:", error);
+      }
+    } else {
+      Cookies.remove("user");
+    }
+  }, [token, user]);
+
+  const logout = () => {
+    setToken(null);
+    setUser(null);
+    setIsAuthenticated(false);
+    Cookies.remove("auth_token");
+    Cookies.remove("user");
+    router.push("/auth/login"); // Redirigir al login tras cerrar sesión
+  };
+
+  return (
+    <AuthContext.Provider
+      value={{
+        isAuthenticated,
+        token,
+        user,
+        setUser,
+        setToken,
+        setIsAuthenticated,
+        logout,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 };

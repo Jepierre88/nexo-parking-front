@@ -21,10 +21,12 @@ module.exports = {
       light:{
         colors: {
           primary: {DEFAULT:'#2196F3', foreground:"#FFF"},
+
+
           primaryText: '#FFF',
           primaryHover: '#FFF',
           primaryActive: '#0D47A1',
-          secondary: '#673AB7',
+          secondary: '#FF8533',
           tertiary: '#F44336',
           quaternary: '#FF9800',
           quinary: '#009688',

@@ -13,7 +13,7 @@ export default function UseServices(type: string) {
           params: {
             serviceType: type,
           },
-        },
+        }
       );
 
       setServices(response.data);

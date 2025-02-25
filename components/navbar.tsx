@@ -1,182 +1,276 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
-	Navbar as NextUINavbar,
-	NavbarContent,
-	NavbarBrand,
-	NavbarItem,
+  Navbar as NextUINavbar,
+  NavbarContent,
+  NavbarBrand,
+  NavbarItem,
 } from "@nextui-org/navbar";
-import Image from "next/image";
 import {
-	Dropdown,
-	DropdownItem,
-	DropdownMenu,
-	DropdownTrigger,
+  Dropdown,
+  DropdownItem,
+  DropdownMenu,
+  DropdownTrigger,
 } from "@nextui-org/dropdown";
 import { Button } from "@nextui-org/button";
-
-import { ChevronDown } from "@/components/icons";
-import COINSLOGO from "@/public/LOGO.png";
-import Loading from "@/app/loading";
 import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
+import { UseAuthContext } from "@/app/context/AuthContext";
+import { Arrow, Data, Money, User, Key } from "./icons";
+import { usePathname } from "next/navigation";
 
 export const Navbar = () => {
-	const icons = {
-		chevron: <ChevronDown fill="currentColor" size={16} />,
-	};
+  const [loading, setLoading] = useState(false);
+  const [permissions, setPermissions] = useState<number[]>([]);
+  const [userName, setUserName] = useState<string | null>(null);
+  const router = useRouter();
+  const { user } = UseAuthContext();
+  const pathname = usePathname();
 
-	const [loading, setLoading] = useState(false);
+  // Leer permisos desde cookies al cargar el componente
+  useEffect(() => {
+    const storedPermissions = Cookies.get("permissions");
+    if (storedPermissions) {
+      try {
+        setPermissions(JSON.parse(storedPermissions));
+      } catch (error) {
+        console.error("Error parsing permissions:", error);
+        setPermissions([]);
+      }
+    }
+    const storedUserName = Cookies.get("userName");
+    if (storedUserName) {
+      setUserName(storedUserName);
+    }
+  }, []);
 
-	const cerrarSesion = () => {
-		setLoading(true);
+  // Verificar si el usuario tiene un permiso específico
+  const hasPermission = (permissionId: number): boolean =>
+    permissions.includes(permissionId);
 
-		Cookies.remove("authToken");
+  const navbarOptions = [
+    {
+      label: (
+        <>
+          <Money size={20} /> Pagar
+        </>
+      ),
+      key: 1,
+      items: [
+        {
+          label: "Procesos De Pago",
+          key: 4,
+          href: "/parking-payment",
+          permission: 4,
+        },
+      ],
+      //Se crea esta propiedad aca
+      background: "bg-secondary bg-opacity-80",
+    },
+    {
+      label: (
+        <>
+          <Arrow size={20} /> Ingreso y salida de vehículos
+        </>
+      ),
 
-		window.location.href = "/auth/login";
-	};
+      key: 3,
+      items: [
+        {
+          label: "Ingreso Manual Por Placa",
+          key: 7,
+          href: "/parking-payment/ingresoSalida",
+          permission: 7,
+        },
+      ],
+    },
+    {
+      label: (
+        <>
+          <Data size={20} /> Informes
+        </>
+      ),
+      key: 2,
+      items: [
+        {
+          label: "Ingresos",
+          key: 2,
+          href: "/parking-payment/operations/incomes",
+          permission: 2,
+        },
+        {
+          label: "Salidas",
+          key: 3,
+          href: "/parking-payment/operations/outcomes",
+          permission: 3,
+        },
+        {
+          label: "Transacciones",
+          key: 5,
+          href: "/parking-payment/operations/transactions",
+          permission: 5,
+        },
+        {
+          label: "Realizar Cierres",
+          key: 6,
+          href: "/parking-payment/operations/parkingClosure",
+          permission: 6,
+        },
+      ],
+    },
 
-	return (
-		<>
-			{loading && <Loading />}
-			<NextUINavbar
-				className="flex flex-col  gap-1 justify-center items-center"
-				maxWidth="xl"
-				position="sticky"
-			>
-				<NavbarContent
-					className="flex flex-col lg:flex-row gap-4"
-					justify="start"
-				>
-					{/* <NavbarBrand as="li" className="gap-3 max-w-fit">
-					<Image src={LOGO} alt="..." width={250} />
-				</NavbarBrand> */}
-					<div className="flex gap-4 flex-grow justify-end">
-						<ul className="flex lg:flex gap-4 justify-start ml-2">
-							<Dropdown>
-								<NavbarItem>
-									<DropdownTrigger>
-										<Button
-											disableRipple
-											className="p-0 bg-transparent data-[hover=true]:bg-transparent"
-											endContent={icons.chevron} // No pasar íconos como objetos
-											radius="sm"
-											variant="light"
-										>
-											ADMINISTRACIÓN
-										</Button>
-									</DropdownTrigger>
-								</NavbarItem>
-								<DropdownMenu
-									aria-label="Operaciones"
-									className="w-full p-0 -mx-0"
-								>
-									<DropdownItem key="users" href="/parking-payment/users">
-										Usuarios
-									</DropdownItem>
-								</DropdownMenu>
-							</Dropdown>
-						</ul>
-						<ul className="flex gap-4 justify-start ml-2">
-							<Dropdown>
-								<NavbarItem>
-									<DropdownTrigger>
-										<Button
-											disableRipple
-											className="p-0 bg-transparent data-[hover=true]:bg-transparent"
-											endContent={icons.chevron} // No pasar íconos como objetos
-											radius="sm"
-											variant="light"
-										>
-											OPERACIÓN
-										</Button>
-									</DropdownTrigger>
-								</NavbarItem>
-								<DropdownMenu
-									aria-label="Operaciones"
-									className="w-full p-0 -mx-0"
-								>
-									<DropdownItem
-										key="incomes"
-										href="/parking-payment/operations/incomes"
-									>
-										INGRESOS
-									</DropdownItem>
-									<DropdownItem
-										key="outcomes"
-										href="/parking-payment/operations/outcomes"
-									>
-										SALIDAS
-									</DropdownItem>
-									<DropdownItem key="payment-process" href="/parking-payment">
-										PROCESOS DE PAGO
-									</DropdownItem>
-									<DropdownItem
-										key="transactions"
-										href="/parking-payment/operations/transactions"
-									>
-										TRANSACCIONES
-									</DropdownItem>
-									<DropdownItem
-										key="parking-closure"
-										href="/parking-payment/operations/parking-closure"
-									>
-										REALIZAR CIERRE
-									</DropdownItem>
-								</DropdownMenu>
-							</Dropdown>
-						</ul>
+    {
+      label: (
+        <>
+          <Key size={20} /> Administrador
+        </>
+      ),
+      key: 1,
+      items: [
+        {
+          label: "Usuarios",
+          key: 1,
+          href: "/parking-payment/users",
+          permission: 1,
+        },
+      ],
+    },
+  ];
 
-						<ul className="flex gap-4 justify-start ml-2">
-							<Dropdown>
-								<NavbarItem>
-									<DropdownTrigger>
-										<Button
-											disableRipple
-											className="p-0 bg-transparent data-[hover=true]:bg-transparent"
-											endContent={icons.chevron} // No pasar íconos como objetos
-											radius="sm"
-											variant="light"
-										>
-											INGRESO POR PLACA
-										</Button>
-									</DropdownTrigger>
-								</NavbarItem>
-								<DropdownMenu
-									aria-label="Operaciones"
-									className="w-full p-0 -mx-0"
-								>
-									<DropdownItem
-										key="delete"
-										href={"/parking-payment/ingresoSalida"}
-									>
-										INGRESO MANUAL DE PLACA
-									</DropdownItem>
-								</DropdownMenu>
-							</Dropdown>
-						</ul>
+  // Filtrar opciones de menú según los permisos del usuario
+  const filteredNavbarOptions = navbarOptions
+    .map((option) => {
+      const visibleItems = option.items.filter((item) =>
+        hasPermission(item.permission)
+      );
+      return visibleItems.length > 0
+        ? { ...option, items: visibleItems }
+        : null;
+    })
+    .filter((option): option is NonNullable<typeof option> => option !== null);
 
-						<ul className="flex gap-4 justify-start ml-2">
-							<Button
-								disableRipple
-								className="p-0 bg-transparent data-[hover=true]:bg-transparent"
-								radius="sm"
-								variant="light"
-								onPress={cerrarSesion}
-							>
-								CERRAR SESIÓN
-							</Button>
-						</ul>
-					</div>
-				</NavbarContent>
-				<NavbarContent className="" justify="end">
-					<NavbarBrand
-						as="li"
-						className="gap-3 my-auto self-end max-w-md flex justify-end"
-					>
-						<Image alt="..." className="my-auto" height={65} src={COINSLOGO} />
-					</NavbarBrand>
-				</NavbarContent>
-			</NextUINavbar>
-		</>
-	);
+  const cerrarSesion = () => {
+    setLoading(true);
+    Cookies.remove("auth_token");
+    Cookies.remove("permissions");
+    Cookies.remove("userName");
+    localStorage.removeItem("token");
+    localStorage.clear();
+    router.replace("/auth/login");
+  };
+
+  return (
+    <NextUINavbar
+      className="flex flex-row justify-between items-center bg-primary rounded-md mb-8 px-4"
+      maxWidth="xl"
+      position="sticky"
+    >
+      <NavbarBrand
+        as="li"
+        className="gap-3 my-auto self-start max-w-md flex justify-start"
+      >
+        {/* <Image alt="Logo" className="my-auto" height={65} src={COINSLOGO} /> */}
+      </NavbarBrand>
+
+      <NavbarContent className="flex flex-row gap-4 justify-center ml-auto">
+        {filteredNavbarOptions.map((option) => (
+          <ul className="flex gap-5" key={option.key}>
+            {option.items.length === 1 ? (
+              <NavbarItem>
+                <Button
+                  onClick={() => router.push(option.items[0].href)}
+                  className={`px-4 bg-transparent text-white  ${
+                    pathname === option.items[0].href
+                      ? `${option.background ? option.background : "bg-white"}  bg-opacity-20  rounded-md`
+                      : ""
+
+                    //Llamamos a la propiedad
+                  } ${option.background ? option.background : ""}
+                  ${option.background?.includes("bg-secondary") ? "button-secondary" : "hover:bg-white  hover:bg-opacity-20"}`}
+                  radius="md"
+                  variant="light"
+                >
+                  {option.label}
+                </Button>
+              </NavbarItem>
+            ) : (
+              <Dropdown>
+                <NavbarItem>
+                  <DropdownTrigger>
+                    <Button
+                      disableRipple
+                      className={`px-4 bg-transparent text-white  ${
+                        option.items.some((item) =>
+                          pathname.startsWith(item.href)
+                        )
+                          ? "bg-white bg-opacity-20 rounded-md"
+                          : ""
+                      }`}
+                      radius="sm"
+                      variant="light"
+                    >
+                      {option.label}
+                    </Button>
+                  </DropdownTrigger>
+                </NavbarItem>
+                <DropdownMenu
+                  aria-label={
+                    typeof option.label === "string"
+                      ? option.label
+                      : "Menú de opciones"
+                  }
+                >
+                  {option.items.map((item) => (
+                    <DropdownItem
+                      key={item.key}
+                      onClick={() => router.push(item.href)}
+                      className="px-3 py-1 text-sm cursor-pointer "
+                    >
+                      {item.label}
+                    </DropdownItem>
+                  ))}
+                </DropdownMenu>
+              </Dropdown>
+            )}
+          </ul>
+        ))}
+      </NavbarContent>
+
+      <ul className="flex  justify-end ml-auto">
+        <Dropdown>
+          <NavbarItem>
+            <DropdownTrigger>
+              <Button
+                disableRipple
+                className={`px-4 bg-transparent text-white transition-all ${
+                  pathname.startsWith("/parking-payment/profile")
+                    ? "bg-white bg-opacity-20 rounded-md"
+                    : ""
+                } hover:bg-white hover:bg-opacity-20`}
+                radius="sm"
+                variant="light"
+              >
+                <User></User>
+                {user ? <p>Hola, {user.name}</p> : <p>Cargando usuario...</p>}
+              </Button>
+            </DropdownTrigger>
+          </NavbarItem>
+          <DropdownMenu
+            aria-label="Usuario"
+            className="w-full p-0 -m-0 border-none "
+          >
+            <DropdownItem
+              key="perfil"
+              onClick={() => router.push("/parking-payment/profile")}
+            >
+              Perfil
+            </DropdownItem>
+            <DropdownItem key="cerrarSesion" onClick={cerrarSesion}>
+              Cerrar Sesión
+            </DropdownItem>
+          </DropdownMenu>
+        </Dropdown>
+      </ul>
+    </NextUINavbar>
+  );
 };

@@ -3,6 +3,8 @@ import axios from "axios";
 
 import Invoice from "@/types/Invoice";
 import Income from "@/types/Income";
+import { Description, Payment } from "@mui/icons-material";
+import Closure from "@/types/Closure";
 const DEFAULT_PLUGIN_URL = "http://localhost:8080";
 
 class Operation {
@@ -13,6 +15,7 @@ class Operation {
 		this.datos = datos;
 	}
 }
+
 
 export class Connector {
 	nombre_impresora: string;
@@ -45,7 +48,22 @@ export class Connector {
 		});
 	}
 
+
 	async imprimirFacturaTransaccion(factura: Invoice): Promise<void> {
+		const addPadding = (text: string, totalWidth: number, padding: number = 2) => {
+			const spaces = " ".repeat(padding); 
+			const contentWidth = totalWidth - 2 * padding;
+			const truncatedText = text.slice(0, contentWidth); 
+			return `${spaces}${truncatedText}${spaces}`;
+		};
+		
+		
+		const totalWidth = 40; 
+		const padding = 4; 
+		this.operaciones.push({
+			accion: "text",
+			datos: "\n",
+		  });
 		// Encabezado de la factura
 		this.operaciones.push({ accion: "textalign", datos: "center" });
 		this.operaciones.push({ accion: "text", datos: factura.empresa });
@@ -53,12 +71,22 @@ export class Connector {
 		this.operaciones.push({ accion: "text", datos: factura.direccion });
 		this.operaciones.push({
 			accion: "text",
-			datos: "---------------------------",
+			datos: addPadding("----------------------------------------",totalWidth, padding) 
 		});
+		this.operaciones.push({
+			accion: "text",
+			datos: "\n",
+		  });
 
 		// Información del encabezado
-		this.operaciones.push({ accion: "textalign", datos: "left" });
-		this.operaciones.push({ accion: "bold", datos: "on" });
+		this.operaciones.push({ 
+			accion: "textalign", 
+			datos: "left" 
+		});
+		this.operaciones.push({ 
+			accion: "bold", 
+			datos: "on" 
+		});
 		this.operaciones.push({
 			accion: "text",
 			datos: `FACTURA ELECTRONICA DE VENTA: ${factura.header.FACTURA_ELECTRONICA_DE_VENTA.toString()}`,
@@ -113,37 +141,101 @@ export class Connector {
 
 		this.operaciones.push({
 			accion: "text",
-			datos: "---------------------------",
+			datos: "----------------------------------------",
 		});
+		this.operaciones.push({
+			accion: "text",
+			datos: "\n",
+		  });
 
 		let auxDesc: any[] = [];
-		let auxTotalDesc: any[] = [];
 
 		factura.description.forEach((element) => {
 			auxDesc.push({
-				description: element.DESCRIPCION,
+				description: ` ${element.DESCRIPCION}`,
 				price: element.VALOR,
 				quantity: element.CANTIDAD,
 			});
 		});
-		factura.descriptionTotal.forEach((element) => {
-			auxDesc.push({
-				...element,
-			});
-		});
+
+		
 		this.operaciones.push({
 			accion: "table",
 			datos: JSON.stringify(auxDesc),
 		});
-		this.operaciones.push({
-			accion: "table",
-			datos: JSON.stringify(auxTotalDesc),
-		});
+
+		
+
+		factura.descriptionTotal.forEach((totalData) => {
+			const createAlignedText = (
+				label: string,
+				value: any,
+				totalWidth: number,
+				maxLabelWidth: number
+			  ) => {
+				const valueString = value.toString();
+  
+				// Asegura que todos los labels tengan la misma longitud para alinear los ':'
+				const paddedLabel = label.padEnd(maxLabelWidth, " ");
+				
+				// Calcula el espacio restante para centrar el texto completo (label + value)
+				const text = `${paddedLabel}${valueString}`;
+				const leftPadding = Math.max(0, Math.floor((totalWidth - text.length) / 2));
+				const spacesLeft = " ".repeat(leftPadding);
+			  
+				return `${spacesLeft}${text}`; 
+			  };
+
+			  const lineWidth = 40;
+			  const colonPosition = 20; 
+			  
+			  this.operaciones.push({
+				accion: "text",
+				datos: "\n\n",
+			  });
+			  
+            this.operaciones.push({
+              accion: "text",
+              datos: createAlignedText("Cantidad Total:", totalData.CANTIDAD_TOTAL || 0, lineWidth, colonPosition),
+            });
+            this.operaciones.push({
+              accion: "text",
+              datos: createAlignedText("Base:", totalData.BASE || 0, lineWidth, colonPosition)
+            });
+            this.operaciones.push({
+              accion: "text",
+              datos: createAlignedText("Descuento:", totalData.DESCUENTO || 0, lineWidth, colonPosition)
+            });
+            this.operaciones.push({
+              accion: "text",
+              datos:  createAlignedText("Subtotal:", totalData.SUBTOTAL || 0, lineWidth, colonPosition)
+            });
+            this.operaciones.push({
+              accion: "text",
+              datos: createAlignedText("IVA 19%:", totalData.IVA_19 || 0, lineWidth, colonPosition)
+            });
+            this.operaciones.push({
+              accion: "text",
+              datos: createAlignedText("Total:", totalData.TOTAL || 0, lineWidth, colonPosition)
+            });
+            this.operaciones.push({
+              accion: "text",
+              datos: createAlignedText("Recibido: ", totalData.RECIBIDO || 0, lineWidth, colonPosition)
+            });
+            this.operaciones.push({
+              accion: "text",
+              datos: createAlignedText("Cambio:",totalData.CAMBIO || 0, lineWidth, colonPosition)
+            });
+	
 		this.operaciones.push({
 			accion: "text",
-			datos: "---------------------------",
+			datos: "----------------------------------------",
 		});
-
+	});
+	this.operaciones.push({
+		accion: "text",
+		datos: "\n\n",
+	  });
 		// CUFE y resolución
 		if (factura.infoCufe.CUFE) {
 			const urlDian = `https://catalogo-vpfe.dian.gov.co/document/searchqr?documentkey=${factura.infoCufe.CUFE}`;
@@ -171,7 +263,10 @@ export class Connector {
 		});
 		this.operaciones.push({ accion: "text", datos: "\n" });
 		this.operaciones.push({ accion: "text", datos: factura.infoPolice });
-
+		this.operaciones.push({
+			accion: "text",
+			datos: "\n\n",
+		  });
 		// Llamar al backend
 		return this.imprimir(); // Devuelve la promesa generada por imprimir
 	}
@@ -199,6 +294,33 @@ export class Connector {
 		this.operaciones.push({
 			accion: `qr`,
 			datos: `${ingreso.identificationId}`,
+		});
+		await this.imprimir();
+	}
+
+	async imprimirCierre(cierre: Closure) {
+		const fechaCierre = new Date(cierre.datetime);
+		//Encabezado
+		this.operaciones.push({
+			accion: "textalign",
+			datos: "center",
+		});
+		this.operaciones.push({
+			accion: "text",
+			datos: `Fecha de ingreso: ${fechaCierre.toLocaleString()}`,
+		});
+		this.operaciones.push({
+			accion: "text",
+			datos: `id: ${cierre.id}`,
+		});
+		this.operaciones.push({
+			accion: "text",
+			datos: `Consecutivo inicial: ${cierre.initialConsecutive}`,
+		});
+		//QR
+		this.operaciones.push({
+			accion: `text`,
+			datos: `Consecutivo final: ${cierre.finalConsecutive}`,
 		});
 		await this.imprimir();
 	}

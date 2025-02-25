@@ -46,3 +46,37 @@ body {
 .dropdown-link {
 	@apply block w-full px-4 py-2 text-left text-sm font-medium text-gray-700 hover:text-white hover:bg-primary-500 focus:outline-none focus:bg-primary-600 focus:text-white rounded-md transition;
 }
+
+.separator {
+	border: 0;
+	height: 2px;
+	background-color: #33baff;
+  	
+}
+
+.logo{
+	width: 200px;
+	height: auto;
+	display: inline-block;
+	background-size: contain;
+	background-repeat: no-repeat;
+	background-position: center;
+}
+
+@media (prefers-color-scheme: dark) {
+	.logo {
+	  content: url('/new-ppa/public/logo-dark.png');
+	}
+  }
+  
+  @media (prefers-color-scheme: light) {
+	.logo {
+	  content: url('/new-ppa/public/logo-light.png');
+	}
+  }
+
+  .button-secondary:hover {
+	background-color: #ff9f43 !important; /* Un naranja más claro */
+	opacity: 0.8 !important;
+  }
+  

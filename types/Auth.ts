@@ -6,4 +6,5 @@ export default interface Signup {
 	name: string;
 	realm: string;
 	username: string;
+	permissions:[];
 }
