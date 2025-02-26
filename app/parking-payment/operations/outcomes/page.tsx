@@ -1,5 +1,5 @@
 "use client";
-import React, { useState } from "react";
+import React, { useMemo, useState } from "react";
 import { Button } from "@nextui-org/button";
 import { GridColDef } from "@mui/x-data-grid";
 import {
@@ -106,7 +106,14 @@ function Outcomes() {
       align: "center",
     },
   ];
-
+  const sortedOutcomes = useMemo(() => {
+    return outComes
+      .slice()
+      .sort(
+        (a, b) =>
+          new Date(b.datetime).getTime() - new Date(a.datetime).getTime()
+      );
+  }, [outComes]);
   return (
     <section className="h-full">
       <div className="flex justify-between items-center flex-col xl:flex-row overflow-hidden">
@@ -144,7 +151,11 @@ function Outcomes() {
           </Button>
         </div>
       </div>
-      <CustomDataGrid columns={columns} rows={outComes} loading={loading} />
+      <CustomDataGrid
+        columns={columns}
+        rows={sortedOutcomes}
+        loading={loading}
+      />
       <Modal
         aria-describedby="user-modal-description"
         aria-labelledby="user-modal-title"

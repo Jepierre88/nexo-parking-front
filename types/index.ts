@@ -8,6 +8,9 @@ export interface Email {
 	email: string;
 }
 
+export interface Plate {
+	plate: string;
+}
 export interface IdentificationCode {
 	identificationCode:string;
 }
@@ -52,6 +55,7 @@ export interface PaymentData {
 	totalCost?: number;
 	extraServices: any[];
 	customType: string;
+	selectedServiceChanged?: boolean; 
 }
 
 export interface ValidationDetail {

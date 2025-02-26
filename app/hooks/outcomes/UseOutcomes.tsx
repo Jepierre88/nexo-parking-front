@@ -34,7 +34,7 @@ export default function UseOutcomes() {
 
     try {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/outcomes`,
+        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/outcomes/pp`,
         {
           params: {
             startDateTime: startDateTime?.toISOString(),

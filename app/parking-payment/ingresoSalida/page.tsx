@@ -10,35 +10,29 @@ import {
 } from "@nextui-org/react";
 import { Button } from "@nextui-org/button";
 import Image from "next/image";
-import { useDisclosure } from "@nextui-org/react";
 import {
   CalendarDate,
   CalendarDateTime,
   parseAbsoluteToLocal,
   ZonedDateTime,
 } from "@internationalized/date";
-
 import CardPropierties from "@/components/parking-payment/cardPropierties";
 import ICONOCARRO from "@/public/iconoCarroOscuro.png";
 import ICONOMOTO from "@/public/iconoMotoOscuro.png";
-import { PaymentData } from "@/types";
 import Income from "@/types/Income";
-import { UseAuthContext } from "@/app/context/AuthContext";
 import { vehicleEntrySchema } from "@/app/schemas/validationSchemas";
 import axios from "axios";
-import withPermission from "@/app/withPermission";
 import { Connector } from "@/app/libs/Printer";
-import ActionButton from "@/components/actionButtonProps";
 import { toast } from "sonner";
 import UsePermissions from "@/app/hooks/UsePermissions";
-import UseIncomes from "@/app/hooks/incomes/UseIncomes";
+import UseIngresoSalida from "@/app/hooks/ingresoSalida/UseIngresoSalida";
+import withPermission from "@/app/withPermission";
+import { formatDate } from "@/app/libs/utils";
 
 const enterExit = () => {
   const { hasPermission } = UsePermissions();
   const canViewDate = useMemo(() => hasPermission(28), [hasPermission]);
-  const canViewDateIncome = useMemo(() => hasPermission(40), [hasPermission]);
-  const canViewDateOutcome = useMemo(() => hasPermission(41), [hasPermission]);
-  const { incomes, getIncomes } = UseIncomes();
+  // const canViewDateOutcome = useMemo(() => hasPermission(41), [hasPermission]);
   const [placaIn, setPlacaIn] = useState("");
   const [placaOut, setPlacaOut] = useState("");
   const [QRIn, setQRIn] = useState("");
@@ -46,6 +40,7 @@ const enterExit = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [vehicleType, setVehicleType] = useState("CARRO");
   const [vehicleTypeOut, setVehicleTypeOut] = useState("CARRO");
+  const { outcomeManual, loading } = UseIngresoSalida();
   const [currentDate, setCurrentDate] = useState<any>(
     parseAbsoluteToLocal(new Date().toISOString())
   );
@@ -72,6 +67,7 @@ const enterExit = () => {
     if (!validationSchemas.success) {
       toast.error(validationSchemas.error.issues[0].message);
       setPlacaIn((prevPlaca) => prevPlaca.slice(0, -1));
+      setPlacaOut((prevPlaca) => prevPlaca.slice(0, -1));
       return false;
     }
 
@@ -118,42 +114,21 @@ const enterExit = () => {
   };
 
   const handleGenerateExit = async () => {
-    if (placaIn.length !== 6) {
-      toast.error("La placa debe tener exactamente 6 caracteres.");
-      return;
-    }
+    const loadingToastId = toast.loading("Registrando salida...");
 
-    if (!validatePlaca(placaIn)) {
-      return;
-    }
-
-    const loadingToastId = toast.loading("Saliendo...");
     try {
-      setIsLoading(true);
+      const response = await outcomeManual(placaOut);
 
-      // const response = await axios.post(
-      //   `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/access-control/visitor-service/generateContingency`,
-      //   {
-      //     plate: placaIn,
-      //     vehicleKind: vehicleType,
-      //     datetime: currentDate.toDate().toISOString(),
-      //     identificationType: "QR",
-      //     incomeConditionType: INCOME_CONDITION_TYPE.visitor,
-      //   }
-      // );
-
-      // await handlePrint(response.data);
-      toast.success("Salida registrada con éxito.", {
-        id: loadingToastId,
-      });
-      setPlacaIn("");
+      if (response) {
+        toast.dismiss(loadingToastId);
+        console.log("Salida registrada con exito");
+        setPlacaOut("");
+      } else {
+        toast.dismiss(loadingToastId);
+      }
     } catch (error) {
-      toast.error("Error en la salida.", {
-        id: loadingToastId,
-      });
-      console.error("Error registrando la salida:", error);
-    } finally {
-      setIsLoading(false);
+      toast.dismiss(loadingToastId);
+      console.error("Error al registrar la salida:", error);
     }
   };
 
@@ -355,7 +330,7 @@ const enterExit = () => {
                   />
                 </Radio>
               </RadioGroup>
-              <div className="flex flex-col items-start w-full">
+              {/* <div className="flex flex-col items-start w-full">
                 <label className="block font-sans text-right text-[16px] font-semibold leading-[24px]  decoration-skip-ink-none decoration-from-font mb-2">
                   Fecha y hora de ingreso
                 </label>
@@ -367,28 +342,32 @@ const enterExit = () => {
                   onChange={handleCurrentDateChange}
                   isDisabled={!canViewDateIncome}
                 />
-              </div>
+              </div> */}
               <div className="flex flex-col items-start w-full">
                 <label className="block font-sans text-right text-[16px] font-semibold leading-[24px]  decoration-skip-ink-none decoration-from-font mb-2">
                   Fecha y hora de salida
                 </label>
                 <DateInput
-                  className="w-full"
+                  className="w-full !text-black"
                   hideTimeZone
                   size="md"
                   granularity="second"
                   value={currentDate}
                   onChange={handleCurrentDateChange}
-                  isDisabled={!canViewDateOutcome}
+                  isReadOnly
+
+                  // isDisabled={!canViewDateOutcome}
                 />
+
+                {/* <div className="w-full">{formatDate(new Date())}</div> */}
               </div>
               <Button
                 className="w-full"
                 color="primary"
                 size="md"
                 style={{ width: "240px" }}
-
-                // onPress={handleGenerateExit}
+                onPress={handleGenerateExit}
+                isLoading={loading}
               >
                 Registrar Salida
               </Button>
