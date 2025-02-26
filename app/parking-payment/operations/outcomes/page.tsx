@@ -21,6 +21,7 @@ import {
 import { DatePicker, DateRangePicker, Input } from "@nextui-org/react";
 import withPermission from "@/app/withPermission";
 import UseOutcomes from "@/app/hooks/outcomes/UseOutcomes";
+import { toast } from "sonner";
 
 function Outcomes() {
   const { outComes, getOutComes } = UseOutcomes();
@@ -51,15 +52,25 @@ function Outcomes() {
 
   const [plate, setPlate] = useState("");
 
-  const handleFilter = () => {
+  const handleFilter = async () => {
     setLoading(true);
-
-    getOutComes(
-      dateRange.start.toDate(getLocalTimeZone()),
-      dateRange.end.toDate(getLocalTimeZone())
-    ).finally(() => {
+    try {
+      if (dateRange.start && dateRange.end) {
+        await getOutComes(
+          dateRange.start.toDate(getLocalTimeZone()),
+          dateRange.end.toDate(getLocalTimeZone()),
+          plate
+        );
+        toast.success("Datos filtrados con éxito.");
+      } else {
+        toast.error("Por favor selecciona un rango de fechas válido.");
+      }
+    } catch (error) {
+      console.error("Error al filtrar los datos:", error);
+      toast.error("Hubo un error al filtrar los datos.");
+    } finally {
       setLoading(false);
-    });
+    }
   };
 
   const columns: GridColDef[] = [
