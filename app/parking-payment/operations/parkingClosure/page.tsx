@@ -210,13 +210,13 @@ function parkingClosure() {
           >
             Realizar cierre
           </Button>
-          <Button
+          {/* <Button
             className="p-6 px-20 w-2 text-black font-bold"
             color="primary"
             variant="bordered"
           >
             Informe parcial
-          </Button>
+          </Button> */}
         </div>
       </div>
 

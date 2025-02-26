@@ -14,11 +14,11 @@ import { Autocomplete, AutocompleteItem } from "@nextui-org/react";
 import { animals } from "@/app/libs/data";
 import { custom } from "zod";
 
-
 export default function VisitanteQr() {
   const { state, dispatch, paymentData, setPaymentData } = usePaymentContext();
   const [hasValidated, setHasValidated] = useState(false);
-  const [debouncedIdentificationCode, setDebouncedIdentificationCode] = useState(paymentData.identificationCode);
+  const [debouncedIdentificationCode, setDebouncedIdentificationCode] =
+    useState(paymentData.identificationCode);
 
   const getCompanyCode = (value: string) => {
     if (!value.includes("http")) return value;
@@ -38,7 +38,7 @@ export default function VisitanteQr() {
   }, [paymentData.identificationCode]);
 
   // Validación después del debounce
-  //? EL debounce es un hook que permite realizar una peticion despues de un tiempo de espera 
+  //? EL debounce es un hook que permite realizar una peticion despues de un tiempo de espera
   //? para evitar que se realicen demasiadas peticiones al servidor
   useEffect(() => {
     setPaymentData({
@@ -62,8 +62,11 @@ export default function VisitanteQr() {
 
       searchDataValidate(newData); // Solo se ejecuta después del debounce
     }
-  }, [debouncedIdentificationCode, hasValidated,
-    paymentData.customType, paymentData.plate
+  }, [
+    debouncedIdentificationCode,
+    hasValidated,
+    paymentData.customType,
+    paymentData.plate,
   ]);
 
   const { services } = UseServices("Visitante");
@@ -116,7 +119,9 @@ export default function VisitanteQr() {
           // Calcular total final, incluyendo totalParking
           const totalParking = response.data.total || 0; // Valor de totalParking proporcionado por el backend
           const totalCost = recalculatedTotals.totalServices + totalParking;
-
+          const selectedService = services.find(
+            (item) => item.name === response.data.customType
+          );
           // Actualizar paymentData
           setPaymentData({
             ...response.data,
@@ -147,7 +152,7 @@ export default function VisitanteQr() {
           </label>
           <Select
             className="w-1/2"
-            value={paymentData.selectedService?.id || services[0]?.id}
+            value={paymentData.selectedService?.id}
             variant="bordered"
             label="Seleccionar"
             radius="lg"
@@ -209,6 +214,7 @@ export default function VisitanteQr() {
                 // Si el usuario borra el QR, limpiar completamente el estado
                 setPaymentData({
                   ...paymentData,
+                  namePaymentType: "",
                   identificationCode: "",
                   validationDetail: null,
                   extraServices: [],
@@ -216,6 +222,9 @@ export default function VisitanteQr() {
                   totalServices: 0,
                   totalParking: 0,
                   totalCost: 0,
+                  plate: "",
+                  vehicleKind: "",
+                  subtotal: 0,
                 });
                 setDebouncedIdentificationCode(""); // Evita que el useEffect vuelva a escribirlo
                 setHasValidated(false); // Permitir nueva validación
@@ -229,8 +238,6 @@ export default function VisitanteQr() {
               }
             }}
           />
-
-
         </div>
         <div className="flex gap-4 justify-between">
           <label

@@ -259,6 +259,14 @@ function Incomes() {
     }
   };
 
+  const sortedIncomes = useMemo(() => {
+    return incomes
+      .slice()
+      .sort(
+        (a, b) =>
+          new Date(b.datetime).getTime() - new Date(a.datetime).getTime()
+      );
+  }, [incomes]);
   return (
     <section className="h-full">
       <div className="flex justify-between items-center flex-col xl:flex-row overflow-hidden">
@@ -294,7 +302,11 @@ function Incomes() {
           </Button>
         </div>
       </div>
-      <CustomDataGrid columns={columns} loading={loading} rows={incomes} />
+      <CustomDataGrid
+        columns={columns}
+        loading={loading}
+        rows={sortedIncomes}
+      />
 
       <Modal
         aria-describedby="user-modal-description"
