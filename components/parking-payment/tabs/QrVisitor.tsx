@@ -20,16 +20,16 @@ export default function VisitanteQr() {
   const [hasValidated, setHasValidated] = useState(false);
   const [debouncedIdentificationCode, setDebouncedIdentificationCode] = useState(paymentData.identificationCode);
 
-  const getCompanyId = (value: string) => {
+  const getCompanyCode = (value: string) => {
     if (!value.includes("http")) return value;
     const url = new URL(value);
-    return url.searchParams.get("companyId") || "";
+    return url.searchParams.get("companyCode") || "";
   };
 
   // Debounce: Espera 2 segundos después del último cambio antes de procesar el QR
   useEffect(() => {
     const handler = setTimeout(() => {
-      const companyId = getCompanyId(paymentData.identificationCode);
+      const companyId = getCompanyCode(paymentData.identificationCode);
       setDebouncedIdentificationCode(companyId);
     }, 500);
 
