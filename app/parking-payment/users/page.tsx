@@ -32,7 +32,7 @@ import UsePermissions from "@/app/hooks/UsePermissions";
 import { toast } from "sonner";
 import memoTheme from "@mui/material/utils/memoTheme";
 
-const initialUserEdit: User = {
+export const initialUserEdit: User = {
   cellPhoneNumber: "",
   departmentName: "",
   email: "",

@@ -1,10 +1,21 @@
+
 // Printer.js
 import axios from "axios";
 
 import Invoice from "@/types/Invoice";
 import Income from "@/types/Income";
-import { Description, Payment } from "@mui/icons-material";
-import Closure from "@/types/Closure";
+import Closure from '@/types/Closure';
+import Cookies from "js-cookie";
+
+const getDeviceName = () => {
+  const userCookie = Cookies.get("user"); 
+  if (userCookie) {
+    const userData = JSON.parse(userCookie); 
+    return userData.deviceNme || "Dispositivo desconocido"; 
+  }
+  return "Dispositivo desconocido";
+};
+
 const DEFAULT_PLUGIN_URL = "http://localhost:8080";
 
 class Operation {
@@ -298,8 +309,23 @@ export class Connector {
 		await this.imprimir();
 	}
 
-	async imprimirCierre(cierre: Closure) {
-		const fechaCierre = new Date(cierre.datetime);
+	async imprimirCierre(cierre: Closure): Promise<void> {
+		const addPadding = (text: string, totalWidth: number, padding: number = 2) => {
+			const spaces = " ".repeat(padding); 
+			const contentWidth = totalWidth - 2 * padding; 
+			const truncatedText = text.slice(0, contentWidth); 
+			return `${spaces}${truncatedText}${spaces}`; 
+		};
+		const totalWidth = 40;
+		const col1Width = 20; // Item
+		const col2Width = 10; // Cant
+		const col3Width = 10; // Total
+		const header = `${"Item".padEnd(col1Width)}${"Cant".padEnd(col2Width)}${"Total".padEnd(col3Width)}`;
+
+		const fromDatetime = new Date(cierre.fromDatetime);
+		const toDatetime = new Date(cierre.toDatetime);
+
+		const deviceNme = getDeviceName();
 		//Encabezado
 		this.operaciones.push({
 			accion: "textalign",
@@ -307,20 +333,51 @@ export class Connector {
 		});
 		this.operaciones.push({
 			accion: "text",
-			datos: `Fecha de ingreso: ${fechaCierre.toLocaleString()}`,
+			datos: 'Nit:',
 		});
 		this.operaciones.push({
 			accion: "text",
-			datos: `id: ${cierre.id}`,
+			datos: 'Dirección:',
 		});
 		this.operaciones.push({
 			accion: "text",
-			datos: `Consecutivo inicial: ${cierre.initialConsecutive}`,
+			datos: 'Cierre de ventas',
 		});
-		//QR
 		this.operaciones.push({
-			accion: `text`,
-			datos: `Consecutivo final: ${cierre.finalConsecutive}`,
+			accion: "text",
+			datos: '------------------------------------------',
+		});
+		this.operaciones.push({
+			accion: "text",
+			datos: `Máquina: ${deviceNme}`,
+		});
+		this.operaciones.push({
+			accion: "text",
+			datos: `DESDE: ${fromDatetime.toLocaleString()}`,
+		});
+
+		this.operaciones.push({
+			accion: "text",
+			datos: `HASTA: ${toDatetime.toLocaleString()}`,
+		});
+
+	
+		
+		this.operaciones.push({
+			accion: "text",
+			datos: `------------------------------------------`,
+		});
+		this.operaciones.push({
+			accion: "bold",
+			datos: "on",
+		});
+		this.operaciones.push({
+			accion: "text",
+			datos: header,  
+		});
+		this.operaciones.push({
+			accion: "bold",
+			datos: "off",
 		});
 		await this.imprimir();
 	}

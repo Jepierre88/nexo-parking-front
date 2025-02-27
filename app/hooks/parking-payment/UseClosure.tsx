@@ -16,13 +16,18 @@ export default function UseClosure() {
     getClosure(today, todayNight);
   }, []);
 
-  const getClosure = async (startDateTime?: Date, endDateTime?: Date) => {
+  const getClosure = async (
+    startDateTime?: Date,
+    endDateTime?: Date,
+    limit?: number
+  ) => {
     setLoading(true);
     try {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/payment-closures`,
+        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/payment-closuresNewPP`,
         {
           params: {
+            limit: 10,
             startDateTime: startDateTime?.toISOString(),
             endDateTime: endDateTime?.toISOString(),
           },

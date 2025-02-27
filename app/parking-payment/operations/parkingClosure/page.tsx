@@ -18,7 +18,7 @@ import CustomDataGrid from "@/components/customDataGrid";
 import withPermission from "@/app/withPermission";
 import { LargeEyeIcon, LargeSendIcon, PrinterIcon } from "@/components/icons";
 import UsePermissions from "@/app/hooks/UsePermissions";
-import Closure from "@/types/Closure";
+import Closure, { CierreData } from "@/types/Closure";
 import { toast } from "sonner";
 import { Connector } from "@/app/libs/Printer";
 import {
@@ -35,7 +35,7 @@ function parkingClosure() {
   const canPrinterIncome = useMemo(() => hasPermission(25), [hasPermission]);
   const canSeeClouse = useMemo(() => hasPermission(24), [hasPermission]);
   const canSendClouse = useMemo(() => hasPermission(42), [hasPermission]);
-
+  const [limit, setLimit] = useState("");
   useEffect(() => {
     getClosure();
   }, []);
@@ -49,6 +49,7 @@ function parkingClosure() {
     ),
     end: parseAbsoluteToLocal(new Date().toISOString()),
   });
+
   const columns: GridColDef[] = [
     {
       field: "datetime",
@@ -58,7 +59,7 @@ function parkingClosure() {
       align: "center",
     },
     {
-      field: "name",
+      field: "cashier",
       headerName: "Realizó el cierre",
       flex: 1,
       headerAlign: "center",
@@ -144,6 +145,7 @@ function parkingClosure() {
       console.error("Error al imprimir la factura", e);
     }
   };
+
   const handleFilter = async () => {
     try {
       if (dateRange.start && dateRange.end) {
@@ -162,44 +164,37 @@ function parkingClosure() {
   };
   return (
     <section className="h-full">
-      <h1 className="text-4xl font-bold  h-12 ">Cierres</h1>
-      <div className="flex my-4 gap-4 items-end justify-start h-min flex-wrap md:flex-nowrap">
-        <div className="flex flex-col items-start">
-          <label className=" text-black font-bold">Fecha de cierre:</label>
+      <div className="flex justify-between items-center flex-col xl:flex-row overflow-hidden">
+        <h1 className="text-4xl font-bold my-3 h-20 text-center items-center content-center ">
+          Cierres
+        </h1>
+
+        <div className="flex my-3 gap-4 items-center justify-center h-min flex-wrap md:flex-nowrap">
           <DateRangePicker
             lang="es-ES"
             hideTimeZone
+            label="Rango de Fechas"
+            size="md"
             value={dateRange}
             onChange={setDateRange}
-            className="w-[350px] min-w-[350px] max-w-[350px]"
-            size="md"
           />
-        </div>
-        <div className="flex flex-col items-start">
-          <label className=" text-black font-bold">Realizó el cierre:</label>
-          <Select
-            className="w-[320px] min-w-[320px] max-w-[320px] "
-            variant="bordered"
-            lang="es-ES"
-            radius="md"
+          <Input
+            label={"Limite"}
+            maxLength={6}
             size="md"
-            classNames={{ trigger: "bg-gray-100" }}
+            value={limit}
+            onChange={(e) => setLimit(e.target.value.toUpperCase())}
+          />
+          <Button
+            className="bg-primary text-white my-auto"
+            size="lg"
+            isDisabled={loading}
+            variant="shadow"
+            onPress={handleFilter}
           >
-            <SelectItem key="opcion1">Opción 1</SelectItem>
-            <SelectItem key="opcion2">Opción 2</SelectItem>
-            <SelectItem key="opcion3">Opción 3</SelectItem>
-          </Select>
+            Filtrar
+          </Button>
         </div>
-
-        <Button
-          className="bg-primary  text-white px-2 py-2 text-sm w-[100px] min-w-0"
-          size="md"
-          isDisabled={loading}
-          variant="shadow"
-          onPress={handleFilter}
-        >
-          Filtrar
-        </Button>
       </div>
       <div className="flex items-end flex-col xl:flex-row overflow-hidden -mb-14">
         <div className="flex my-3 justify-end gap-4 items-center h-min flex-wrap md:flex-nowrap w-full">
