@@ -14,28 +14,28 @@ import { DateRangePicker, Input } from "@nextui-org/react";
 import UseClosure from "@/app/hooks/parking-payment/UseClosure";
 import { title } from "@/components/primitives";
 import CustomDataGrid from "@/components/customDataGrid";
-
 import withPermission from "@/app/withPermission";
 import { LargeEyeIcon, LargeSendIcon, PrinterIcon } from "@/components/icons";
 import UsePermissions from "@/app/hooks/UsePermissions";
-import Closure, { CierreData } from "@/types/Closure";
 import { toast } from "sonner";
 import { Connector } from "@/app/libs/Printer";
 import {
   getLocalTimeZone,
   parseAbsoluteToLocal,
 } from "@internationalized/date";
-import { Select, SelectItem } from "@nextui-org/select";
+import { UseTransactions } from "@/app/hooks/transactions/Usetransactions";
+import Cookies from "js-cookie";
 
 function parkingClosure() {
   const { hasPermission } = UsePermissions();
   const { closure, getClosure, loading } = UseClosure();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const [isDark, setIsDark] = useState(false);
-  const canPrinterIncome = useMemo(() => hasPermission(25), [hasPermission]);
+  const canPrinterClosure = useMemo(() => hasPermission(25), [hasPermission]);
   const canSeeClouse = useMemo(() => hasPermission(24), [hasPermission]);
   const canSendClouse = useMemo(() => hasPermission(42), [hasPermission]);
   const [limit, setLimit] = useState("");
+  const { getClosureDetails } = UseClosure();
   useEffect(() => {
     getClosure();
   }, []);
@@ -49,18 +49,34 @@ function parkingClosure() {
     ),
     end: parseAbsoluteToLocal(new Date().toISOString()),
   });
-
+  const getDeviceName = () => {
+    const userCookie = Cookies.get("user");
+    if (userCookie) {
+      const userData = JSON.parse(userCookie);
+      return userData.deviceNme || "Dispositivo desconocido";
+    }
+    return "Dispositivo desconocido";
+  };
+  const deviceName = getDeviceName();
   const columns: GridColDef[] = [
     {
-      field: "datetime",
-      headerName: "Fecha de cierre",
+      field: "cashier",
+      headerName: "Realizó el cierre",
+      flex: 1,
+      headerAlign: "center",
+      align: "center",
+    },
+
+    {
+      field: "id",
+      headerName: "Id Cierre",
       flex: 1,
       headerAlign: "center",
       align: "center",
     },
     {
-      field: "cashier",
-      headerName: "Realizó el cierre",
+      field: "datetime",
+      headerName: "Fecha de cierre",
       flex: 1,
       headerAlign: "center",
       align: "center",
@@ -80,7 +96,7 @@ function parkingClosure() {
       align: "center",
     },
     {
-      field: "paymentPoint",
+      field: "deviceName",
       headerName: "Punto de pago",
       flex: 1,
       headerAlign: "center",
@@ -109,7 +125,7 @@ function parkingClosure() {
             color="default"
             radius="none"
             variant="light"
-            isDisabled={!canPrinterIncome}
+            isDisabled={!canPrinterClosure}
             onPress={() => handlenPrint(params.row)}
           >
             <PrinterIcon
@@ -129,20 +145,34 @@ function parkingClosure() {
       ),
     },
   ];
-  const handlenPrint = async (row: Closure) => {
-    const loadingToastId = toast.loading("Imprimiendo ticket de ingreso...");
+  const handlenPrint = async (row: { id: number }) => {
+    const loadingToastId = toast.loading("Obteniendo datos del cierre");
 
     try {
+      if (!row.id) {
+        toast.error("Id del cierre no valido.", { id: loadingToastId });
+        return;
+      }
+
+      const closureDetails = await getClosureDetails(row.id);
+      if (!closureDetails) {
+        toast.error("No se encontraron datos para imprimir.", {
+          id: loadingToastId,
+        });
+        return;
+      }
+
       const impresora = new Connector("EPSON");
-      await impresora.imprimirCierre(row);
-      toast.success("Ticket impreso correctamente.", {
+      await impresora.imprimirCierre(closureDetails);
+
+      toast.success("Cierre impreso correctamente.", {
         id: loadingToastId,
       });
     } catch (e) {
-      toast.error("Error al imprimir el ticket.", {
+      console.error("Error al imprimir el cierre", e);
+      toast.error("Error al imprimir el cierre.", {
         id: loadingToastId,
       });
-      console.error("Error al imprimir la factura", e);
     }
   };
 

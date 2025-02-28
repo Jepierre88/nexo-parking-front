@@ -1,75 +1,56 @@
-
-export default interface Closure {
-    description?: Description[];
-	datetime?: any;
-	id?: number;
-    initialConsecutive?: number;
-    finalConsecutive?: number;
-    cashier?: string;
-    paymentPointId?: number;
-    internalId?: number;
-    bill1Denomination?: number;
-    bill2Denomination?: number;
-    coin1Denomination?: number;
-    coin2Denomination?: number;
-    bill1Amount?: number;
-    bill2Amount?: number;
-    coin1Amount?: number;
-    coin2Amount?: number;
-
-    limit?: number;
-    paymentPoint?: string;
-    fromDatetime?: any;
-    toDatetime?: any;
-    transactionType?:string;
-    transactionData?:string;
-    transaction?:string;
-
+export interface Closure {
+  id?: number;
+  datetime?: Date;
+  initialConsecutive?: number;
+  finalConsecutive?: number;
+  cashier?: string;
+  paymentPointId?: number;
+  internalId?: number;
+  bill1Denomination?: number;
+  bill2Denomination?: number;
+  coin1Denomination?: number;
+  coin2Denomination?: number;
+  bill1Amount?: number;
+  bill2Amount?: number;
+  coin1Amount?: number;
+  coin2Amount?: number;
+  paymentPoint?: string;
+  fromDatetime?: Date;
+  toDatetime?: Date;
+  transactions?: Transaction[]; 
 }
 
-interface Description {
-    Item:number;
-	CANTIDAD: number;
-	TOTAL: number;
+export interface Transaction {
+  transactionType: string;
+  items: TransactionItem[];
+  total: number;
 }
 
+export interface TransactionItem {
+  code: string;
+  cnt: number;
+  total: number;
+}
+
+export interface PaymentMethodSummary {
+  item: string;
+  cantidad: number;
+  total: number;
+}
+
+export interface ClosureDetails {
+  id?:number;
+  paymentMethods: PaymentMethodSummary[];
+  totalPaymentMethods: number;
+  amountReceived: PaymentMethodSummary[];
+  totalAmountReceived: number;
+  amountToReturn: PaymentMethodSummary[];
+  totalAmountToReturn: number;
+}
 
 export interface Encabezado {
-    fromDatetime: string;
-    toDatetime: string;
-  }
-  
-  export interface Transaction {
-    transactionType: string;
-    items: {
-      code: string;
-      cnt: number;
-      total: number;
-    }[];
-    total: number;
-  }
-  
-  export interface PaymentSummary {
-    paymentMethods: {
-      item: string;
-      cantidad: number;
-      total: number;
-    }[];
-    totalPaymentMethods: number;
-    amountReceived: {
-      item: string;
-      cantidad: number;
-      total: number;
-    }[];
-    totalAmountReceived: number;
-    amountToReturn: {
-      item: string;
-      cantidad: number;
-      total: number;
-    }[];
-    totalAmountToReturn: number;
-  }
-  
+  fromDatetime: string;
+  toDatetime: string;
+}
 
-  export type CierreData = [Closure, Encabezado, Transaction[], PaymentSummary];
-  
+export type ClosureData = [Encabezado, Transaction[], ClosureDetails];

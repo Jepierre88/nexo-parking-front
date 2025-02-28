@@ -38,9 +38,8 @@ export const UseTransactions = () => {
 			const response = await axios.get(
 				`${process.env.NEXT_PUBLIC_LOCAL_APIURL}/printForId/${id}`
 			);
-			const data = response.data;
-
-			return data;
+			
+			return response.data;
 		} catch (error) {
 			return null;
 		} finally {
