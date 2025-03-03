@@ -17,7 +17,7 @@ import { title } from "@/components/primitives";
 import ICONOLAPIZ from "@/public/iconoLapiz.png";
 import ICONOOJO from "@/public/IconoOjo.png";
 import Signup from "@/types/Auth";
-import User from "@/types/User";
+import User, { initialNewUser, initialUserEdit } from "@/types/User";
 import UseUsers from "@/app/hooks/users/UseUsers";
 import UseRol from "@/app/hooks/UseRol";
 import Loading from "@/app/loading";
@@ -31,37 +31,6 @@ import { PencilIcon, LargeEyeIcon } from "@/components/icons";
 import UsePermissions from "@/app/hooks/UsePermissions";
 import { toast } from "sonner";
 import memoTheme from "@mui/material/utils/memoTheme";
-
-export const initialUserEdit: User = {
-  cellPhoneNumber: "",
-  departmentName: "",
-  email: "",
-  emailVerified: false,
-  generalEntityId: 0,
-  id: "",
-  lastName: "",
-  name: "",
-  privacyAuthorization: false,
-  realm: "",
-  resetKey: "",
-  username: "",
-  verificationToken: "",
-  zoneId: 0,
-  permissions: [],
-  deviceNme: "",
-  eliminated: false,
-};
-
-const initialNewUser: Signup = {
-  username: "",
-  password: "",
-  email: "",
-  name: "",
-  lastName: "",
-  cellPhoneNumber: "",
-  realm: "",
-  permissions: [],
-};
 
 export const dynamic = "force-dynamic";
 
