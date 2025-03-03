@@ -1,10 +1,23 @@
+import { Encabezado } from './../../types/Closure';
+
 // Printer.js
 import axios from "axios";
 
 import Invoice from "@/types/Invoice";
 import Income from "@/types/Income";
-import { Description, Payment } from "@mui/icons-material";
-import Closure from "@/types/Closure";
+import { Closure, Transaction,ClosureDetails } from "@/types/Closure";
+import Cookies from "js-cookie";
+import { ConstructionOutlined } from '@mui/icons-material';
+
+const getDeviceName = () => {
+  const userCookie = Cookies.get("user"); 
+  if (userCookie) {
+    const userData = JSON.parse(userCookie); 
+    return userData.deviceNme || "Dispositivo desconocido"; 
+  }
+  return "Dispositivo desconocido";
+};
+
 const DEFAULT_PLUGIN_URL = "http://localhost:8080";
 
 class Operation {
@@ -298,30 +311,175 @@ export class Connector {
 		await this.imprimir();
 	}
 
-	async imprimirCierre(cierre: Closure) {
-		const fechaCierre = new Date(cierre.datetime);
-		//Encabezado
-		this.operaciones.push({
-			accion: "textalign",
-			datos: "center",
+	async imprimirCierre(cierre: [Encabezado, Transaction[], ClosureDetails]): Promise<void> {
+		const encabezado = cierre[0];
+		const transacciones = cierre[1];
+		const detalles = cierre[2];
+
+		const formatLeftRight = (leftText: string, rightText: string, width: number) => {
+			const spaceAvailable = width - leftText.length - rightText.length;
+			const spaces = " ".repeat(Math.max(spaceAvailable, 0)); 
+			return `${leftText}${spaces}${rightText}`;
+		};
+		
+
+		const wrapText = (text: string, maxWidth: number) => {
+			const words = text.split(" ");
+			let lines: string[] = [];
+			let currentLine = "";
+		
+			for (const word of words) {
+				if ((currentLine + word).length <= maxWidth) {
+					currentLine += (currentLine ? " " : "") + word;
+				} else {
+					lines.push(currentLine);
+					currentLine = word;
+				}
+			}
+			if (currentLine) lines.push(currentLine);
+		
+			return lines;
+		};
+
+
+		const formatTableRow = (item: string, quantity: number, total: number, col1: number, col2: number, col3: number) => {
+			const itemLines = wrapText(item, col1); 
+			let outputLines: string[] = [];
+		
+			itemLines.forEach((line, index) => {
+				if (index === itemLines.length - 1) {
+					const row = `${line.padEnd(col1)}${quantity.toString().padEnd(col2)}${total.toLocaleString().padStart(col3)}`;
+					outputLines.push(row);
+				} else {
+					const row = `${line.padEnd(col1)} ${" ".repeat(col2)} ${" ".repeat(col3)}`;
+					outputLines.push(row);
+				}
+			});
+			return outputLines;
+		};
+
+
+		const lineWidth = 40;
+		const col1Width = 20; // Item
+		const col2Width = 10; // Cant
+		const col3Width = 10; // Total
+
+		const col1 = 20; 
+		const col2 = 8;  
+		const col3 = 10;
+		
+		const header = `${"Item".padEnd(col1Width)}${"Cant".padEnd(col2Width)}${"Total".padEnd(col3Width)}`;
+		const fromDatetime = encabezado.fromDatetime ? new Date(encabezado.fromDatetime) : new Date();
+		const toDatetime = encabezado.toDatetime ? new Date(encabezado.toDatetime) : new Date();
+		const deviceName = getDeviceName();
+	
+		// 📌 Encabezado del ticket
+		this.operaciones.push({ accion: "textalign", datos: "center" });
+		this.operaciones.push({ accion: "text", datos: `Nit: ` });
+		this.operaciones.push({ accion: "text", datos: `Dirección: ` });
+		this.operaciones.push({ accion: "text", datos: `Cierre de Ventas` });
+		this.operaciones.push({ accion: "text", datos: `------------------------------------------`});
+		this.operaciones.push({ accion: "text", datos: `Máquina: ${deviceName}` });
+		this.operaciones.push({ accion: "text", datos: `DESDE: ${fromDatetime.toLocaleString()}` });
+		this.operaciones.push({ accion: "text", datos: `HASTA: ${toDatetime.toLocaleString()}` });
+		this.operaciones.push({accion: "text",datos: "\n",});
+
+		transacciones.forEach((transaccion: Transaction) => {
+			this.operaciones.push({ accion: "bold", datos: "on" });
+			this.operaciones.push({ accion: "text", datos: `Transacciones ${transaccion.transactionType}` });
+			this.operaciones.push({ accion: "bold", datos: "off" });
+	
+			// 📌 Insertar encabezado de columnas después del transactionType
+			this.operaciones.push({ accion: "text", datos: "------------------------------------------" });
+			this.operaciones.push({ accion: "bold", datos: "on" });
+			this.operaciones.push({ accion: "text", datos: header });
+			this.operaciones.push({ accion: "bold", datos: "off" });
+	
+			// 📌 Recorrer items dentro de cada transacción
+			transaccion.items.forEach((item) => {
+				const formattedRows = formatTableRow(item.code, item.cnt, item.total, col1, col2, col3Width);
+				formattedRows.forEach((row) => {
+					this.operaciones.push({ accion: "text", datos: row });
+				});
+			});
+		
+	
+			// 📌 Total de cada tipo de transacción
+			this.operaciones.push({ accion: "text", datos: "------------------------------------------" });
+			this.operaciones.push({ accion: "text", datos: formatLeftRight("Total:", transaccion.total.toLocaleString(), lineWidth),});
+			this.operaciones.push({accion: "text",datos: "\n",});
 		});
-		this.operaciones.push({
-			accion: "text",
-			datos: `Fecha de ingreso: ${fechaCierre.toLocaleString()}`,
+	
+
+		// 📌 Monto recibido
+		this.operaciones.push({ accion: "bold", datos: "on" });
+		this.operaciones.push({ accion: "text", datos: "Dinero Recibido" });
+		this.operaciones.push({ accion: "bold", datos: "off" });
+	
+		// 📌 Insertar encabezado de columnas después del dinero Recibido
+		this.operaciones.push({ accion: "text", datos: "------------------------------------------" });
+		this.operaciones.push({ accion: "bold", datos: "on" });
+		this.operaciones.push({ accion: "text", datos: header });
+		this.operaciones.push({ accion: "bold", datos: "off" });
+
+		// 📌 Recorrer items dentro de cada transacción
+		detalles.amountReceived.forEach((monto) => {
+			const formattedRows = formatTableRow(monto.item, monto.cantidad, monto.total, col1, col2, col3);
+			formattedRows.forEach((row) => {
+				this.operaciones.push({ accion: "text", datos: row });
+			});
 		});
-		this.operaciones.push({
-			accion: "text",
-			datos: `id: ${cierre.id}`,
+		this.operaciones.push({ accion: "text", datos: "------------------------------------------" });
+		this.operaciones.push({ accion: "text", datos: formatLeftRight("Total:", detalles.totalAmountReceived.toLocaleString(), lineWidth),});
+		this.operaciones.push({accion: "text",datos: "\n",});
+		// 📌 Monto devuelto
+		this.operaciones.push({ accion: "bold", datos: "on" });
+		this.operaciones.push({ accion: "text", datos: "Dinero Devolución" });
+		this.operaciones.push({ accion: "bold", datos: "off" });
+
+		// 📌 Insertar encabezado de columnas después del dinero Devuelto
+		this.operaciones.push({ accion: "text", datos: "------------------------------------------" });
+		this.operaciones.push({ accion: "bold", datos: "on" });
+		this.operaciones.push({ accion: "text", datos: header });
+		this.operaciones.push({ accion: "bold", datos: "off" });
+
+		// 📌 Recorrer items dentro de cada transacción
+
+		detalles.amountToReturn.forEach((devolucion) => {
+			const formattedRows = formatTableRow(devolucion.item, devolucion.cantidad, devolucion.total, col1, col2, col3);
+			formattedRows.forEach((row) => {
+				this.operaciones.push({ accion: "text", datos: row });
+			});
 		});
-		this.operaciones.push({
-			accion: "text",
-			datos: `Consecutivo inicial: ${cierre.initialConsecutive}`,
+		this.operaciones.push({ accion: "text", datos: "------------------------------------------" });
+		this.operaciones.push({ accion: "text", datos: formatLeftRight("Total:", detalles.totalAmountToReturn.toLocaleString(), lineWidth),});
+		this.operaciones.push({accion: "text",datos: "\n",});
+
+		// 📌 Sección de resumen de medios de pago
+		this.operaciones.push({ accion: "bold", datos: "on" });
+		this.operaciones.push({ accion: "text", datos: "Medio de Pago" });
+		this.operaciones.push({ accion: "bold", datos: "off" });
+	
+		// 📌 Insertar encabezado de columnas después del medio de pago
+		this.operaciones.push({ accion: "text", datos: "------------------------------------------" });
+		this.operaciones.push({ accion: "bold", datos: "on" });
+		this.operaciones.push({ accion: "text", datos: header });
+		this.operaciones.push({ accion: "bold", datos: "off" });
+
+		// 📌 Recorrer items dentro de cada transacción
+		detalles.paymentMethods.forEach((metodo) => {
+			const formattedRows = formatTableRow(metodo.item, metodo.cantidad, metodo.total, col1, col2, col3);
+			formattedRows.forEach((row) => {
+				this.operaciones.push({ accion: "text", datos: row });
+			});
 		});
-		//QR
-		this.operaciones.push({
-			accion: `text`,
-			datos: `Consecutivo final: ${cierre.finalConsecutive}`,
-		});
+		this.operaciones.push({ accion: "text", datos: "------------------------------------------" });
+		this.operaciones.push({ accion: "text", datos: formatLeftRight("Total:", detalles.totalPaymentMethods.toLocaleString(), lineWidth),});
+		this.operaciones.push({accion: "text",datos: "\n",});
+		
+
+		
 		await this.imprimir();
 	}
+	
 }
