@@ -306,7 +306,7 @@ export class Connector {
 		//QR
 		this.operaciones.push({
 			accion: `qr`,
-			datos: `${ingreso.identificationId}`,
+			datos: `https://pay.coins-colombia.com/validate-data?companyId=2&serviceId=1&companyCode=${ingreso.identificationId}`,
 		});
 		await this.imprimir();
 	}
