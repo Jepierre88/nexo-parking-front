@@ -130,15 +130,15 @@ function parkingClosure() {
   };
   const columns: GridColDef[] = [
     {
-      field: "cashier",
-      headerName: "Realizó el cierre",
+      field: "id",
+      headerName: "Id Cierre",
+      flex: 1,
       headerAlign: "center",
       align: "center",
     },
-
     {
-      field: "id",
-      headerName: "Id Cierre",
+      field: "cashier",
+      headerName: "Realizó el cierre",
       flex: 1,
       headerAlign: "center",
       align: "center",
@@ -170,6 +170,7 @@ function parkingClosure() {
       flex: 1,
       headerAlign: "center",
       align: "center",
+      valueGetter: () => getDeviceName(),
     },
 
     {
@@ -179,7 +180,7 @@ function parkingClosure() {
       headerAlign: "center",
       align: "center",
       renderCell: (params) => (
-        <div className="flex justify-center items-center gap-2">
+        <div className="flex justify-center items-center gap-2 h-full w-full">
           <Button
             className="w-auto h-auto flex items-center justify-center p-0 min-w-0"
             color="default"
@@ -274,7 +275,6 @@ function parkingClosure() {
         <h1 className="text-4xl font-bold my-3 h-20 text-center items-center content-center ">
           Cierres
         </h1>
-
         <div className="flex my-3 gap-4 items-center justify-center h-min flex-wrap md:flex-nowrap">
           <DateRangePicker
             lang="es-ES"
@@ -285,7 +285,7 @@ function parkingClosure() {
             onChange={setDateRange}
           />
           <Input
-            label={"Limite"}
+            label={"N° De Registros"}
             maxLength={6}
             size="md"
             value={limit}
@@ -311,13 +311,6 @@ function parkingClosure() {
           >
             Realizar cierre
           </Button>
-          {/* <Button
-            className="p-6 px-20 w-2 text-black font-bold"
-            color="primary"
-            variant="bordered"
-          >
-            Informe parcial
-          </Button> */}
         </div>
       </div>
       <CustomDataGrid columns={columns} rows={closure} loading={loading} />
