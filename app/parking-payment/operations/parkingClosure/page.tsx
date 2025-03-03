@@ -61,8 +61,7 @@ function parkingClosure() {
   const columns: GridColDef[] = [
     {
       field: "cashier",
-      headerName: "Realizó el cierre",
-      flex: 1,
+      headerName: "Realizó el cierre", 
       headerAlign: "center",
       align: "center",
     },
