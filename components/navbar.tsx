@@ -111,7 +111,7 @@ export const Navbar = () => {
           permission: 5,
         },
         {
-          label: "Realizar Cierres",
+          label: "Cierres",
           key: 6,
           href: "/parking-payment/operations/parkingClosure",
           permission: 6,
