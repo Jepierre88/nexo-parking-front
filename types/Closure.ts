@@ -18,6 +18,7 @@ export interface Closure {
   fromDatetime?: Date;
   toDatetime?: Date;
   transactions?: Transaction[]; 
+  endDatetime?: Date;
 }
 
 export interface Transaction {
