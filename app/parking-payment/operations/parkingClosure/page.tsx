@@ -1,7 +1,7 @@
 "use client";
 import React, { useEffect, useMemo, useState } from "react";
 import { Button } from "@nextui-org/button";
-import { GridColDef } from "@mui/x-data-grid";
+import { GridColDef, GridValueOptionsParams } from "@mui/x-data-grid";
 import {
   ModalContent,
   useDisclosure,
@@ -23,17 +23,18 @@ import {
 } from "@internationalized/date";
 import Cookies from "js-cookie";
 import { useForm } from "react-hook-form";
-import UseResetPassword from "@/app/hooks/UseResetPassword";
 import {
   ClosureDetails,
   Encabezado,
   Transaction,
   TransactionItem,
 } from "@/types/Closure";
+import { CustomTooltip, ActionTooltips } from "@/components/customTooltip";
+import UseConfigurationData from "@/app/hooks/UseConfigurationData";
 
 function parkingClosure() {
   const { hasPermission } = UsePermissions();
-  const { closure, getClosure } = UseClosure();
+  const { closure, getClosure, postClosure } = UseClosure();
   const [closureData, setClosureData] = useState<
     [Encabezado, Transaction[], ClosureDetails] | null
   >(null);
@@ -45,6 +46,12 @@ function parkingClosure() {
     onClose: onCloseModal,
   } = useDisclosure();
   const {
+    isOpen: isOpenClose,
+    onOpen: onOpenClose,
+    onOpenChange: onOpenChangeClose,
+    onClose: onCloseClose,
+  } = useDisclosure();
+  const {
     register: registerModal,
     handleSubmit: handleSubmitModal,
     reset: resetModal,
@@ -52,16 +59,26 @@ function parkingClosure() {
   } = useForm();
 
   //este se cambia por el UseRecibirCirreAlCorreo
-  const { resetPassword, loading: loadingReset } = UseResetPassword();
+  const { postsendEmail, loading: loadingReset } = UseClosure();
   const [isDark, setIsDark] = useState(false);
   const canPrinterClosure = useMemo(() => hasPermission(25), [hasPermission]);
   const canSeeClouse = useMemo(() => hasPermission(24), [hasPermission]);
   const canSendClouse = useMemo(() => hasPermission(42), [hasPermission]);
   const [limit, setLimit] = useState("");
+  const [currentClosureId, setCurrentClosureId] = useState<number | null>(null);
   const { getClosureDetails } = UseClosure();
+  const [loadingClose, setLoadingClose] = useState(false);
+  const { configuration, getConfiguration } = UseConfigurationData();
   useEffect(() => {
     getClosure();
   }, []);
+  useEffect(() => {
+    getConfiguration();
+  }, []);
+
+  useEffect(() => {
+    console.log("Configuración actual:", configuration);
+  }, [configuration]);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
   const [dateRange, setDateRange] = useState<any>({
@@ -83,11 +100,24 @@ function parkingClosure() {
     return "Dispositivo desconocido";
   };
 
+  const getCashier = () => {
+    const userCookie = Cookies.get("user");
+    if (userCookie) {
+      const userData = JSON.parse(userCookie);
+      return `${userData.name} ${userData.lastName}`;
+    }
+    return "Usuario Desconocido";
+  };
+
   const handleSendEmail = async () => {
     const email = getValuesModal("recoveryEmail");
+    if (!currentClosureId) {
+      toast.error("No se ha seleccionado un cierre");
+      return;
+    }
     setLoading(true);
     try {
-      const result = await resetPassword(email);
+      const result = await postsendEmail(currentClosureId, email);
       if (result) {
         const toastId = toast.success("Informe enviado con éxito");
         resetModal();
@@ -98,13 +128,14 @@ function parkingClosure() {
           }, 500);
         }, 1500);
       } else {
-        toast.error("Correo electrónico no válido");
+        toast.error("Error al enviar el correo");
       }
     } catch (error) {
-      setMessage("Correo electrónico no válido");
-      toast.error("Correo electrónico no válido");
+      setMessage("Error al enviar el correo");
+      toast.error("Error al enviar el correo");
     } finally {
       setLoading(false);
+      setCurrentClosureId(null);
     }
   };
   useEffect(() => {
@@ -181,42 +212,50 @@ function parkingClosure() {
       align: "center",
       renderCell: (params) => (
         <div className="flex justify-center items-center gap-2 h-full w-full">
-          <Button
-            className="w-auto h-auto flex items-center justify-center p-0 min-w-0"
-            color="default"
-            variant="light"
-            isDisabled={!canSeeClouse}
-            size="sm"
-            onPress={() => {
-              handleViewDetails(params.row);
-            }}
-          >
-            <LargeEyeIcon fill={isDark ? "#FFF" : "#000"} />
-          </Button>
-          <Button
-            className="w-auto h-auto flex items-center justify-center p-0 min-w-0"
-            color="default"
-            radius="none"
-            variant="light"
-            isDisabled={!canPrinterClosure}
-            onPress={() => handlenPrint(params.row)}
-          >
-            <PrinterIcon
-              fill={isDark ? "#000" : "#FFF"}
-              stroke={isDark ? "#FFF" : "#000"}
-            />
-          </Button>
-          <Button
-            className="w-auto h-auto flex items-center justify-center p-0 min-w-0"
-            color="default"
-            variant="light"
-            isDisabled={!canSendClouse}
-            onPress={() => {
-              onOpenModal();
-            }}
-          >
-            <LargeSendIcon fill={isDark ? "#FFF" : "#000"} />
-          </Button>
+          <CustomTooltip content={ActionTooltips.VIEW}>
+            <Button
+              className="w-auto h-auto flex items-center justify-center p-0 min-w-0"
+              color="default"
+              variant="light"
+              isDisabled={!canSeeClouse}
+              size="sm"
+              onPress={() => {
+                handleViewDetails(params.row);
+                onOpen();
+              }}
+            >
+              <LargeEyeIcon fill={isDark ? "#FFF" : "#000"} />
+            </Button>
+          </CustomTooltip>
+          <CustomTooltip content={ActionTooltips.PRINT}>
+            <Button
+              className="w-auto h-auto flex items-center justify-center p-0 min-w-0"
+              color="default"
+              radius="none"
+              variant="light"
+              isDisabled={!canPrinterClosure}
+              onPress={() => handlenPrint(params.row)}
+            >
+              <PrinterIcon
+                fill={isDark ? "#000" : "#FFF"}
+                stroke={isDark ? "#FFF" : "#000"}
+              />
+            </Button>
+          </CustomTooltip>
+          <CustomTooltip content={ActionTooltips.SEND_EMAIL}>
+            <Button
+              className="w-auto h-auto flex items-center justify-center p-0 min-w-0"
+              color="default"
+              variant="light"
+              isDisabled={!canSendClouse}
+              onPress={() => {
+                setCurrentClosureId(params.row.id);
+                onOpenModal();
+              }}
+            >
+              <LargeSendIcon fill={isDark ? "#FFF" : "#000"} />
+            </Button>
+          </CustomTooltip>
         </div>
       ),
     },
@@ -269,6 +308,25 @@ function parkingClosure() {
       toast.error("Hubo un error al filtrar los datos.");
     }
   };
+
+  const handleClose = async () => {
+    const cashier = getCashier();
+    setLoadingClose(true);
+    try {
+      const result = await postClosure(cashier);
+      if (result) {
+        toast.success("Cierre realizado con éxito");
+        onCloseClose();
+        await getClosure();
+      } else {
+        toast.error("Error al realizar el cierre");
+      }
+    } catch (error) {
+      toast.error("Error al realizar el cierre");
+    } finally {
+      setLoadingClose(false);
+    }
+  };
   return (
     <section className="h-full">
       <div className="flex justify-between items-center flex-col xl:flex-row overflow-hidden">
@@ -305,9 +363,11 @@ function parkingClosure() {
       <div className="flex items-end flex-col xl:flex-row overflow-hidden -mb-14">
         <div className="flex my-3 justify-end gap-4 items-center h-min flex-wrap md:flex-nowrap w-full">
           <Button
-            className="p-6 px-20 bg-primary w-2 text-white"
+            className="p-6 px-20 bg-primary w-2 relative z-10 text-white"
             color="primary"
             variant="shadow"
+            isDisabled={loading}
+            onPress={onOpenClose}
           >
             Realizar cierre
           </Button>
@@ -342,6 +402,7 @@ function parkingClosure() {
                         DESDE:{" "}
                         {new Date(closureData[0].fromDatetime).toLocaleString()}
                       </p>
+
                       <p>
                         HASTA:{" "}
                         {new Date(closureData[0].toDatetime).toLocaleString()}
@@ -529,7 +590,8 @@ function parkingClosure() {
             <Input
               placeholder="Correo Electrónico"
               type="email"
-              // value={}
+              value={configuration?.informationConfig?.automaticemailClosure}
+              disabled
               {...registerModal("recoveryEmail", { required: true })}
             />
             <div className="h-2">
@@ -544,6 +606,33 @@ function parkingClosure() {
                 {loadingReset ? "Cargando..." : "Continuar"}
               </Button>
               <Button color="primary" variant="ghost" onPress={onCloseModal}>
+                Cancelar
+              </Button>
+            </div>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+      <Modal isOpen={isOpenClose} onOpenChange={onOpenChangeClose}>
+        <ModalContent>
+          <ModalHeader className="flex justify-center items-center">
+            Informe Parcial
+          </ModalHeader>
+          <hr className="separator" />
+          <ModalBody className="my-2">
+            <Input
+              placeholder="Cierre del operador:"
+              type="string"
+              value={getCashier()}
+            />
+            <div className="flex justify-end gap-4 w-full">
+              <Button
+                color="primary"
+                disabled={loadingClose}
+                onPress={handleClose}
+              >
+                {loadingClose ? "Cargando..." : "Generar cierre"}
+              </Button>
+              <Button color="primary" variant="ghost" onPress={onCloseClose}>
                 Cancelar
               </Button>
             </div>

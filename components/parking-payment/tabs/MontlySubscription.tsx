@@ -201,10 +201,11 @@ export default function Mensualidad() {
             <label className="text-base font-bold">N° de meses</label>
             <Input
               type="number"
+              min="1"
               value={String(numberMonths)}
               onChange={handleNumberMonthsChange}
               variant="bordered"
-              className="w-1/2"
+              className="w-14"
             />
           </div>
           {/* <div className="h-2">

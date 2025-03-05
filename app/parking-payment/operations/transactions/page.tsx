@@ -18,6 +18,7 @@ import CustomDataGrid from "@/components/customDataGrid";
 import { title } from "@/components/primitives";
 import withPermission from "@/app/withPermission";
 import { toast } from "sonner";
+import { ActionTooltips, CustomTooltip } from "@/components/customTooltip";
 
 function transaction() {
   ////////////////////////////////////////////////////////////////
@@ -188,19 +189,21 @@ function transaction() {
       minWidth: 150,
       renderCell: (params) => (
         <div className="flex h-full justify-center items-center w-full overflow-hidden">
-          <Button
-            color="default"
-            radius="none"
-            variant="light"
-            className="h-full"
-            onPress={() => handlePrint(params.row.id)}
-          >
-            <PrinterIcon
-              fill={isDark ? "#000" : "#FFF"}
-              size={28}
-              stroke={isDark ? "#FFF" : "#000"}
-            />
-          </Button>
+          <CustomTooltip content={ActionTooltips.PRINT}>
+            <Button
+              color="default"
+              radius="none"
+              variant="light"
+              className="h-full"
+              onPress={() => handlePrint(params.row.id)}
+            >
+              <PrinterIcon
+                fill={isDark ? "#000" : "#FFF"}
+                size={28}
+                stroke={isDark ? "#FFF" : "#000"}
+              />
+            </Button>
+          </CustomTooltip>
         </div>
       ),
     },

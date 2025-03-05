@@ -32,6 +32,7 @@ import {
   CalendarDateTime,
   ZonedDateTime,
 } from "@internationalized/date";
+import { ActionTooltips, CustomTooltip } from "@/components/customTooltip";
 
 const initialIncomeEdit: Income = {
   id: 0,
@@ -212,31 +213,34 @@ function Incomes() {
       align: "center",
       renderCell: (params) => (
         <div className="flex h-full justify-center items-center w-full overflow-hidden">
-          <Button
-            className="w-1 h-full p-1 flex items-center"
-            radius="none"
-            color="default"
-            variant="light"
-            isDisabled={!canEditIncome}
-            onPress={() => handleEditIncome(params.row)}
-          >
-            <PencilIcon fill={isDark ? "#FFF" : "#000"} size={24} />
-          </Button>
-
-          <Button
-            className="w-1 h-full p-1 flex items-center"
-            color="default"
-            radius="none"
-            variant="light"
-            isDisabled={!canPrinterIncome}
-            onPress={() => handlenPrint(params.row)}
-          >
-            <PrinterIcon
-              fill={isDark ? "#000" : "#FFF"}
-              size={28}
-              stroke={isDark ? "#FFF" : "#000"}
-            />
-          </Button>
+          <CustomTooltip content={ActionTooltips.EDIT}>
+            <Button
+              className="w-1 h-full p-1 flex items-center"
+              radius="none"
+              color="default"
+              variant="light"
+              isDisabled={!canEditIncome}
+              onPress={() => handleEditIncome(params.row)}
+            >
+              <PencilIcon fill={isDark ? "#FFF" : "#000"} size={24} />
+            </Button>
+          </CustomTooltip>
+          <CustomTooltip content={ActionTooltips.PRINT}>
+            <Button
+              className="w-1 h-full p-1 flex items-center"
+              color="default"
+              radius="none"
+              variant="light"
+              isDisabled={!canPrinterIncome}
+              onPress={() => handlenPrint(params.row)}
+            >
+              <PrinterIcon
+                fill={isDark ? "#000" : "#FFF"}
+                size={28}
+                stroke={isDark ? "#FFF" : "#000"}
+              />
+            </Button>
+          </CustomTooltip>
         </div>
       ),
     },
