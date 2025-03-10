@@ -172,6 +172,11 @@ export default function VisitanteQr() {
                 customType: service.name,
               });
             }}
+            classNames={{
+              popoverContent: "min-w-[230px] ", // Expande el menú desplegable
+              listboxWrapper: "min-w-[230px] ", // Asegura que el contenedor también tenga suficiente espacio
+              trigger: "whitespace-normal  text-left",
+            }}
           >
             {services &&
               services.map((item) => (
@@ -260,13 +265,13 @@ export default function VisitanteQr() {
             }}
           />
         </div>
-        <div className="flex flex-col place-items-end mb-1 my-2">
+        {/* <div className="flex flex-col place-items-end mb-1 my-2">
           <Checkbox color="primary">
             <p className="text-gray-600  text-base my-1 mr-2">
               Pagar día completo
             </p>
           </Checkbox>
-        </div>
+        </div> */}
         <div className="flex gap-4 justify-between">
           <label
             className="text-base font-bold text-nowrap my-auto w-1/2 text-end"

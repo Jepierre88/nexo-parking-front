@@ -47,7 +47,7 @@ function ParkingPayment() {
 
   const { namePaymentType } = UseListsPaymentMethods("namePaymentType");
   const { getTransactionForPrint } = UseTransactions();
-
+  const [vehicleType, setVehicleType] = useState<string>("");
   // Estados principales del componente
   const [subHeaderTitle, setSubHeaderTitle] = useState("Visitante (QR)");
   const [cardSize, setCard] = useState();
@@ -62,7 +62,7 @@ function ParkingPayment() {
   const [resetKey, setResetKey] = useState(0);
 
   const { state, dispatch, paymentData, setPaymentData } = usePaymentContext();
-
+  const [startDateTime, setStartDatetime] = useState<string>("");
   const {
     isOpen: isOpenModalConfirmation,
     onOpen: onOpenModalConfirmation,
@@ -299,36 +299,40 @@ function ParkingPayment() {
                 </span>
                 <span className="w-full">{paymentData?.vehicleKind}</span>
               </div>
-              <div className="text-base text-start mb-1 flex gap-4 justify-between">
-                <span className="w-full">
-                  <strong>Fecha de entrada:</strong>
-                </span>
-                <span className="w-full">
-                  {paymentData?.validationDetail?.incomeDatetime}
-                </span>
-              </div>
-              <div className="text-base text-start mb-1 flex gap-4 justify-between">
-                <span className="w-full">
-                  <strong>Fecha de salida:</strong>
-                </span>
-                <span className="w-full">{formatDate(new Date())}</span>
-              </div>
-              <hr className="border-t-1 border-neutral-300 my-3" />
-              <div className="text-base text-start mb-1 flex gap-4 justify-between">
-                <span className="w-full">
-                  <strong>Descuento parqueadero:</strong>
-                </span>
-                <span className="w-full">TO DO</span>
-              </div>
-              <div className="text-base text-start mb-1 flex gap-4 justify-between">
-                <span className="w-full">
-                  <strong>Valor parqueadero:</strong>
-                </span>
-                <span className="w-full">
-                  {paymentData?.totalParking &&
-                    `$${paymentData.totalParking.toLocaleString("es-CO")}`}
-                </span>
-              </div>
+              {subHeaderTitle !== "Mensualidad" && (
+                <>
+                  <div className="text-base text-start mb-1 flex gap-4 justify-between">
+                    <span className="w-full">
+                      <strong>Fecha de entrada:</strong>
+                    </span>
+                    <span className="w-full">
+                      {paymentData?.validationDetail?.incomeDatetime}
+                    </span>
+                  </div>
+                  <div className="text-base text-start mb-1 flex gap-4 justify-between">
+                    <span className="w-full">
+                      <strong>Fecha de salida:</strong>
+                    </span>
+                    <span className="w-full">{formatDate(new Date())}</span>
+                  </div>
+                  <hr className="border-t-1 border-neutral-300 my-3" />
+                  <div className="text-base text-start mb-1 flex gap-4 justify-between">
+                    <span className="w-full">
+                      <strong>Descuento parqueadero:</strong>
+                    </span>
+                    <span className="w-full">$</span>
+                  </div>
+                  <div className="text-base text-start mb-1 flex gap-4 justify-between">
+                    <span className="w-full">
+                      <strong>Valor parqueadero:</strong>
+                    </span>
+                    <span className="w-full">
+                      {paymentData?.totalParking &&
+                        `$${paymentData.totalParking.toLocaleString("es-CO")}`}
+                    </span>
+                  </div>
+                </>
+              )}
               <div className="text-base text-start mb-1 flex gap-4 justify-between">
                 <span className="w-full">
                   <strong>Total sin IVA:</strong>
@@ -351,6 +355,42 @@ function ParkingPayment() {
                     `$${paymentData.totalServices.toLocaleString("es-CO")}`}
                 </span>
               </div>
+              {subHeaderTitle === "Mensualidad" && (
+                <>
+                  <div className="min-h-[1rem]"></div>
+                  <h1 className="font-bold text-2xl text-center">
+                    Última mensualidad
+                  </h1>
+                  <div className="min-h-[0.3rem]"></div>
+
+                  <div className="flex flex-col gap-0">
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-base font-bold">Tipo</label>
+                      <Input
+                        className="w-1/2 uppercase"
+                        variant="bordered"
+                        value={vehicleType}
+                        readOnly
+                      />
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-0">
+                    <div className="flex items-center justify-between mb-2">
+                      <label className="text-base font-bold my-auto md:text-nowrap">
+                        Válido hasta
+                      </label>
+                      <Input
+                        className="w-1/2"
+                        variant="bordered"
+                        readOnly
+                        value={startDateTime}
+                        placeholder="dd/mm/yyyy"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </form>
         </CardBody>

@@ -158,8 +158,8 @@ export const dateValidationSchema = z.object({
 export const numberMonthsSchema = z.object({
   numberMonths: z
     .number()
-    .min(1, "Debe Pagar Minimo Un Mes")
-    .max(24, "Como Máximo puedes pagar 24 meses"),
+    .min(1, "Debe Pagar Minimo 1 Mes")
+    .max(24, "Debe Pagar Máximo 24 meses"),
 });
 export const incomeSchema = z.object({
   id: z.string(),

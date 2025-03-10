@@ -328,7 +328,7 @@ function parkingClosure() {
     }
   };
   return (
-    <section className="h-full">
+    <section>
       <div className="flex justify-between items-center flex-col xl:flex-row overflow-hidden">
         <h1 className="text-4xl font-bold my-3 h-20 text-center items-center content-center ">
           Cierres
@@ -377,18 +377,18 @@ function parkingClosure() {
       <Modal
         isOpen={isOpen}
         onOpenChange={onOpenChange}
-        size="2xl"
+        size="full"
         scrollBehavior="inside"
         classNames={{
-          base: " max-h-[96vh]",
-          body: "p-0 max-h-[98vh] overflow-y-auto",
-          wrapper: "h-[90vh]",
+          base: "max-h-[96vh] w-full md:w-[90vw] lg:w-[80vw]", // ✅ Controla el ancho en pantallas grandes
+          body: "p-0 max-h-[90vh] overflow-y-auto", // ✅ Controla el alto del contenido para evitar recortes
+          wrapper: "flex items-center justify-center", // ✅ Centra el modal correctamente
         }}
       >
         <ModalContent>
           {() => (
-            <div className="flex flex-col items-start w-full p-4">
-              <ModalBody className="flex w-full">
+            <div className="flex flex-col w-full p-4 flex-grow min-h-0">
+              <ModalBody className="flex flex-col w-full flex-grow min-h-0 max-h-[80vh] overflow-y-auto">
                 {closureData && (
                   <div className="flex flex-col w-full space-y-4">
                     {/* Encabezado */}
@@ -415,8 +415,8 @@ function parkingClosure() {
                         <h3 className="font-bold">
                           Transacciones {transaccion.transactionType}
                         </h3>
-                        <div className="overflow-x-auto">
-                          <table className="w-full min-w-full">
+                        <div className="overflow-x-auto max-w-full">
+                          <table className="w-full text-sm md:text-base">
                             <thead>
                               <tr className="border-b">
                                 <th className="text-left w-1/2">Item</th>
@@ -455,9 +455,9 @@ function parkingClosure() {
                         <table className="w-full">
                           <thead>
                             <tr className="border-b">
-                              <th className="text-left">Item</th>
-                              <th className="text-center">Cant</th>
-                              <th className="text-right">Total</th>
+                              <th className="text-left w-1/2">Item</th>
+                              <th className="text-center w-1/4">Cant</th>
+                              <th className="text-right w-1/4">Total</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -492,9 +492,9 @@ function parkingClosure() {
                         <table className="w-full">
                           <thead>
                             <tr className="border-b">
-                              <th className="text-left">Item</th>
-                              <th className="text-center">Cant</th>
-                              <th className="text-right">Total</th>
+                              <th className="text-left w-1/2">Item</th>
+                              <th className="text-center w-1/4">Cant</th>
+                              <th className="text-right w-1/4">Total</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -533,9 +533,9 @@ function parkingClosure() {
                         <table className="w-full">
                           <thead>
                             <tr className="border-b">
-                              <th className="text-left">Item</th>
-                              <th className="text-center">Cant</th>
-                              <th className="text-right">Total</th>
+                              <th className="text-left w-1/2">Item</th>
+                              <th className="text-center w-1/4">Cant</th>
+                              <th className="text-right w-1/4">Total</th>
                             </tr>
                           </thead>
                           <tbody>
@@ -615,16 +615,28 @@ function parkingClosure() {
       <Modal isOpen={isOpenClose} onOpenChange={onOpenChangeClose}>
         <ModalContent>
           <ModalHeader className="flex justify-center items-center">
-            Informe Parcial
+            Confirmación del cierre
           </ModalHeader>
           <hr className="separator" />
+
           <ModalBody className="my-2">
-            <Input
-              placeholder="Cierre del operador:"
-              type="string"
-              value={getCashier()}
-            />
-            <div className="flex justify-end gap-4 w-full">
+            <div className="flex items-center gap-2 w-full">
+              <span className="text-black text-base">{getCashier()}</span>
+              <span className="text-black text-base">
+                ¿Desea realizar el cierre?
+              </span>
+            </div>
+            {/* <div className="flex justify-between gap-2 w-full">
+              <div className="flex items-center gap-2 w-full">
+                <span className="text-black text-base">Desde</span>
+                <span className="text-black text-base">{getCashier()}</span>
+              </div>
+              <div className="flex items-center  gap-2 w-full">
+                <span className="text-black text-base">Hasta</span>
+                <span className="text-black text-base">{getCashier()}</span>
+              </div>
+            </div> */}
+            <div className="flex justify-end gap-4 w-full mt-6">
               <Button
                 color="primary"
                 disabled={loadingClose}
