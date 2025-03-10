@@ -18,6 +18,11 @@ export default interface PaymentGenerate {
 	customerIdentificationNumber?: string;
 	vehicleParkingTime: string;
 	extraServices: any;
+	isApportionment?: boolean;
+	customType?: string;
+	monthsForPay?: number;
+	apportionmentStartDatetime?: string;  
+	apportionmentEndDatetime?: string;
 }
 
 interface ExtraServiceGenerate {}

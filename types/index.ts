@@ -55,7 +55,13 @@ export interface PaymentData {
 	totalCost?: number;
 	extraServices: any[];
 	customType: string;
-	selectedServiceChanged?: boolean; 
+	selectedServiceChanged?: boolean;
+	validTo?:string; 
+	numberMonths?:number,
+	monthsForPay?: number;
+	apportionmentStartDatetime?: string;  // <-- Esta es la clave faltante
+	apportionmentEndDatetime?: string;
+	isApportionment?: boolean;
 }
 
 export interface ValidationDetail {
