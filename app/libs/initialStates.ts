@@ -33,5 +33,6 @@ export const initialPaymentData: PaymentData = {
 	vehicleKind: "",
 	selectedService: undefined, // Si es opcional
 	extraServices: [],
+	cashier:"",
 	
 };
