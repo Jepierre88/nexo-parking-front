@@ -62,6 +62,7 @@ export interface PaymentData {
 	apportionmentStartDatetime?: string;  // <-- Esta es la clave faltante
 	apportionmentEndDatetime?: string;
 	isApportionment?: boolean;
+	cashier: string;
 }
 
 export interface ValidationDetail {
@@ -71,6 +72,8 @@ export interface ValidationDetail {
 	incomeDatetime: string;
 	paidDatetime: string;
 	expectedOutcomeDatetime: string;
+	requestedMonthlySubscriptionStartDatetime?: string;
+	requestedMonthlySubscriptionEndDatetime?: 	string;
 }
 
 export interface UserData {
@@ -95,3 +98,25 @@ export interface UserData {
 	plate: string;
    customType: string;
   }
+
+  export interface MonthlySubscriptionPaymentData {
+	identificationType: string;
+	identificationCode: string;
+	vehicleKind: string;
+	plate: string;
+	datetime: string;
+	cashier: string;
+	concept: string;
+	subtotal: number;
+	IVAPercentage: number;
+	IVATotal: number;
+	total: number;
+	monthlySubscriptionStartDatetime: Date;
+	monthlySubscriptionEndDatetime: Date;
+	generationDetail: {
+	  paymentType: number;
+	  cashValue: number;
+	  returnValue: number;
+	};
+  }
+  

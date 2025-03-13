@@ -98,8 +98,86 @@ function ParkingPayment() {
   const clearCart = () => {
     dispatch({ type: "CLEAR_PAYMENTS" });
   };
+  const saveMonthlyPayment = async (data: any, shouldPrint: boolean) => {
+    setLoadingPayment(true);
 
+    toast.promise(
+      axios
+        .post(
+          `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/access-control/monthly-subscription-serviceNewPP/generate`,
+          data
+        )
+        .then(async (response: any) => {
+          console.log("Pago mensual registrado:", response.data);
+          setPaymentData(initialPaymentData);
+
+          if (shouldPrint && response.data.isSuccess) {
+            const printInvoice = async () => {
+              try {
+                const factura: Invoice = await getTransactionForPrint(
+                  response.data.centralConsecutive
+                );
+                const impresora = new Connector("EPSON");
+                await impresora.imprimirFacturaTransaccion(factura);
+                toast.success("Factura impresa exitosamente.");
+              } catch (error) {
+                console.error("Error al imprimir la factura:", error);
+                toast.error("Error al imprimir la factura.");
+              }
+            };
+            await printInvoice();
+          }
+
+          setResetKey(resetKey + 1);
+          return "Pago mensual registrado correctamente";
+        }),
+      {
+        loading: "Procesando el pago mensual...",
+        success: "Pago mensual registrado correctamente",
+        error: (error) => {
+          setPaymentData(initialPaymentData);
+          console.error("Error al registrar el pago mensual:", error);
+          return "Error al registrar el pago mensual. Intenta de nuevo.";
+        },
+        finally: () => {
+          setLoadingPayment(false);
+          onCloseModalConfirmationDos();
+        },
+      }
+    );
+  };
   const handlePayment = async (shouldPrint: boolean) => {
+    if (subHeaderTitle === "Mensualidad") {
+      const monthlyPaymentData = {
+        identificationType: paymentData.identificationType || "CC",
+        identificationCode: paymentData.identificationCode,
+        vehicleKind: paymentData.vehicleKind?.split(" - ")[1] || "",
+        plate: paymentData.plate,
+        datetime: new Date().toISOString(),
+        cashier: user.name || "No Asignado",
+        concept: paymentData.concept,
+        subtotal: paymentData.subtotal || 0,
+        IVAPercentage: paymentData.IVAPercentage || 19,
+        IVATotal: paymentData.IVATotal || 0,
+        total: paymentData.totalCost || 0,
+        monthlySubscriptionStartDatetime:
+          paymentData.validationDetail
+            ?.requestedMonthlySubscriptionStartDatetime,
+        monthlySubscriptionEndDatetime:
+          paymentData.validationDetail?.requestedMonthlySubscriptionEndDatetime,
+        generationDetail: {
+          paymentType:
+            namePaymentType.find((e) => e.namePaymentType === paymentMethod)
+              ?.id || 1,
+          cashValue: moneyReceived,
+          returnValue: cashBack,
+        },
+      };
+      console.log("Datos enviados al backend:", monthlyPaymentData);
+      await saveMonthlyPayment(monthlyPaymentData, shouldPrint);
+      return;
+    }
+
     const services = [];
 
     // Recopila servicios adicionales del carrito
@@ -125,7 +203,7 @@ function ParkingPayment() {
     const dataToPay: PaymentGenerate = {
       cashier: user.name || "No Asignado",
       cashValue: moneyReceived || 0,
-      concept: paymentData.concept || "Desconocido",
+      concept: paymentData.concept,
       discountCode: "",
       datetime: new Date().toISOString(),
       discountTotal: 0,

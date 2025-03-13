@@ -33,6 +33,7 @@ export default function Mensualidad() {
   const [validFrom, setValidFrom] = useState<string>(""); // Válido Desde
   const [validTo, setValidTo] = useState<string>(""); // Válido Hasta
   const [startDateTime, setStartDatetime] = useState<string>("");
+  const [moneyReceived, setMoneyReceived] = useState<number>(0);
   const [startDateError, setStartDateError] = useState<string | null>(null);
   const [endDateError, setEndDateError] = useState<string | null>(null);
   const [numberMonths, setNumberMonths] = useState<number>(1);
@@ -47,6 +48,8 @@ export default function Mensualidad() {
   const [debouncedIdentificationCode, setDebouncedIdentificationCode] =
     useState(identificationCode);
   const [localPlate, setLocalPlate] = useState("");
+  const [selectedServiceType, setSelectedServiceType] = useState("");
+
   const formatWithSlashes = (value: string): string => {
     const cleanedValue = value.replace(/\D/g, "");
     return cleanedValue
@@ -80,17 +83,15 @@ export default function Mensualidad() {
 
   useEffect(() => {
     if (!plate) return;
-
-    const loadingToastId = toast.loading("Validando placa...");
-
+    const loadingToastPlate = toast.loading("Validando placa...");
     const handler = setTimeout(() => {
       setDebouncedPlate(plate);
-      toast.dismiss(loadingToastId);
-    }, 4000);
+      toast.dismiss(loadingToastPlate);
+    }, 3000);
 
     return () => {
       clearTimeout(handler);
-      toast.dismiss(loadingToastId);
+      toast.dismiss(loadingToastPlate);
     };
   }, [plate]);
 
@@ -102,14 +103,30 @@ export default function Mensualidad() {
 
   const validatePlate = async () => {
     try {
+      if (!selectedServiceType) {
+        toast.error("Seleccione el tipo de mensualidad primero");
+        return;
+      }
+
+      if (!identificationCode) {
+        toast.error("Ingrese la cédula primero");
+        return;
+      }
+
+      console.log("Datos a validar:", {
+        selectedServiceType,
+        identificationCode,
+        plate: debouncedPlate,
+        numberMonths,
+      });
       const response = await validate(
-        "Mensualidad", // customType
-        "CC", // identificationType
-        identificationCode, // identificationCode
-        debouncedPlate, // plate
-        "", // discountCode
-        false, // isApportionment
-        numberMonths // monthsForPay
+        selectedServiceType,
+        "CC",
+        identificationCode,
+        debouncedPlate,
+        "",
+        false,
+        numberMonths
       );
 
       console.log("Respuesta de validación:", response);
@@ -125,7 +142,10 @@ export default function Mensualidad() {
           IVATotal: response.IVATotal,
           validationDetail: response.validationDetail,
           totalCost: response.total,
+          identificationCode: response.identificationCode,
+          concept: response.concept,
         });
+
         const startDateFormatted = formatDate(
           response.validationDetail?.requestedMonthlySubscriptionStartDatetime
         );
@@ -141,6 +161,9 @@ export default function Mensualidad() {
         setPaymentData((prev: any) => ({
           ...prev,
           vehicleKind: tipo,
+          validFrom: formatDate(
+            response.validationDetail?.requestedMonthlySubscriptionStartDatetime
+          ),
           validTo: formatDate(
             response.validationDetail?.requestedMonthlySubscriptionEndDatetime
           ),
@@ -195,6 +218,7 @@ export default function Mensualidad() {
     setEndDate("");
     setEndDate("");
     setStartDatetime("");
+    setMoneyReceived(0);
   }, [identificationCode]);
 
   const handleNumberMonthsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -261,29 +285,49 @@ export default function Mensualidad() {
       <form className="flex flex-col gap-0">
         <div className="flex flex-col sm:flex-row items-center justify-between mb-2 gap-2">
           <label className="text-base font-bold">Tipo de mensualidad</label>
-          {canViewSelect && (
-            <Select
-              className="w-full sm:w-1/2"
-              size="sm"
-              variant="bordered"
-              label="Seleccionar"
-              classNames={{
-                popoverContent: "min-w-[190px] ",
-                listboxWrapper: "min-w-[190px] ",
-                trigger: "whitespace-normal  text-left",
-              }}
-            >
-              {services.map((service) => (
-                <SelectItem
-                  key={service.id}
-                  value={service.id}
-                  className="whitespace-normal break-words"
-                >
-                  {service.name}
-                </SelectItem>
-              ))}
-            </Select>
-          )}
+
+          <Select
+            className="w-full sm:w-1/2"
+            size="sm"
+            variant="bordered"
+            label="Seleccionar"
+            value={selectedServiceType}
+            onChange={(e) => {
+              const selectedId = Number(e.target.value);
+              const service = services.find((item) => item.id === selectedId);
+
+              if (!service) {
+                toast.error("Seleccione el tipo de mensualidad");
+                return;
+              }
+
+              console.log("Servicio seleccionado (concept):", service);
+
+              setSelectedServiceType(service.name);
+
+              // Asegurar que `setPaymentData` recibe el estado más reciente
+              setPaymentData((prev: any) => {
+                const updatedPaymentData = {
+                  ...prev,
+                  selectedService: service,
+                  customType: service.name,
+                  concept: service.name,
+                };
+
+                console.log(
+                  "paymentData después de actualizar:",
+                  updatedPaymentData
+                );
+                return updatedPaymentData;
+              });
+            }}
+          >
+            {services.map((service) => (
+              <SelectItem key={service.id} value={service.id}>
+                {service.name}
+              </SelectItem>
+            ))}
+          </Select>
         </div>
 
         <div className="min-h-[0.2rem]"></div>
@@ -329,42 +373,37 @@ export default function Mensualidad() {
                 className="w-full"
                 variant="bordered"
                 value={identificationCode}
-                onChange={(e) => setIdentificationCode(e.target.value)}
+                onChange={(e) => {
+                  setIdentificationCode(e.target.value);
+                  setPaymentData((prev: any) => ({
+                    ...prev,
+                    identificationCode: e.target.value,
+                  }));
+                }}
+                placeholder="Ingrese la identificación"
               />
-              {/* <Button
-                color="primary"
-                className="ml-2"
-                onPress={handleConsult}
-                disabled={loading}
-              >
-                {loading ? <Spinner size="lg" /> : "Consultar"}
-              </Button> */}
             </div>
           </div>
         </div>
-        <div className="flex flex-col gap-0">
-          <div className="flex  items-center justify-between mb-2">
-            <label className="text-base font-bold">Nombres</label>
-            <Input
-              className="w-1/2"
-              variant="bordered"
-              value={firstName}
-              readOnly
-            />
-          </div>
-          <div className="min-h-[0.1rem] text-red-500 text-xs"></div>
+
+        <div className="flex  items-center justify-between mb-2">
+          <label className="text-base font-bold">Nombres</label>
+          <Input
+            className="w-1/2"
+            variant="bordered"
+            value={firstName}
+            readOnly
+          />
         </div>
-        <div className="flex flex-col gap-0">
-          <div className="flex items-center justify-between mb-2">
-            <label className="text-base font-bold">Apellidos</label>
-            <Input
-              className="w-1/2"
-              variant="bordered"
-              value={lastName}
-              readOnly
-            />
-          </div>
-          <div className="min-h-[0.2rem] text-red-500 text-xs"></div>
+
+        <div className="flex items-center justify-between mb-2">
+          <label className="text-base font-bold">Apellidos</label>
+          <Input
+            className="w-1/2"
+            variant="bordered"
+            value={lastName}
+            readOnly
+          />
         </div>
 
         <div className="flex flex-col gap-0">

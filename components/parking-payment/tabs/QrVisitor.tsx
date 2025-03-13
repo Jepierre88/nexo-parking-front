@@ -274,17 +274,7 @@ export default function VisitanteQr() {
           >
             Código de descuento
           </label>
-          <Autocomplete
-            className="w-1/2"
-            variant="bordered"
-            selectorIcon={<></>}
-          >
-            {animals.map((animal) => (
-              <AutocompleteItem key={animal.key}>
-                {animal.label}
-              </AutocompleteItem>
-            ))}
-          </Autocomplete>
+          <Input className="w-1/2" variant="bordered" />
         </div>
         <div className="flex gap-4 justify-between w-full">
           <label
