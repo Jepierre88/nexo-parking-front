@@ -32,6 +32,10 @@ export default function Mensualidad() {
   const [endDate, setEndDate] = useState<string>("");
   const [validFrom, setValidFrom] = useState<string>(""); // Válido Desde
   const [validTo, setValidTo] = useState<string>(""); // Válido Hasta
+  const [
+    lastMonthlySubscriptionEndDatetime,
+    setLastMonthlySubscriptionEndDatetime,
+  ] = useState<string>("");
   const [startDateTime, setStartDatetime] = useState<string>("");
   const [moneyReceived, setMoneyReceived] = useState<number>(0);
   const [startDateError, setStartDateError] = useState<string | null>(null);
@@ -144,6 +148,8 @@ export default function Mensualidad() {
           totalCost: response.total,
           identificationCode: response.identificationCode,
           concept: response.concept,
+          lastMonthlySubscriptionEndDatetime:
+            response.lastMonthlySubscriptionEndDatetime,
         });
 
         const startDateFormatted = formatDate(
@@ -152,6 +158,10 @@ export default function Mensualidad() {
         const endDateFormatted = formatDate(
           response.validationDetail?.requestedMonthlySubscriptionEndDatetime
         );
+        const endDateLast = formatDate(
+          response.validationDetail?.lastMonthlySubscriptionEndDatetime
+        );
+        setLastMonthlySubscriptionEndDatetime(endDateLast);
 
         setValidFrom(startDateFormatted);
         setValidTo(endDateFormatted);
@@ -167,6 +177,7 @@ export default function Mensualidad() {
           validTo: formatDate(
             response.validationDetail?.requestedMonthlySubscriptionEndDatetime
           ),
+          lastMonthlySubscriptionEndDatetime: endDateLast,
         }));
 
         toast.success(response.messageTitle || "Validación exitosa");
@@ -310,14 +321,10 @@ export default function Mensualidad() {
                 const updatedPaymentData = {
                   ...prev,
                   selectedService: service,
-                  customType: service.name,
+                  customType: service,
                   concept: service.name,
                 };
 
-                console.log(
-                  "paymentData después de actualizar:",
-                  updatedPaymentData
-                );
                 return updatedPaymentData;
               });
             }}

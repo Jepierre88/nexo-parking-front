@@ -63,6 +63,7 @@ export interface PaymentData {
 	apportionmentEndDatetime?: string;
 	isApportionment?: boolean;
 	cashier: string;
+	startDateTime?: string;
 }
 
 export interface ValidationDetail {
@@ -74,6 +75,7 @@ export interface ValidationDetail {
 	expectedOutcomeDatetime: string;
 	requestedMonthlySubscriptionStartDatetime?: string;
 	requestedMonthlySubscriptionEndDatetime?: 	string;
+	lastMonthlySubscriptionEndDatetime?: string;
 }
 
 export interface UserData {
