@@ -62,7 +62,7 @@ function ParkingPayment() {
   const [resetKey, setResetKey] = useState(0);
 
   const { state, dispatch, paymentData, setPaymentData } = usePaymentContext();
-  const [startDateTime, setStartDatetime] = useState<string>("");
+
   const {
     isOpen: isOpenModalConfirmation,
     onOpen: onOpenModalConfirmation,
@@ -440,32 +440,29 @@ function ParkingPayment() {
                     Última mensualidad
                   </h1>
                   <div className="min-h-[0.3rem]"></div>
-
-                  <div className="flex flex-col gap-0">
-                    <div className="flex items-center justify-between mb-2">
-                      <label className="text-base font-bold">Tipo</label>
-                      <Input
-                        className="w-1/2 uppercase"
-                        variant="bordered"
-                        value={vehicleType}
-                        readOnly
-                      />
-                    </div>
+                  <div className="text-base text-start mb-1 flex gap-4 justify-between">
+                    <span className="w-full">
+                      <strong>Tipo:</strong>
+                    </span>
+                    <span className="w-full">{paymentData?.vehicleKind}</span>
                   </div>
 
-                  <div className="flex flex-col gap-0">
-                    <div className="flex items-center justify-between mb-2">
-                      <label className="text-base font-bold my-auto md:text-nowrap">
-                        Válido hasta
-                      </label>
-                      <Input
-                        className="w-1/2"
-                        variant="bordered"
-                        readOnly
-                        value={startDateTime}
-                        placeholder="dd/mm/yyyy"
-                      />
-                    </div>
+                  <div className="text-base text-start mb-1 flex gap-4 justify-between">
+                    <span className="w-full">
+                      <strong>Válido hasta:</strong>
+                    </span>
+                    <span className="w-full">
+                      {paymentData?.validationDetail
+                        ?.lastMonthlySubscriptionEndDatetime
+                        ? new Date(
+                            paymentData.validationDetail.lastMonthlySubscriptionEndDatetime
+                          ).toLocaleDateString("es-CO", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                          })
+                        : "No disponible"}
+                    </span>
                   </div>
                 </>
               )}
