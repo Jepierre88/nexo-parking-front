@@ -461,7 +461,7 @@ function ParkingPayment() {
                             month: "2-digit",
                             year: "numeric",
                           })
-                        : "No disponible"}
+                        : ""}
                     </span>
                   </div>
                 </>
