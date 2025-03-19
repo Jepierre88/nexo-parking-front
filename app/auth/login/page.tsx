@@ -190,14 +190,11 @@ export default function Login() {
             >
               <div className="flex flex-col items-center">
                 <Image
-                  src={"/logo-dark.png"}
+                  src={"/NexoParkingAzul.svg"}
                   alt="Logo"
-                  width={120}
-                  height={50}
+                  width={160}
+                  height={80}
                 />
-                <h1 className="text-center  text-sm text-white text-shadow font-medium">
-                  Sistema de Análisis de información Coins Tech
-                </h1>
               </div>
             </CardHeader>
 
