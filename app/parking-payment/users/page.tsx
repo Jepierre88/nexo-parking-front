@@ -276,30 +276,32 @@ const Users = () => {
       >
         <ModalContent>
           {() => (
-            <div className="flex flex-col items-start w-full p-4">
-              <ModalHeader className="flex justify-between w-full">
+            <div className="flex flex-col items-start w-full p-0">
+              <ModalHeader className="flex justify-between w-full pb-0">
                 <h1 className={"text-2xl ${title()}"}>
-                  INFORMACIÓN DE USUARIO
+                  Información De Usuario
                 </h1>
               </ModalHeader>
 
-              <ModalBody className="flex w-full mt-4">
+              <ModalBody className="flex w-full mt-2">
+                <hr className="separator mt-0 mb-2 w-full" />
                 <form
                   className="flex flex-col justify-around h-full"
                   onSubmit={handleSubmit(onSubmit)}
                 >
                   <div className="flex-grow" />
                   <div className="flex flex-col items-start w-98 ">
-                    <div className="flex flex-col mt-2 mb-2 w-96">
-                      <div className="flex items-center mt-2 mb-2 w-full">
+                    <div className="flex flex-col mt-2 w-96">
+                      <div className="flex items-center mt-2 w-full">
                         <label className="text-xl font-bold text-nowrap w-1/3">
                           Usuario
                         </label>
                         <Input
                           className="ml-4 w-2/3"
                           disabled={isView}
-                          placeholder="Digite el usuario"
+                          placeholder="Digita el usuario"
                           type="text"
+                          variant="bordered"
                           {...register("username")}
                         />
                       </div>
@@ -315,8 +317,9 @@ const Users = () => {
                         <Input
                           className="ml-4 w-2/3"
                           disabled={isView}
-                          placeholder="Digite la contraeña"
+                          placeholder="Digita la contraeña"
                           type="password"
+                          variant="bordered"
                           {...register("password")}
                         />
                       </div>
@@ -332,8 +335,9 @@ const Users = () => {
                         <Input
                           className="ml-4 w-2/3"
                           disabled={isView}
-                          placeholder="Digite el email"
+                          placeholder="Digita el email"
                           type="email"
+                          variant="bordered"
                           {...register("email")}
                         />
                       </div>
@@ -349,8 +353,9 @@ const Users = () => {
                         <Input
                           className="ml-4 w-2/3"
                           disabled={isView}
-                          placeholder="Digite el nombre"
+                          placeholder="Digita el nombre"
                           type="text"
+                          variant="bordered"
                           {...register("name")}
                         />
                       </div>
@@ -366,8 +371,9 @@ const Users = () => {
                         <Input
                           className="ml-4 w-2/3"
                           disabled={isView}
-                          placeholder="Digite el apellido"
+                          placeholder="Digita el apellido"
                           type="text"
+                          variant="bordered"
                           {...register("lastName")}
                         />
                       </div>
@@ -383,8 +389,9 @@ const Users = () => {
                         <Input
                           className="ml-4 w-2/3"
                           disabled={isView}
-                          placeholder="Digite el número celular"
+                          placeholder="Digita el número celular"
                           type="text"
+                          variant="bordered"
                           {...register("cellPhoneNumber")}
                         />
                       </div>
@@ -403,8 +410,8 @@ const Users = () => {
                         <Select
                           className="ml-4 w-2/3"
                           disabled={isView}
-                          placeholder="Seleccione el rol"
-                          variant="faded"
+                          placeholder="Selecciona  el rol"
+                          variant="bordered"
                           {...register("realm")}
                           onChange={(e) => setValue("realm", e.target.value)}
                         >
@@ -428,7 +435,7 @@ const Users = () => {
 
                     {/* Botones de acción */}
                     <div className="flex justify-center w-96 mt-4 ">
-                      <Button color="primary" type="submit">
+                      <Button variant="ghost" color="primary" type="submit">
                         Guardar datos
                       </Button>
                     </div>
@@ -458,7 +465,7 @@ const Users = () => {
               <ModalBody className="flex w-full p-0">
                 <hr className="separator mt-0 mb-6 w-full" />
                 <form
-                  className="flex flex-col space-y-6" // Uniform spacing between inputs
+                  className="flex flex-col space-y-6" //
                   onSubmit={handleEditSubmit(onEditSubmit)}
                 >
                   {/* Campos para editar usuario */}
@@ -469,8 +476,9 @@ const Users = () => {
                       <div className="flex flex-col w-2/3">
                         <Input
                           disabled={isView}
-                          placeholder="Digite el nombre"
+                          placeholder="Digita el nombre"
                           type="text"
+                          variant="bordered"
                           {...editRegister("name")}
                         />
                         <div className="h-6 mt-1">
@@ -489,8 +497,9 @@ const Users = () => {
                       <div className="flex flex-col w-2/3">
                         <Input
                           disabled={isView}
-                          placeholder="Digite el apellido"
+                          placeholder="Digita el apellido"
                           type="text"
+                          variant="bordered"
                           {...editRegister("lastName")}
                         />
                         <div className="h-6 mt-1">
@@ -509,8 +518,9 @@ const Users = () => {
                       <div className="flex flex-col w-2/3">
                         <Input
                           disabled={isView}
-                          placeholder="Digite el usuario"
+                          placeholder="Digita el usuario"
                           type="text"
+                          variant="bordered"
                           {...editRegister("username")}
                         />
                         <div className="h-6 mt-1">
@@ -529,8 +539,9 @@ const Users = () => {
                       <div className="flex flex-col w-2/3">
                         <Input
                           disabled={isView}
-                          placeholder="Digite el email"
+                          placeholder="Digita el email"
                           type="email"
+                          variant="bordered"
                           {...editRegister("email")}
                         />
                         <div className="h-6 mt-1">
@@ -548,8 +559,8 @@ const Users = () => {
                         <Select
                           className="w-full"
                           isDisabled={isView}
-                          placeholder="Seleccione el Rol"
-                          variant="faded"
+                          placeholder="Selecciona  el Rol"
+                          variant="bordered"
                           {...editRegister("realm")}
                         >
                           {roles.length > 0 ? (

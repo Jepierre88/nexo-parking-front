@@ -19,7 +19,7 @@ const SelectPermission: React.FC<SelectPermissionProps> = ({
   onChange,
   isDisabled = false,
   className = "",
-  placeholder = "Seleccione una opción",
+  placeholder = "Selecciona  una opción",
   selectedKeys = new Set<string>(),
   variant = "faded",
 }) => {

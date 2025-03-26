@@ -162,7 +162,7 @@ export default function VisitanteQr() {
                 (item) => e.target.value == item.id
               );
               if (!service) {
-                toast.error("Seleccione el tipo de visitante");
+                toast.error("Selecciona  el tipo de visitante");
                 return;
               }
               console.log("Servicio seleccionado ", service);
