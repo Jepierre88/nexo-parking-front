@@ -136,7 +136,7 @@ export const montleSubscription = z.object({
   placa: z
     .string()
     .max(6, "La placa debe tener exactamente 6 caracteres")
-    .regex(/^[A-Za-z0-9]*$/, "Digite la placa sin caracteres especiales"),
+    .regex(/^[A-Za-z0-9]*$/, "Digita la placa sin caracteres especiales"),
 });
 
 export const validateIdentificationCode = z.object({
@@ -144,7 +144,7 @@ export const validateIdentificationCode = z.object({
     .string()
     .min(1, "La cédula es obligatoria")
     .max(15, "El id debe tener maximo 15 caracteres")
-    .regex(/^\d+$/, "Digite la cédula sin caracteres especiales"),
+    .regex(/^\d+$/, "Digita la cédula sin caracteres especiales"),
 });
 export const dateValidationSchema = z.object({
   date: z

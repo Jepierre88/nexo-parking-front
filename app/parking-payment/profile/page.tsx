@@ -96,7 +96,7 @@ const Profile = () => {
                 </label>
                 <Input
                   className="text-xs"
-                  placeholder="Digite la contraseña"
+                  placeholder="Digita la contraseña"
                   size="md"
                   variant="faded"
                   {...register("password")}

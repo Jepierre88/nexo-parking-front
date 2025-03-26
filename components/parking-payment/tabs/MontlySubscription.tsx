@@ -108,7 +108,7 @@ export default function Mensualidad() {
   const validatePlate = async () => {
     try {
       if (!selectedServiceType) {
-        toast.error("Seleccione el tipo de mensualidad primero");
+        toast.error("Selecciona  el tipo de mensualidad primero");
         return;
       }
 
@@ -308,7 +308,7 @@ export default function Mensualidad() {
               const service = services.find((item) => item.id === selectedId);
 
               if (!service) {
-                toast.error("Seleccione el tipo de mensualidad");
+                toast.error("Selecciona  el tipo de mensualidad");
                 return;
               }
 
