@@ -577,7 +577,7 @@ function ParkingPayment() {
               console.log(paymentData);
               if (!paymentMethod) {
                 toast.error("Por favor, selecciona un medio de pago válido");
-                // TODO Modal de error para decir que se seleccione el tipo de pago
+                // TODO Modal de error para decir que se Selecciona  el tipo de pago
               } else if (moneyReceived < (paymentData.totalCost || 0)) {
                 toast.error(
                   "Porfavor, ingrese el dinero para realizar el pago"

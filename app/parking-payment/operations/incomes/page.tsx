@@ -319,75 +319,85 @@ function Incomes() {
         onOpenChange={onOpenChangeEdit}
       >
         <ModalContent>
-          <div className="flex flex-col items-start w-full p-4">
-            <ModalHeader className="flex justify-between w-full">
-              <h1 className={`text-2xl  font-bold ${title()}`}>INGRESO</h1>
-            </ModalHeader>
-            <ModalBody className="flex flex-col w-full mt-4 gap-4">
-              <form
-                className="flex flex-grow flex-col items-start w-full gap-4"
-                onSubmit={handleEditSubmit(handleUpdateIncome)}
-              >
-                {/*Editar Entrada*/}
-                <div className="flex flex-col itms-star w-98">
-                  <div className="flex flex-col mt-2 mb-2 w-96">
-                    <div className="flex items-center mt-2 mb-2 w-96">
-                      <label className="text-xl font-bold text-nowrap w-1/3">
-                        Placa
-                      </label>
-                      <Input
-                        className="ml-4 w-2/3"
-                        placeholder="Digite la placa"
-                        maxLength={6}
-                        type="text"
-                        variant="bordered"
-                        value={incomeEdit.plate}
-                        onChange={(e) => {
-                          handlePlateChange(e.target.value);
-                        }}
-                      />
-                    </div>
+          {() => (
+            <div className="flex flex-col items-start w-full p-4">
+              <ModalHeader className="flex justify-between w-full p-0">
+                <h1 className="text-center text-2xl  font-bold mb-2">
+                  Ingreso
+                </h1>
+              </ModalHeader>
+              <ModalBody className="flex w-full p-0">
+                <hr className="separator mt-0 mb-6 w-full" />
+                <form
+                  className="flex flex-col space-y-6"
+                  onSubmit={handleEditSubmit(handleUpdateIncome)}
+                >
+                  {/*Editar Entrada*/}
+                  <div className="flex flex-col w-full">
+                    {/*campo placa*/}
                     <div className="flex items-center w-full">
-                      <label className="text-xl font-bold w-1/3">
+                      <label className="text-lg font-bold w-1/3">Placa</label>
+                      <div className="flex flex-col w-2/3">
+                        <Input
+                          placeholder="Digita la placa"
+                          maxLength={6}
+                          type="text"
+                          variant="bordered"
+                          value={incomeEdit.plate}
+                          onChange={(e) => {
+                            handlePlateChange(e.target.value);
+                          }}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex items-center w-full">
+                      <label className="text-lg font-bold w-1/3">
                         Tipo de Vehículo
                       </label>
-                      <Input
-                        className="ml-4 w-2/3"
-                        placeholder="Digite el tipo de vehículo"
-                        type="text"
-                        variant="bordered"
-                        value={incomeEdit.vehicleKind}
-                        onChange={(e) => {
-                          handlePlateChange(e.target.value);
-                        }}
-                        readOnly
-                      />
+                      <div className="flex flex-col w-2/3">
+                        <Input
+                          placeholder="Digita el tipo de vehículo"
+                          type="text"
+                          variant="bordered"
+                          value={incomeEdit.vehicleKind}
+                          onChange={(e) => {
+                            handlePlateChange(e.target.value);
+                          }}
+                          readOnly
+                        />
+                      </div>
                     </div>
                     <div className="flex items-center w-full">
-                      <label className="text-xl font-bold w-1/3">
+                      <label className="text-lg font-bold w-1/3">
                         Fecha y Hora
                       </label>
-                      <DateInput
-                        className="ml-4 w-2/3"
-                        lang="es-ES"
-                        hideTimeZone
-                        variant="bordered"
-                        label="Rango de Fechas"
-                        size="md"
-                        value={tryDate}
-                        onChange={handleCurrentDateChangeTRY}
-                      />
+                      <div className="flex flex-col w-2/3">
+                        <DateInput
+                          size="md"
+                          lang="es-ES"
+                          hideTimeZone
+                          variant="bordered"
+                          value={tryDate}
+                          onChange={handleCurrentDateChangeTRY}
+                        />
+                      </div>
                     </div>
-                    <div className="flex justify-end w-full mt-4">
-                      <Button color="primary" size="sm" type="submit">
+                    <div className="flex justify-center mt-4 ">
+                      <Button
+                        color="primary"
+                        size="md"
+                        type="submit"
+                        variant="ghost"
+                      >
                         Guardar Datos
                       </Button>
                     </div>
                   </div>
-                </div>
-              </form>
-            </ModalBody>
-          </div>
+                </form>
+              </ModalBody>
+            </div>
+          )}
         </ModalContent>
       </Modal>
     </section>
