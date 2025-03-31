@@ -1,3 +1,4 @@
+import { CONSTANTS } from "@/config/constants";
 import { parseAbsoluteToLocal } from "@internationalized/date";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -22,7 +23,7 @@ export default function UseOutcomes() {
   useEffect(() => {
     setLoading(true);
     getOutComes(today, todayNight);
-    return () => {};
+    return () => { };
   }, []);
 
   const getOutComes = async (
@@ -34,7 +35,7 @@ export default function UseOutcomes() {
 
     try {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/outcomes/pp`,
+        `${CONSTANTS.APIURL}/outcomes/pp`,
         {
           params: {
             startDateTime: startDateTime?.toISOString(),

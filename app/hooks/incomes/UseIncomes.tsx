@@ -1,3 +1,4 @@
+import { CONSTANTS } from "@/config/constants";
 import { parseAbsoluteToLocal } from "@internationalized/date";
 import axios from "axios";
 import { useEffect, useState } from "react";
@@ -22,7 +23,7 @@ export default function UseIncomes() {
   useEffect(() => {
     setLoading(true);
     getIncomes(today, todayNight);
-    return () => {};
+    return () => { };
   }, []);
 
   const getIncomes = async (
@@ -34,7 +35,7 @@ export default function UseIncomes() {
 
     try {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/incomes/pp`,
+        `${CONSTANTS.APIURL}/incomes/pp`,
         {
           params: {
             startDateTime: startDateTime?.toISOString(),
@@ -62,7 +63,7 @@ export default function UseIncomes() {
     setLoading(true);
     try {
       const response = await axios.patch(
-        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/incomes/${id}`,
+        `${CONSTANTS.APIURL}/incomes/${id}`,
         {
           plate,
         }
@@ -82,7 +83,7 @@ export default function UseIncomes() {
     setLoading(true);
     try {
       const response = await axios.patch(
-        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/incomes/${income.id}`,
+        `${CONSTANTS.APIURL}/incomes/${income.id}`,
         {
           datetime: income.datetime || new Date().toISOString(),
           vehicleKind: income.vehicleKind,

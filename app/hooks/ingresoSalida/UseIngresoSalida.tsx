@@ -1,3 +1,4 @@
+import { CONSTANTS } from "@/config/constants";
 import axios from "axios";
 import { useState } from "react";
 import { toast } from "sonner";
@@ -14,7 +15,7 @@ export default function UseIngresoSalida() {
     setLoading(true);
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/zone-management/access-control/generateManualOutcome/${plate}`
+        `${CONSTANTS.APIURL}/zone-management/access-control/generateManualOutcome/${plate}`
       );
 
       toast.success("Salida manual generada con éxito.");

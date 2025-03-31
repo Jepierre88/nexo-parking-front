@@ -41,6 +41,7 @@ import { Connector } from "../libs/Printer";
 import Cookies from "js-cookie";
 import { useMemo } from "react";
 import UsePermissions from "../hooks/UsePermissions";
+import { CONSTANTS } from "@/config/constants";
 
 function ParkingPayment() {
   const { user } = UseAuthContext();
@@ -104,7 +105,7 @@ function ParkingPayment() {
     toast.promise(
       axios
         .post(
-          `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/access-control/monthly-subscription-serviceNewPP/generate`,
+          `${CONSTANTS.APIURL}/access-control/monthly-subscription-serviceNewPP/generate`,
           data
         )
         .then(async (response: any) => {
@@ -262,7 +263,7 @@ function ParkingPayment() {
     toast.promise(
       axios
         .post(
-          `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/access-control/visitor-service/generateNewPP`,
+          `${CONSTANTS.APIURL}/access-control/visitor-service/generateNewPP`,
           data
         )
         .then(async (response: any) => {
@@ -417,8 +418,7 @@ function ParkingPayment() {
                 </span>
                 <span className="w-full">
                   {paymentData?.subtotal &&
-                    `$${
-                      paymentData.subtotal.toLocaleString("es-CO").split(",")[0]
+                    `$${paymentData.subtotal.toLocaleString("es-CO").split(",")[0]
                     }`}
                 </span>
               </div>
@@ -455,12 +455,12 @@ function ParkingPayment() {
                       {paymentData?.validationDetail
                         ?.lastMonthlySubscriptionEndDatetime
                         ? new Date(
-                            paymentData.validationDetail.lastMonthlySubscriptionEndDatetime
-                          ).toLocaleDateString("es-CO", {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                          })
+                          paymentData.validationDetail.lastMonthlySubscriptionEndDatetime
+                        ).toLocaleDateString("es-CO", {
+                          day: "2-digit",
+                          month: "2-digit",
+                          year: "numeric",
+                        })
                         : ""}
                     </span>
                   </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { CONSTANTS } from "@/config/constants";
 import axios from "axios";
 import { useEffect, useState } from "react";
 
@@ -10,7 +11,7 @@ export default function UseRelationPermissions(id: number) {
     if (!id) return;
     try {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/relationpermissions/${id}`
+        `${CONSTANTS.APIURL}/relationpermissions/${id}`
       );
       setPermissionsById(response.data);
     } catch (error) {

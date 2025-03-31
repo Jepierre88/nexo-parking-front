@@ -1,3 +1,4 @@
+import { CONSTANTS } from "@/config/constants";
 import axios from "axios";
 import { useState } from "react";
 
@@ -8,7 +9,7 @@ export default function UseInformationList() {
     setLoading(true);
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/customer-management/getCustomerInformationList`,
+        `${CONSTANTS.APIURL}/customer-management/getCustomerInformationList`,
         {
           identificationCode,
         }

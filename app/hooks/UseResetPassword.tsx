@@ -2,6 +2,7 @@ import axios from "axios";
 import { useState } from "react";
 
 import { Email } from "@/types";
+import { CONSTANTS } from "@/config/constants";
 
 export default function UseResetPassword() {
   const [loading, setLoading] = useState(false);
@@ -10,7 +11,7 @@ export default function UseResetPassword() {
     setLoading(true);
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/reset-password/init`,
+        `${CONSTANTS.APIURL}/reset-password/init`,
         {
           email: email,
         }

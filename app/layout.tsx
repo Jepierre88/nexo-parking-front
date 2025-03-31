@@ -8,6 +8,7 @@ import { AuthProvider } from "./context/AuthContext";
 
 import { fontSans } from "@/config/fonts";
 import React from "react";
+import { CONSTANTS } from "@/config/constants";
 
 export const metadata: Metadata = {
   title: {
@@ -45,7 +46,7 @@ export default function RootLayout({
           <div className="relative flex flex-col h-screen overflow-x-hidden">
             <NavigateProvider>
               <AuthProvider>
-                {process.env.NODE_ENV === "production" ? (
+                {CONSTANTS.NODE_ENV === "production" ? (
                   <React.StrictMode>{children}</React.StrictMode>
                 ) : (
                   <>{children}</>

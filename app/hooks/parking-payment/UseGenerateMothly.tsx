@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import axios from "axios";
 import { MonthlySubscriptionPaymentData } from "@/types";
 import { UseAuthContext } from "@/app/context/AuthContext";
+import { CONSTANTS } from "@/config/constants";
 
 export async function POST(request: Request) {
   try {
@@ -31,7 +32,7 @@ export async function POST(request: Request) {
 
     // Envío de la solicitud al backend
     const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/access-control/monthly-subscription-serviceNewPP/generate`,
+      `${CONSTANTS.APIURL}/access-control/monthly-subscription-serviceNewPP/generate`,
       requestData
     );
 

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 
 import User from "@/types/User";
 import Signup from "@/types/Auth";
+import { CONSTANTS } from "@/config/constants";
 
 export default function UseUsers() {
   const [users, setUsers] = useState<User[]>([]);
@@ -15,7 +16,7 @@ export default function UseUsers() {
     setLoading(true);
     try {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/users`
+        `${CONSTANTS.APIURL}/users`
       );
       const arrayfilter: User[] = Array.isArray(response.data)
         ? response.data
@@ -50,7 +51,7 @@ export default function UseUsers() {
     setLoading(true);
     try {
       const response = await axios.patch(
-        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/users/${user.id}`,
+        `${CONSTANTS.APIURL}/users/${user.id}`,
         {
           name: user.name,
           lastName: user.lastName,
@@ -73,7 +74,7 @@ export default function UseUsers() {
 
   const createUser = async (signup: Signup) => {
     const response = await axios.post(
-      `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/signupNewPP`,
+      `${CONSTANTS.APIURL}/signupNewPP`,
       {
         username: signup.username,
         password: signup.password,
@@ -94,7 +95,7 @@ export default function UseUsers() {
     setLoading(true);
     try {
       const response = await axios.delete(
-        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/users/${id}`
+        `${CONSTANTS.APIURL}/users/${id}`
       );
       console.log(`Usuario con ID ${id} eliminado:`, response.data);
 
@@ -117,7 +118,7 @@ export default function UseUsers() {
     setLoading(true);
     try {
       const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/reset-password/NewPP`,
+        `${CONSTANTS.APIURL}/reset-password/NewPP`,
         {
           username,
           password,

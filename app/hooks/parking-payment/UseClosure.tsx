@@ -2,6 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { Closure } from "@/types/Closure";
 import { toast } from "sonner";
+import { CONSTANTS } from "@/config/constants";
 
 export default function UseClosure() {
   const [closure, setClosure] = useState<Closure[]>([]);
@@ -27,7 +28,7 @@ export default function UseClosure() {
     setLoading(true);
     try {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/payment-closuresNewPP`,
+        `${CONSTANTS.APIURL}/payment-closuresNewPP`,
         {
           params: {
             limit,
@@ -50,7 +51,7 @@ export default function UseClosure() {
     setLoadingDetails(true);
     try {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/payment-closuresNewPP/${id}`
+        `${CONSTANTS.APIURL}/payment-closuresNewPP/${id}`
       );
       return response.data;
       setClosureDetails(response.data);
@@ -66,7 +67,7 @@ export default function UseClosure() {
     setLoadingDetails(true);
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/payment-closuresNewPP/${cashier}`
+        `${CONSTANTS.APIURL}/payment-closuresNewPP/${cashier}`
       );
       setClosureDetails(response.data);
       return response.data;
@@ -83,7 +84,7 @@ export default function UseClosure() {
     setLoadingDetails(true);
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/sendEmailNewPP/${idClosure}`,
+        `${CONSTANTS.APIURL}/sendEmailNewPP/${idClosure}`,
         { email }
       );
       setClosureDetails(response.data);

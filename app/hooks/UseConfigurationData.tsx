@@ -1,3 +1,4 @@
+import { CONSTANTS } from "@/config/constants";
 import axios from "axios";
 import { useState } from "react";
 
@@ -35,7 +36,7 @@ export default function UseConfigurationData() {
   const getConfiguration = async () => {
     try {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/configuration-data`
+        `${CONSTANTS.APIURL}/configuration-data`
       );
       setConfiguration(response.data);
     } catch (error) {

@@ -25,6 +25,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { loginSchema } from "@/app/schemas/validationSchemas";
 import { LoginData } from "@/types";
 import { toast, Toaster } from "sonner";
+import { CONSTANTS } from "@/config/constants";
 
 export default function Login() {
   const { router } = UseNavigateContext();
@@ -84,8 +85,10 @@ export default function Login() {
   const onSubmit: SubmitHandler<any> = async (data) => {
     setLoading(true);
     try {
+      console.log(CONSTANTS)
+
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/users/loginNewPP`,
+        `${CONSTANTS.APIURL}/users/loginNewPP`,
         data
       );
 
@@ -424,7 +427,7 @@ const RecoveryInputs = ({
 
     try {
       const response = await axios.put(
-        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/reset-password/finish`,
+        `${CONSTANTS.APIURL}/reset-password/finish`,
         {
           resetKey: code,
           password: newPassword,

@@ -28,6 +28,7 @@ import UsePermissions from "@/app/hooks/UsePermissions";
 import UseIngresoSalida from "@/app/hooks/ingresoSalida/UseIngresoSalida";
 import withPermission from "@/app/withPermission";
 import { formatDate } from "@/app/libs/utils";
+import { CONSTANTS } from "@/config/constants";
 
 const enterExit = () => {
   const { hasPermission } = UsePermissions();
@@ -147,7 +148,7 @@ const enterExit = () => {
       setIsLoading(true);
 
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/access-control/visitor-service/generateContingency`,
+        `${CONSTANTS.APIURL}/access-control/visitor-service/generateContingency`,
         {
           plate: placaIn,
           vehicleKind: vehicleType,
@@ -223,7 +224,7 @@ const enterExit = () => {
                 label="Detalles de ingreso"
                 orientation="horizontal"
                 value={vehicleType}
-                onChange={() => {}}
+                onChange={() => { }}
               >
                 <Radio value="CARRO">
                   <Image
@@ -311,7 +312,7 @@ const enterExit = () => {
                 label="Detalles de ingreso"
                 orientation="horizontal"
                 value={vehicleTypeOut}
-                onChange={() => {}}
+                onChange={() => { }}
               >
                 <Radio value="CARRO">
                   <Image
@@ -356,7 +357,7 @@ const enterExit = () => {
                   onChange={handleCurrentDateChange}
                   isReadOnly
 
-                  // isDisabled={!canViewDateOutcome}
+                // isDisabled={!canViewDateOutcome}
                 />
 
                 {/* <div className="w-full">{formatDate(new Date())}</div> */}

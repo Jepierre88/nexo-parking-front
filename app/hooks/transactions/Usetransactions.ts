@@ -2,6 +2,7 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 
 import Transaction from "@/types/Transaction";
+import { CONSTANTS } from "@/config/constants";
 
 export const UseTransactions = () => {
 	const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -15,7 +16,7 @@ export const UseTransactions = () => {
 		try {
 			setLoading(true);
 			const response = await axios.get(
-				`${process.env.NEXT_PUBLIC_LOCAL_APIURL}/transactionPaymentPoint`,
+				`${CONSTANTS.APIURL}/transactionPaymentPoint`,
 				{
 					params: {
 						startDateTime: datetime?.toISOString() || dateWeek.toISOString(),
@@ -36,9 +37,9 @@ export const UseTransactions = () => {
 	const getTransactionForPrint = async (id: number) => {
 		try {
 			const response = await axios.get(
-				`${process.env.NEXT_PUBLIC_LOCAL_APIURL}/printForId/${id}`
+				`${CONSTANTS.APIURL}/printForId/${id}`
 			);
-			
+
 			return response.data;
 		} catch (error) {
 			return null;
@@ -48,7 +49,7 @@ export const UseTransactions = () => {
 
 	useEffect(() => {
 		getTransactions();
-		return () => {};
+		return () => { };
 	}, []);
 
 	return {

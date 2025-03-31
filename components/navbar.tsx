@@ -55,7 +55,7 @@ export const Navbar = () => {
           <Money size={20} /> Pagar
         </>
       ),
-      key: 1,
+      key: "payment", // Changed from 1 to "payment"
       items: [
         {
           label: "Procesos De Pago",
@@ -64,7 +64,6 @@ export const Navbar = () => {
           permission: 4,
         },
       ],
-      //Se crea esta propiedad aca
       background: "bg-secondary bg-opacity-80",
     },
     {
@@ -73,8 +72,7 @@ export const Navbar = () => {
           <Arrow size={20} /> Ingreso y salida de vehículos
         </>
       ),
-
-      key: 3,
+      key: "vehicle", // Changed from 3 to "vehicle"
       items: [
         {
           label: "Ingreso Manual Por Placa",
@@ -90,7 +88,7 @@ export const Navbar = () => {
           <Data size={20} /> Informes
         </>
       ),
-      key: 2,
+      key: "reports", // Changed from 2 to "reports"
       items: [
         {
           label: "Ingresos",
@@ -125,7 +123,7 @@ export const Navbar = () => {
           <Key size={20} /> Administrador
         </>
       ),
-      key: 1,
+      key: "admin", // Changed from 1 to "admin"
       items: [
         {
           label: "Usuarios",
@@ -179,13 +177,12 @@ export const Navbar = () => {
               <NavbarItem>
                 <Button
                   onClick={() => router.push(option.items[0].href)}
-                  className={`px-4 bg-transparent text-white  ${
-                    pathname === option.items[0].href
+                  className={`px-4 bg-transparent text-white  ${pathname === option.items[0].href
                       ? `${option.background ? option.background : "bg-white"}  bg-opacity-20  rounded-md`
                       : ""
 
                     //Llamamos a la propiedad
-                  } ${option.background ? option.background : ""}
+                    } ${option.background ? option.background : ""}
                   ${option.background?.includes("bg-secondary") ? "button-secondary" : "hover:bg-white  hover:bg-opacity-20"}`}
                   radius="md"
                   variant="light"
@@ -199,13 +196,12 @@ export const Navbar = () => {
                   <DropdownTrigger>
                     <Button
                       disableRipple
-                      className={`px-4 bg-transparent text-white  ${
-                        option.items.some((item) =>
-                          pathname.startsWith(item.href)
-                        )
+                      className={`px-4 bg-transparent text-white  ${option.items.some((item) =>
+                        pathname.startsWith(item.href)
+                      )
                           ? "bg-white bg-opacity-20 rounded-md"
                           : ""
-                      }`}
+                        }`}
                       radius="sm"
                       variant="light"
                     >
@@ -242,11 +238,10 @@ export const Navbar = () => {
             <DropdownTrigger>
               <Button
                 disableRipple
-                className={`px-4 bg-transparent text-white transition-all ${
-                  pathname.startsWith("/parking-payment/profile")
+                className={`px-4 bg-transparent text-white transition-all ${pathname.startsWith("/parking-payment/profile")
                     ? "bg-white bg-opacity-20 rounded-md"
                     : ""
-                } hover:bg-white hover:bg-opacity-20`}
+                  } hover:bg-white hover:bg-opacity-20`}
                 radius="sm"
                 variant="light"
               >

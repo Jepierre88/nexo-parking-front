@@ -1,3 +1,4 @@
+import { CONSTANTS } from "@/config/constants";
 import axios from "axios";
 import { useEffect, useState } from "react";
 
@@ -8,7 +9,7 @@ export default function UseServices(type: string) {
     try {
       setIsLoading(true);
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/services`,
+        `${CONSTANTS.APIURL}/services`,
         {
           params: {
             serviceType: type,
@@ -28,7 +29,7 @@ export default function UseServices(type: string) {
   useEffect(() => {
     getServices();
 
-    return () => {};
+    return () => { };
   }, []);
 
   return {

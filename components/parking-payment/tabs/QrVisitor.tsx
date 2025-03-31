@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { Autocomplete, AutocompleteItem } from "@nextui-org/react";
 import { animals } from "@/app/libs/data";
 import { custom } from "zod";
+import { CONSTANTS } from "@/config/constants";
 
 export default function VisitanteQr() {
   const { state, dispatch, paymentData, setPaymentData } = usePaymentContext();
@@ -74,7 +75,7 @@ export default function VisitanteQr() {
   const searchDataValidate = async (data: data) => {
     toast.promise(
       axios.post(
-        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/access-control/visitor-service/validateNewPP`,
+        `${CONSTANTS.APIURL}/access-control/visitor-service/validateNewPP`,
         {
           identificationType: "QR",
           identificationCode: data.identificationCode,

@@ -1,3 +1,4 @@
+import { CONSTANTS } from "@/config/constants";
 import axios from "axios";
 import { useEffect, useState } from "react";
 
@@ -7,7 +8,7 @@ export default function UseRol() {
   const getRoles = async () => {
     try {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/rol`
+        `${CONSTANTS.APIURL}/rol`
       );
       setRoles(response.data);
     } catch (error) {

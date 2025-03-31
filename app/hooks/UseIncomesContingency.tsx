@@ -2,6 +2,7 @@ import axios from "axios";
 import { useState } from "react";
 import { enterExit } from "@/types";
 import IncomeContingency from "@/types/IncomeContingency";
+import { CONSTANTS } from "@/config/constants";
 
 export default function UseIncomesContingency() {
   const [loading, setLoading] = useState(false);
@@ -10,7 +11,7 @@ export default function UseIncomesContingency() {
     setLoading(true);
     try {
       const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/access-control/visitor-service/generateContingency`,
+        `${CONSTANTS.APIURL}/access-control/visitor-service/generateContingency`,
         {
           ...data,
           datetime: data.datetime || new Date().toISOString(),
@@ -36,7 +37,7 @@ export default function UseIncomesContingency() {
   ): Promise<string | null> => {
     try {
       const response = await axios.get(
-        `${process.env.NEXT_PUBLIC_LOCAL_APIURL}/incomes/pp`,
+        `${CONSTANTS.APIURL}/incomes/pp`,
         {
           params: {
             plate,

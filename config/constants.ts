@@ -1,0 +1,5 @@
+export const CONSTANTS = {
+  APIURL: process.env.NEXT_PUBLIC_LOCAL_APIURL,
+  PRINTER_URL: process.env.NEXT_PUBLIC_PRINTER_APIURL,
+  NODE_ENV: process.env.NODE_ENV,
+}
