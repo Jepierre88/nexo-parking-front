@@ -14,6 +14,14 @@ import { Button, CardBody } from "@nextui-org/react";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+
+
+interface PasswordData {
+  password: string;
+  confirmPassword: string;
+}
+
+
 const Profile = () => {
   const [visiblePassword1, setVisiblePassword1] = useState(false);
   const [visiblePassword2, setVisiblePassword2] = useState(false);
@@ -26,15 +34,16 @@ const Profile = () => {
   const { resetPassword } = UseUsers();
 
   const { existingUsernames, existingUserEmails } = UseUsers();
-  const {
-    register,
-    handleSubmit,
-    formState: { errors },
-  } = useForm<UserData>({
-    resolver: zodResolver(editProfileSchema),
-  });
+const {
+  register,
+  handleSubmit,
+  formState: { errors },
+} = useForm<PasswordData>({
+  resolver: zodResolver(editProfileSchema),
+});
 
-  const reset = async (data: UserData) => {
+
+  const reset = async (data: any) => {
     const { password, confirmPassword } = data;
     try {
       const response = await resetPassword(

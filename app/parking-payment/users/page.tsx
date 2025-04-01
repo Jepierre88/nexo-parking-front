@@ -34,6 +34,25 @@ import memoTheme from "@mui/material/utils/memoTheme";
 
 export const dynamic = "force-dynamic";
 
+interface CreateUserData {
+  username: string;
+  password: string;
+  email: string;
+  name: string;
+  lastName: string;
+  cellPhoneNumber: string;
+  realm: string;
+}
+
+interface EditUserData {
+  username: string;
+  email: string;
+  realm: string;
+  name: string;
+  lastName: string;
+}
+
+
 const Users = () => {
   const { roles } = UseRol();
   const [userEdit, setUserEdit] = useState<User>(initialUserEdit);
@@ -62,18 +81,17 @@ const Users = () => {
     handleSubmit,
     setValue,
     formState: { errors },
-  } = useForm<UserData>({
-    resolver: zodResolver(
-      createUserSchema(existingUsernames, existingUserEmails)
-    ),
+  } = useForm<CreateUserData>({
+    resolver: zodResolver(createUserSchema(existingUsernames, existingUserEmails)),
   });
+
 
   const {
     register: editRegister,
     handleSubmit: handleEditSubmit,
     reset: editReset,
     formState: { errors: editErrors },
-  } = useForm<UserData>({
+  } = useForm<EditUserData>({
     resolver: zodResolver(
       editUserSchema(
         existingUsernames,
@@ -101,7 +119,7 @@ const Users = () => {
     onClose: onCloseExitoModal,
   } = useDisclosure();
 
-  const onEditSubmit: SubmitHandler<UserData> = async (data) => {
+  const onEditSubmit = async (data: any) => {
     setLoading(true);
     try {
       console.log("Editando usuario con datos:", data);
@@ -139,7 +157,7 @@ const Users = () => {
     permissions: [];
     eliminated: boolean;
   }
-  const onSubmit: SubmitHandler<UserData> = async (data) => {
+  const onSubmit = async (data: any) => {
     setLoading(true);
     try {
       await createUser(data);
