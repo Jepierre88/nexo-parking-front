@@ -13,16 +13,26 @@ export async function getIncomesAction({
   from?: string;
   to?: string;
   plate?: string;
-  page?: number;
+  page?: string;
 }) {
   try {
     console.log("Fetching incomes")
-    const fromDate = from ? new Date(from) : undefined;
-    const toDate = to ? new Date(to) : undefined;
+    let fromDate: Date;
+    let toDate: Date;
+
+    if (from && to) {
+      fromDate = new Date(from);
+      toDate = new Date(to);
+    } else {
+      // Set default range to current day
+      const now = new Date();
+      fromDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 0, 0, 0);
+      toDate = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59);
+    }
 
     const searchParams = {
-      from: fromDate ? fromDate.toISOString() : undefined,
-      to: toDate ? toDate.toISOString() : undefined,
+      from: fromDate.toISOString(),
+      to: toDate.toISOString(),
       plate: plate ?? undefined,
       page: page ?? undefined,
     }
@@ -30,7 +40,6 @@ export async function getIncomesAction({
     const incomes = await axios.get(
       `${CONSTANTS.APIURL}/incomes`,
       {
-        url: `${CONSTANTS.APIURL}/incomes`,
         method: "GET",
         timeout: 500,
         headers: {

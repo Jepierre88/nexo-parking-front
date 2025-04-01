@@ -22,6 +22,7 @@ import Income from "@/types/Income";
 import CustomDataGrid from "@/components/customDataGrid";
 import { ActionTooltips, CustomTooltip } from "@/components/customTooltip";
 import UsePermissions from "@/app/hooks/UsePermissions";
+import withPermission from "@/app/withPermission";
 
 const initialIncomeEdit: Income = {
   id: 0,
@@ -41,7 +42,7 @@ type IncomesClientProps = {
   initialIncomes: Income[];
 };
 
-export default function IncomesClient({ initialIncomes }: IncomesClientProps) {
+function IncomesClient({ initialIncomes }: IncomesClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { resolvedTheme } = useTheme();
@@ -310,3 +311,5 @@ export default function IncomesClient({ initialIncomes }: IncomesClientProps) {
     </section>
   );
 }
+
+export default withPermission(IncomesClient, 2);

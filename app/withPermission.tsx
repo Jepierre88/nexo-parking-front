@@ -3,8 +3,11 @@ import Cookies from "js-cookie";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-const withPermission = (Component: React.FC, requiredPermission: number) => {
-  return (props: any) => {
+function withPermission<P extends Object>(
+  Component: React.FC<P>,
+  requiredPermission: number
+): React.FC<P> {
+  return function ProtectedComponent(props: P) {
     const [isAllowed, setIsAllowed] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
     const router = useRouter();
@@ -16,7 +19,6 @@ const withPermission = (Component: React.FC, requiredPermission: number) => {
       if (storedToken && storedPermissions) {
         try {
           const parsedPermissions = JSON.parse(storedPermissions);
-
           if (
             Array.isArray(parsedPermissions) &&
             parsedPermissions.includes(requiredPermission)
@@ -30,7 +32,7 @@ const withPermission = (Component: React.FC, requiredPermission: number) => {
           setIsAllowed(false);
         }
       } else {
-        setIsAllowed(false); // No hay token o permisos
+        setIsAllowed(false);
       }
 
       setIsLoading(false);
@@ -42,12 +44,9 @@ const withPermission = (Component: React.FC, requiredPermission: number) => {
       }
     }, [isAllowed, isLoading, router]);
 
-    if (isLoading) {
-      return <p>Cargando...</p>;
-    }
-
+    if (isLoading) return <p>Cargando...</p>;
     return isAllowed ? <Component {...props} /> : null;
   };
-};
+}
 
 export default withPermission;

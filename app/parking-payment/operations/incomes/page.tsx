@@ -6,10 +6,10 @@ import IncomesClient from "./IncomesClient";
 export default async function IncomesPage({
   searchParams,
 }: {
-  searchParams: Promise<{ from?: string; to?: string; plate?: string }>;
+  searchParams: Promise<{ from?: string; to?: string; plate?: string, page?: string }>;
 }) {
-  const { from, to, plate } = await searchParams;
-  const incomes = await getIncomesAction({ from, to, plate });
+  const { from, to, plate, page } = await searchParams;
+  const incomes = await getIncomesAction({ from, to, plate, page });
 
   return <IncomesClient initialIncomes={incomes} />;
 }
