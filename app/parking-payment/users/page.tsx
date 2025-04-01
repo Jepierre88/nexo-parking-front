@@ -53,7 +53,7 @@ interface EditUserData {
 }
 
 
-const Users = () => {
+const Users = ({ }) => {
   const { roles } = UseRol();
   const [userEdit, setUserEdit] = useState<User>(initialUserEdit);
   const [newUser, setNewUser] = useState<Signup>(initialNewUser);

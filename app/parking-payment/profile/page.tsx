@@ -22,7 +22,7 @@ interface PasswordData {
 }
 
 
-const Profile = () => {
+const Profile = ({}) => {
   const [visiblePassword1, setVisiblePassword1] = useState(false);
   const [visiblePassword2, setVisiblePassword2] = useState(false);
   const toggleVisibilityPassword1 = () =>

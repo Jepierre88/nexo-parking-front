@@ -20,7 +20,7 @@ import withPermission from "@/app/withPermission";
 import { toast } from "sonner";
 import { ActionTooltips, CustomTooltip } from "@/components/customTooltip";
 
-function transaction() {
+function transaction({ }) {
   ////////////////////////////////////////////////////////////////
   ///////////////FALTA HOOK DE TRANSACCIONES//////////////////////
   ////////////////////////////////////////////////////////////////

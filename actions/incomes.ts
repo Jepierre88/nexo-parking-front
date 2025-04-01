@@ -51,11 +51,53 @@ export async function getIncomesAction({
 
 
     return incomes.data
-
     // const incomes = await getIncomesFromDb(fromDate, toDate, plate ?? "");
     // return incomes;
   } catch (error) {
     // console.error("Error en getIncomesAction", error);
-    return [];
+    return [
+      {
+        "id": 501,
+        "datetime": "2023-01-17 06:50:46",
+        "state": 0,
+        "identificationMethod": "CC",
+        "identificationId": "1152442957",
+        "vehicle": "",
+        "vehicleKind": "MOTO",
+        "plate": "CCC13D",
+        "plateImage": "C://COINS/img/20230117/11/1673956243552.jpg",
+        "peopleAmount": null,
+        "processId": 465,
+        "incomePointId": null
+      },
+      {
+        "id": 502,
+        "datetime": "2023-01-17 06:50:46",
+        "state": 0,
+        "identificationMethod": "CC",
+        "identificationId": "1152442957",
+        "vehicle": "",
+        "vehicleKind": "MOTO",
+        "plate": "CCC13D",
+        "plateImage": "C://COINS/img/20230117/11/1673956243552.jpg",
+        "peopleAmount": null,
+        "processId": 465,
+        "incomePointId": null
+      },
+      {
+        "id": 503,
+        "datetime": "2023-01-17 06:50:46",
+        "state": 0,
+        "identificationMethod": "CC",
+        "identificationId": "1152442957",
+        "vehicle": "",
+        "vehicleKind": "MOTO",
+        "plate": "CCC13D",
+        "plateImage": "C://COINS/img/20230117/11/1673956243552.jpg",
+        "peopleAmount": null,
+        "processId": 465,
+        "incomePointId": null
+      }
+    ];
   }
 }

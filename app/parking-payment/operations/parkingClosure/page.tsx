@@ -32,7 +32,7 @@ import {
 import { CustomTooltip, ActionTooltips } from "@/components/customTooltip";
 import UseConfigurationData from "@/app/hooks/UseConfigurationData";
 
-function parkingClosure() {
+function parkingClosure({ }) {
   const { hasPermission } = UsePermissions();
   const { closure, getClosure, postClosure } = UseClosure();
   const [closureData, setClosureData] = useState<

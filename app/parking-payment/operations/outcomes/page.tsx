@@ -23,7 +23,7 @@ import withPermission from "@/app/withPermission";
 import UseOutcomes from "@/app/hooks/outcomes/UseOutcomes";
 import { toast } from "sonner";
 
-function Outcomes() {
+function Outcomes({ }) {
   const { outComes, getOutComes } = UseOutcomes();
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
 
@@ -149,7 +149,7 @@ function Outcomes() {
             size="md"
             value={plate}
             onChange={(e) => setPlate(e.target.value.toUpperCase())}
-            // onChange={(e) => setPlate(e.target.value.toUpperCase())}
+          // onChange={(e) => setPlate(e.target.value.toUpperCase())}
           />
           <Button
             className="bg-primary text-white my-auto"

@@ -3,7 +3,7 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@nextui-org/button";
-import { GridColDef } from "@mui/x-data-grid";
+import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@nextui-org/react";
 import { DateInput, DateRangePicker, Input } from "@nextui-org/react";
 import { useTheme } from "next-themes";
 import { getLocalTimeZone, parseAbsoluteToLocal } from "@internationalized/date";
@@ -19,10 +19,11 @@ import {
 } from "@nextui-org/modal";
 import { SubmitHandler, useForm } from "react-hook-form";
 import Income from "@/types/Income";
-import CustomDataGrid from "@/components/customDataGrid";
 import { ActionTooltips, CustomTooltip } from "@/components/customTooltip";
 import UsePermissions from "@/app/hooks/UsePermissions";
 import withPermission from "@/app/withPermission";
+import { TablePagination } from "@/components/Pagination";
+import TableSkeleton from "@/components/TableSkeleton";
 
 const initialIncomeEdit: Income = {
   id: 0,
@@ -38,6 +39,9 @@ const initialIncomeEdit: Income = {
   vehicleKind: "",
 };
 
+// Número de registros por página
+const ITEMS_PER_PAGE = 10;
+
 type IncomesClientProps = {
   initialIncomes: Income[];
 };
@@ -48,7 +52,7 @@ function IncomesClient({ initialIncomes }: IncomesClientProps) {
   const { resolvedTheme } = useTheme();
   const [isDark, setIsDark] = useState(false);
 
-  const { hasPermission } = UsePermissions();
+  const { hasPermission, isLoading } = UsePermissions();
   const canEditIncome = useMemo(() => hasPermission(38), [hasPermission]);
   const canPrinterIncome = useMemo(() => hasPermission(13), [hasPermission]);
 
@@ -89,12 +93,17 @@ function IncomesClient({ initialIncomes }: IncomesClientProps) {
   };
 
   const handleFilter = () => {
-    const params = new URLSearchParams();
+    const params = new URLSearchParams(searchParams.toString());
     if (plate) params.set("plate", plate);
+    else params.delete("plate");
+
     if (dateRange.start)
       params.set("from", dateRange.start.toDate(getLocalTimeZone()).toISOString());
     if (dateRange.end)
       params.set("to", dateRange.end.toDate(getLocalTimeZone()).toISOString());
+
+    // Reset to page 1 when filtering
+    params.set("page", "1");
 
     router.push(`/parking-payment/operations/incomes?${params.toString()}`);
   };
@@ -135,7 +144,7 @@ function IncomesClient({ initialIncomes }: IncomesClientProps) {
     onClose: onCloseEdit,
   } = useDisclosure();
 
-  const handlenPrint = async (row: Income) => {
+  const handlePrint = async (row: Income) => {
     const loadingToastId = toast.loading("Imprimiendo ticket de ingreso...");
 
     try {
@@ -158,55 +167,46 @@ function IncomesClient({ initialIncomes }: IncomesClientProps) {
       .sort((a, b) => new Date(b.datetime).getTime() - new Date(a.datetime).getTime());
   }, [initialIncomes]);
 
-  const columns: GridColDef[] = [
-    { field: "id", headerName: "Id", flex: 1, align: "center", headerAlign: "center" },
-    { field: "datetime", headerName: "Fecha", flex: 1, align: "center", headerAlign: "center" },
-    { field: "identificationMethod", headerName: "Tipo", flex: 1, align: "center", headerAlign: "center" },
-    { field: "identificationId", headerName: "Código", flex: 1, align: "center", headerAlign: "center" },
-    { field: "vehicleKind", headerName: "Tipo Vehículo", flex: 1, align: "center", headerAlign: "center" },
-    { field: "plate", headerName: "Placa", flex: 1, align: "center", headerAlign: "center" },
-    {
-      field: "actions",
-      headerName: "Acciones",
-      minWidth: 300,
-      align: "center",
-      headerAlign: "center",
-      renderCell: (params) => (
-        <div className="flex h-full justify-center items-center w-full overflow-hidden">
-          <CustomTooltip content={ActionTooltips.EDIT}>
-            <Button
-              className="w-1 h-full p-1"
-              radius="none"
-              color="default"
-              variant="light"
-              isDisabled={!canEditIncome}
-              onPress={() => handleEditIncome(params.row)}
-            >
-              <PencilIcon fill={isDark ? "#FFF" : "#000"} size={24} />
-            </Button>
-          </CustomTooltip>
-          <CustomTooltip content={ActionTooltips.PRINT}>
-            <Button
-              className="w-1 h-full p-1"
-              color="default"
-              radius="none"
-              variant="light"
-              isDisabled={!canPrinterIncome}
-              onPress={() => handlenPrint(params.row)}
-            >
-              <PrinterIcon
-                fill={isDark ? "#000" : "#FFF"}
-                size={28}
-                stroke={isDark ? "#FFF" : "#000"}
-              />
-            </Button>
-          </CustomTooltip>
-        </div>
-      ),
-    },
-  ];
+  // Get paginated data
+  const getPaginatedData = () => {
+    const pageParam = searchParams.get("page");
+    const currentPage = pageParam ? parseInt(pageParam) : 1;
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    const end = start + ITEMS_PER_PAGE;
 
-  return (
+    return sortedIncomes.slice(start, end);
+  };
+
+  const paginatedIncomes = getPaginatedData();
+
+  // Formato de fecha para mostrar en la tabla
+  const formatDate = (dateString: string) => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleString('es-ES', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  };
+
+  return isLoading ? (
+    <section className="h-full">
+      <div className="flex justify-between items-center flex-col xl:flex-row overflow-hidden">
+        <h1 className="text-4xl font-bold my-3 h-20 text-center items-center content-center">
+          Entradas
+        </h1>
+        <div className="flex my-3 gap-4 items-center justify-center h-min flex-wrap md:flex-nowrap">
+          <div className="h-12 bg-default-200 rounded-lg animate-pulse w-64" />
+          <div className="h-12 bg-default-200 rounded-lg animate-pulse w-40" />
+          <div className="h-12 bg-default-200 rounded-lg animate-pulse w-32" />
+        </div>
+      </div>
+      <TableSkeleton columns={7} rows={10} />
+    </section>
+  ) : (
     <section className="h-full">
       <div className="flex justify-between items-center flex-col xl:flex-row overflow-hidden">
         <h1 className="text-4xl font-bold my-3 h-20 text-center items-center content-center">
@@ -240,7 +240,75 @@ function IncomesClient({ initialIncomes }: IncomesClientProps) {
         </div>
       </div>
 
-      <CustomDataGrid columns={columns} loading={false} rows={sortedIncomes} />
+      {/* NextUI Table Implementation with Paginated Data */}
+      <div className="w-full overflow-auto">
+        <Table
+          aria-label="Tabla de ingresos"
+          selectionMode="none"
+          color="primary"
+        >
+          <TableHeader>
+            <TableColumn key="id" align="center">Id</TableColumn>
+            <TableColumn key="datetime" align="center">Fecha</TableColumn>
+            <TableColumn key="identificationMethod" align="center">Tipo</TableColumn>
+            <TableColumn key="identificationId" align="center">Código</TableColumn>
+            <TableColumn key="vehicleKind" align="center">Tipo Vehículo</TableColumn>
+            <TableColumn key="plate" align="center">Placa</TableColumn>
+            <TableColumn key="actions" align="center">Acciones</TableColumn>
+          </TableHeader>
+          <TableBody items={paginatedIncomes} emptyContent="No hay registros disponibles">
+            {(item) => (
+              <TableRow key={item.id}>
+                <TableCell>{item.id}</TableCell>
+                <TableCell>{formatDate(item.datetime)}</TableCell>
+                <TableCell>{item.identificationMethod}</TableCell>
+                <TableCell>{item.identificationId}</TableCell>
+                <TableCell>{item.vehicleKind}</TableCell>
+                <TableCell>{item.plate}</TableCell>
+                <TableCell>
+                  <div className="flex justify-center gap-2">
+                    <CustomTooltip content={ActionTooltips.EDIT}>
+                      <Button
+                        isIconOnly
+                        radius="sm"
+                        color="default"
+                        variant="light"
+                        isDisabled={!canEditIncome}
+                        onPress={() => handleEditIncome(item)}
+                      >
+                        <PencilIcon fill={isDark ? "#FFF" : "#000"} size={20} />
+                      </Button>
+                    </CustomTooltip>
+                    <CustomTooltip content={ActionTooltips.PRINT}>
+                      <Button
+                        isIconOnly
+                        radius="sm"
+                        color="default"
+                        variant="light"
+                        isDisabled={!canPrinterIncome}
+                        onPress={() => handlePrint(item)}
+                      >
+                        <PrinterIcon
+                          fill={isDark ? "#000" : "#FFF"}
+                          size={20}
+                          stroke={isDark ? "#FFF" : "#000"}
+                        />
+                      </Button>
+                    </CustomTooltip>
+                  </div>
+                </TableCell>
+              </TableRow>
+            )}
+          </TableBody>
+        </Table>
+      </div>
+
+      {/* Pagination Component */}
+      <div className="flex justify-center my-6">
+        <TablePagination
+          pages={Math.ceil(sortedIncomes.length / ITEMS_PER_PAGE)}
+        />
+      </div>
 
       <Modal isOpen={isOpenEdit} onOpenChange={onOpenChangeEdit}>
         <ModalContent>

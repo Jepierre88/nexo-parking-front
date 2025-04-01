@@ -30,7 +30,7 @@ import withPermission from "@/app/withPermission";
 import { formatDate } from "@/app/libs/utils";
 import { CONSTANTS } from "@/config/constants";
 
-const enterExit = () => {
+const enterExit = ({ }) => {
   const { hasPermission } = UsePermissions();
   const canViewDate = useMemo(() => hasPermission(28), [hasPermission]);
   // const canViewDateOutcome = useMemo(() => hasPermission(41), [hasPermission]);

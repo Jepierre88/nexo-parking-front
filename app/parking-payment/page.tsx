@@ -43,7 +43,7 @@ import { useMemo } from "react";
 import UsePermissions from "../hooks/UsePermissions";
 import { CONSTANTS } from "@/config/constants";
 
-function ParkingPayment() {
+function ParkingPayment({ }) {
   const { user } = UseAuthContext();
 
   const { namePaymentType } = UseListsPaymentMethods("namePaymentType");
