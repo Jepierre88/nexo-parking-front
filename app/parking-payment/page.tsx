@@ -42,6 +42,7 @@ import Cookies from "js-cookie";
 import { useMemo } from "react";
 import UsePermissions from "../hooks/UsePermissions";
 import { CONSTANTS } from "@/config/constants";
+import Factura from "@/types/Invoice";
 
 function ParkingPayment({ }) {
   const { user } = UseAuthContext();
@@ -115,10 +116,15 @@ function ParkingPayment({ }) {
           if (shouldPrint && response.data.isSuccess) {
             const printInvoice = async () => {
               try {
-                const factura: Invoice = await getTransactionForPrint(
+                const factura: Factura | null = await getTransactionForPrint(
                   response.data.centralConsecutive
                 );
-                const impresora = new Connector("EPSON");
+                console.log("FACTURA", factura);
+                if (!factura) {
+                  toast.error("No se pudo obtener la información de la factura.");
+                  return;
+                }
+                const impresora = new Connector(CONSTANTS.PRINTER_NAME);
                 await impresora.imprimirFacturaTransaccion(factura);
                 toast.success("Factura impresa exitosamente.");
               } catch (error) {
@@ -272,11 +278,16 @@ function ParkingPayment({ }) {
 
           const printInvoice = async (transactionId: any) => {
             try {
-              const factura: Invoice =
+              const factura: Factura | null =
                 await getTransactionForPrint(transactionId);
               console.log("FACTURA", factura);
 
-              const impresora = new Connector("EPSON");
+              if (!factura) {
+                toast.error("No se pudo obtener la información de la factura.");
+                return;
+              }
+
+              const impresora = new Connector(CONSTANTS.PRINTER_NAME);
               await impresora.imprimirFacturaTransaccion(factura);
 
               toast.success("Factura impresa exitosamente.");

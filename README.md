@@ -28,6 +28,7 @@ Todos los datos para enviar a el back seran manejados desde el estado paymentDat
   ```php
   NEXT_PUBLIC_PRINTER_APIURL="URL de back de la impresora"
   NEXT_PUBLIC_LOCAL_APIURL="URL de back del punto de pago"
+	NEXT_PUBLIC_PRINTER_NAME="NOMBRE DE LA IMPRESORA, NORMALMENTE EPSON O PRINTER"
   ```
 
 5. Iniciar el servidor de desarrollo:

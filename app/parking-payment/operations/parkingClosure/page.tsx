@@ -31,6 +31,7 @@ import {
 } from "@/types/Closure";
 import { CustomTooltip, ActionTooltips } from "@/components/customTooltip";
 import UseConfigurationData from "@/app/hooks/UseConfigurationData";
+import { CONSTANTS } from "@/config/constants";
 
 function parkingClosure({ }) {
   const { hasPermission } = UsePermissions();
@@ -278,7 +279,7 @@ function parkingClosure({ }) {
         return;
       }
 
-      const impresora = new Connector("EPSON");
+      const impresora = new Connector(CONSTANTS.PRINTER_NAME);
       await impresora.imprimirCierre(closureDetails);
 
       toast.success("Cierre impreso correctamente.", {

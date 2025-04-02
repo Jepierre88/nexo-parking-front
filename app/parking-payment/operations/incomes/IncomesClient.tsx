@@ -3,7 +3,7 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { Button } from "@nextui-org/button";
-import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell } from "@nextui-org/react";
+import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Accordion, AccordionItem } from "@nextui-org/react";
 import { DateInput, DateRangePicker, Input } from "@nextui-org/react";
 import { useTheme } from "next-themes";
 import { getLocalTimeZone, parseAbsoluteToLocal } from "@internationalized/date";
@@ -24,6 +24,8 @@ import UsePermissions from "@/app/hooks/UsePermissions";
 import withPermission from "@/app/withPermission";
 import { TablePagination } from "@/components/Pagination";
 import TableSkeleton from "@/components/TableSkeleton";
+import { CONSTANTS, ITEMS_PER_PAGE } from "@/config/constants";
+import { exportToExcel } from "@/app/libs/utils";
 
 const initialIncomeEdit: Income = {
   id: 0,
@@ -39,14 +41,12 @@ const initialIncomeEdit: Income = {
   vehicleKind: "",
 };
 
-// Número de registros por página
-const ITEMS_PER_PAGE = 10;
 
 type IncomesClientProps = {
-  initialIncomes: Income[];
+  incomes: Income[];
 };
 
-function IncomesClient({ initialIncomes }: IncomesClientProps) {
+function IncomesClient({ incomes }: IncomesClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { resolvedTheme } = useTheme();
@@ -62,7 +62,7 @@ function IncomesClient({ initialIncomes }: IncomesClientProps) {
   const fromParam = searchParams.get("from");
   const toParam = searchParams.get("to");
 
-  const [dateRange, setDateRange] = useState<any>({
+  const [filterDateRange, setFilterDateRange] = useState<any>({
     start: fromParam
       ? parseAbsoluteToLocal(new Date(fromParam).toISOString())
       : parseAbsoluteToLocal(new Date(new Date().setDate(new Date().getDate() - 1)).toISOString()),
@@ -92,15 +92,17 @@ function IncomesClient({ initialIncomes }: IncomesClientProps) {
     }));
   };
 
+  const [exportDateRange, setExportDateRange] = useState<any>({ start: parseAbsoluteToLocal(new Date(new Date().setDate(new Date().getDate() - 1)).toISOString()), end: parseAbsoluteToLocal(new Date().toISOString()), });
+
   const handleFilter = () => {
     const params = new URLSearchParams(searchParams.toString());
     if (plate) params.set("plate", plate);
     else params.delete("plate");
 
-    if (dateRange.start)
-      params.set("from", dateRange.start.toDate(getLocalTimeZone()).toISOString());
-    if (dateRange.end)
-      params.set("to", dateRange.end.toDate(getLocalTimeZone()).toISOString());
+    if (filterDateRange.start)
+      params.set("from", filterDateRange.start.toDate(getLocalTimeZone()).toISOString());
+    if (filterDateRange.end)
+      params.set("to", filterDateRange.end.toDate(getLocalTimeZone()).toISOString());
 
     // Reset to page 1 when filtering
     params.set("page", "1");
@@ -148,7 +150,7 @@ function IncomesClient({ initialIncomes }: IncomesClientProps) {
     const loadingToastId = toast.loading("Imprimiendo ticket de ingreso...");
 
     try {
-      const impresora = new Connector("EPSON");
+      const impresora = new Connector(CONSTANTS.PRINTER_NAME);
       await impresora.imprimirIngreso(row);
       toast.success("Ticket impreso correctamente.", {
         id: loadingToastId,
@@ -160,24 +162,6 @@ function IncomesClient({ initialIncomes }: IncomesClientProps) {
       console.error("Error al imprimir la factura", e);
     }
   };
-
-  const sortedIncomes = useMemo(() => {
-    return initialIncomes
-      .slice()
-      .sort((a, b) => new Date(b.datetime).getTime() - new Date(a.datetime).getTime());
-  }, [initialIncomes]);
-
-  // Get paginated data
-  const getPaginatedData = () => {
-    const pageParam = searchParams.get("page");
-    const currentPage = pageParam ? parseInt(pageParam) : 1;
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    const end = start + ITEMS_PER_PAGE;
-
-    return sortedIncomes.slice(start, end);
-  };
-
-  const paginatedIncomes = getPaginatedData();
 
   // Formato de fecha para mostrar en la tabla
   const formatDate = (dateString: string) => {
@@ -213,14 +197,15 @@ function IncomesClient({ initialIncomes }: IncomesClientProps) {
           Entradas
         </h1>
 
+
         <div className="flex my-3 gap-4 items-center justify-center h-min flex-wrap md:flex-nowrap">
           <DateRangePicker
             lang="es-ES"
             hideTimeZone
             label="Rango de Fechas"
             size="md"
-            value={dateRange}
-            onChange={setDateRange}
+            value={filterDateRange}
+            onChange={setFilterDateRange}
           />
           <Input
             label="Placa"
@@ -240,12 +225,24 @@ function IncomesClient({ initialIncomes }: IncomesClientProps) {
         </div>
       </div>
 
+
       {/* NextUI Table Implementation with Paginated Data */}
       <div className="w-full overflow-auto">
+        <Button onPress={() => {
+          exportToExcel(incomes, "ingresos");
+        }} color="danger" variant="bordered" className="ml-4">
+          Exportar a excel
+        </Button>
         <Table
           aria-label="Tabla de ingresos"
           selectionMode="none"
+          shadow="none"
           color="primary"
+          classNames={{
+            wrapper: "min-h-[530px] max-h-[530px] overfow-y-auto",
+            td: "h-14",
+          }}
+          isHeaderSticky
         >
           <TableHeader>
             <TableColumn key="id" align="center">Id</TableColumn>
@@ -256,7 +253,7 @@ function IncomesClient({ initialIncomes }: IncomesClientProps) {
             <TableColumn key="plate" align="center">Placa</TableColumn>
             <TableColumn key="actions" align="center">Acciones</TableColumn>
           </TableHeader>
-          <TableBody items={paginatedIncomes} emptyContent="No hay registros disponibles">
+          <TableBody items={incomes} emptyContent="No hay registros disponibles">
             {(item) => (
               <TableRow key={item.id}>
                 <TableCell>{item.id}</TableCell>
@@ -306,7 +303,7 @@ function IncomesClient({ initialIncomes }: IncomesClientProps) {
       {/* Pagination Component */}
       <div className="flex justify-center my-6">
         <TablePagination
-          pages={Math.ceil(sortedIncomes.length / ITEMS_PER_PAGE)}
+          pages={Math.ceil(incomes.length / ITEMS_PER_PAGE)}
         />
       </div>
 

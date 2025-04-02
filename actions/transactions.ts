@@ -1,10 +1,10 @@
 "use server";
-import * as XLSX from 'xlsx';
+
 import { CONSTANTS } from "@/config/constants";
-import { parseAbsoluteToLocal } from "@internationalized/date";
+import Transaction from "@/types/Transaction";
 import axios from "axios";
 
-export async function getIncomesAction({
+export async function getTransactionsAction({
   from,
   to,
   plate,
@@ -16,7 +16,7 @@ export async function getIncomesAction({
   page?: string;
 }) {
   try {
-    console.log("Fetching incomes")
+    console.log("Fetching transactions")
     let fromDate: Date;
     let toDate: Date;
 
@@ -37,8 +37,8 @@ export async function getIncomesAction({
       page: page ?? undefined,
     }
 
-    const incomes = await axios.get(
-      `${CONSTANTS.APIURL}/incomes`,
+    const transactions = await axios.get(
+      `${CONSTANTS.APIURL}/transactions`,
       {
         method: "GET",
         timeout: 500,
@@ -50,28 +50,29 @@ export async function getIncomesAction({
     )
 
 
-    return incomes.data
+    return transactions.data
     // const incomes = await getIncomesFromDb(fromDate, toDate, plate ?? "");
     // return incomes;
   } catch (error) {
     // console.error("Error en getIncomesAction", error);
     // lets do a fake response itering an array to generate objects like the below one
-    const incomes = Array.from({ length: 8 }, (_, i) => ({
+    const transactions: Transaction[] = Array.from({ length: 8 }, (_, i) => ({
       id: i + 1,
-      datetime: new Date().toISOString(),
-      state: 0,
-      identificationMethod: "CC",
-      identificationId: "1152442957",
-      vehicle: "",
-      vehicleKind: "MOTO",
-      plate: "CCC13D",
-      plateImage: "C://COINS/img/20230117/11/1673956243552.jpg",
-      peopleAmount: null,
-      processId: 465,
-      incomePointId: null,
+      cashier: `Cashier ${i + 1}`,
+      code: `TRX${1000 + i}`,
+      consecutive: String(i + 1), // Convert to string
+      datetime: new Date().toISOString(), // Convert to string
+      identificationMethod: "QR",
+      namePaymentPoint: `Payment Point ${i + 1}`,
+      namePaymentType: i % 2 === 0 ? "Cash" : "Credit Card",
+      total: 1000 + (i * 100), // Keep as number
+      transactionConcept: "PARKING_FEE",
+      vehicleParkingTime: `${(i + 1) * 30}M`,
+      vehiclePlate: `ABC${100 + i}`,
+      vehicleType: "Car" // Corrected from vehicleTypets
     }));
-    console.log("Fake response", incomes)
-    return incomes
+
+    console.log("Fake response", transactions)
+    return transactions
   }
 }
-

@@ -12,30 +12,30 @@ export default function UseUsers() {
   const [existingUsernames, setExistingUsernames] = useState<string[]>([]);
   const [existingUserEmails, setExistingEmails] = useState<string[]>([]);
 
-  const getUsers = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get(
-        `${CONSTANTS.APIURL}/users`
-      );
-      const arrayfilter: User[] = Array.isArray(response.data)
-        ? response.data
-        : [];
-      const filteredUsers = arrayfilter.filter(
-        (item) => item.realm !== "Consultorio" && item.realm !== "consultorio"
-      );
+  // const getUsers = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const response = await axios.get(
+  //       `${CONSTANTS.APIURL}/users`
+  //     );
+  //     const arrayfilter: User[] = Array.isArray(response.data)
+  //       ? response.data
+  //       : [];
+  //     const filteredUsers = arrayfilter.filter(
+  //       (item) => item.realm !== "Consultorio" && item.realm !== "consultorio"
+  //     );
 
-      setUsers(filteredUsers);
-      setExistingUsernames(filteredUsers.map((user) => user.username));
-      setExistingEmails(filteredUsers.map((user) => user.email));
-      console.log(users);
-    } catch (error) {
-      console.error("Error al obtener los usuarios:", error);
-      setUsers([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     setUsers(filteredUsers);
+  //     setExistingUsernames(filteredUsers.map((user) => user.username));
+  //     setExistingEmails(filteredUsers.map((user) => user.email));
+  //     console.log(users);
+  //   } catch (error) {
+  //     console.error("Error al obtener los usuarios:", error);
+  //     setUsers([]);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const isUserDataUnique = (newUserData: any, existingUsers: User[]) => {
     const exists = existingUsers.some(
@@ -136,16 +136,16 @@ export default function UseUsers() {
     }
   };
 
-  useEffect(() => {
-    setLoading(true);
-    getUsers();
-  }, []);
+  // useEffect(() => {
+  //   setLoading(true);
+  //   getUsers();
+  // }, []);
 
   return {
     users,
     signup,
     loading,
-    getUsers,
+    // getUsers,
     updateUser,
     createUser,
     deleteUser,

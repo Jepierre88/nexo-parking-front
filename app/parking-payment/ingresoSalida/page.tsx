@@ -101,7 +101,7 @@ const enterExit = ({ }) => {
     const loadingToastId = toast.loading("Imprimiendo ticket de ingreso...");
 
     try {
-      const impresora = new Connector("EPSON");
+      const impresora = new Connector(CONSTANTS.PRINTER_NAME);
       await impresora.imprimirIngreso(row);
       toast.success("Ticket impreso correctamente.", {
         id: loadingToastId,

@@ -11,5 +11,5 @@ export default async function IncomesPage({
   const { from, to, plate, page } = await searchParams;
   const incomes = await getIncomesAction({ from, to, plate, page });
 
-  return <IncomesClient initialIncomes={incomes} />;
+  return <IncomesClient incomes={incomes} />;
 }
