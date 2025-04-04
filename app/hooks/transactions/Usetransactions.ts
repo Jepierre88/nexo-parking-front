@@ -1,3 +1,4 @@
+'use client'
 import axios from "axios";
 import { useEffect, useState } from "react";
 
@@ -37,12 +38,21 @@ export const UseTransactions = () => {
 
 	const getTransactionForPrint = async (id: number): Promise<Factura | null> => {
 		try {
+			console.log("id", id); // Agrega esta línea para verificar los dat
 			const response = await axios.get(
-				`${CONSTANTS.APIURL}/printForId/${id}`
+				`${CONSTANTS.APIURL}/printForId`, {
+				headers: {
+					id
+				}
+			}
 			);
+
+			console.log("response", response.data); // Agrega esta línea para verificar los dato
 
 			return response.data;
 		} catch (error) {
+			console.error("Error fetching transactions:", error);
+			throw error;
 			return null;
 		} finally {
 		}

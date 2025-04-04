@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, DateValue, DateRangePicker, Input, Button } from "@nextui-org/react";
 import withPermission from "@/app/withPermission";
 import { TablePagination } from "@/components/Pagination";
@@ -20,17 +20,25 @@ type Outcome = {
 
 type OutcomesClientProps = {
   outcomes: Outcome[];
+  pages: number;
 };
 
 
-function OutcomesClient({ outcomes }: OutcomesClientProps) {
+function OutcomesClient({ outcomes, pages }: OutcomesClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
+  const fromParam = searchParams.get("from");
+  const toParam = searchParams.get("to");
+
   const [plate, setPlate] = useState(searchParams.get("plate") ?? "");
   const [dateRange, setDateRange] = useState<any>({
-    start: parseAbsoluteToLocal(new Date(searchParams.get("from") ?? new Date().toISOString()).toISOString()),
-    end: parseAbsoluteToLocal(new Date(searchParams.get("to") ?? new Date().toISOString()).toISOString()),
+    start: fromParam
+      ? parseAbsoluteToLocal(new Date(fromParam).toISOString())
+      : parseAbsoluteToLocal(new Date(new Date().setDate(new Date().getDate() - 1)).toISOString()),
+    end: toParam
+      ? parseAbsoluteToLocal(new Date(toParam).toISOString())
+      : parseAbsoluteToLocal(new Date().toISOString()),
   });
 
   const formatDate = (dateString: string) => {
@@ -44,6 +52,16 @@ function OutcomesClient({ outcomes }: OutcomesClientProps) {
       minute: "2-digit",
     });
   };
+
+  useEffect(() => {
+    if (!fromParam || !toParam) {
+      setDateRange({
+        start: parseAbsoluteToLocal(new Date(new Date().setDate(new Date().getDate() - 1)).toISOString()),
+        end: parseAbsoluteToLocal(new Date().toISOString()),
+      });
+      handleFilter()
+    }
+  }, [])
 
   // Update the URL when filters change
   const handleFilter = () => {
@@ -151,7 +169,7 @@ function OutcomesClient({ outcomes }: OutcomesClientProps) {
       {/* Pagination Component */}
       <div className="flex justify-center my-6">
         <TablePagination
-          pages={Math.ceil(outcomes.length / ITEMS_PER_PAGE)}
+          pages={pages}
         />
       </div>
     </section>

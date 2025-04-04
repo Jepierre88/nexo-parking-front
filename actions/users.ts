@@ -38,7 +38,7 @@ export const updateUserAction = async (user: User) => {
 
 export const createUserAction = async (signup: Signup) => {
   const response = await axios.post(
-    `${CONSTANTS.APIURL}/signupNewPP`,
+    `${CONSTANTS.APIURL}/signUp`,
     {
       username: signup.username,
       password: signup.password,
@@ -91,30 +91,41 @@ const resetPasswordAction = async (
   }
 };
 
-export const getUsersAction = async () => {
+export const getUsersAction = async ({ page, eliminated }: {
+  page?: string;
+  eliminated?: string;
+}) => {
   try {
     const response = await axios.get(
-      `${CONSTANTS.APIURL}/users`
-    );
-    const arrayfilter: User[] = Array.isArray(response.data)
-      ? response.data
-      : [];
-    const filteredUsers = arrayfilter.filter(
-      (item) => item.realm !== "Consultorio" && item.realm !== "consultorio"
+      `${CONSTANTS.APIURL}/users`,
+      {
+        headers: {
+          page,
+          eliminated,
+        },
+      }
     );
 
-    const existingUsernames = filteredUsers.map(
+    const { meta, data } = response.data;
+    const arrayfilter: User[] = Array.isArray(data)
+      ? data
+      : [];
+    console.log(meta)
+
+    const existingUsernames = arrayfilter.map(
       (user) => user.username
     );
 
-    const existingEmails = filteredUsers.map(
+    const existingEmails = arrayfilter.map(
       (user) => user.email
     );
 
     return {
-      users: filteredUsers,
+      users: arrayfilter,
       existingUsernames,
       existingUserEmails: existingEmails,
+      pages: meta.lastPage,
+      count: meta.count,
     }
   } catch (error) {
     throw error;

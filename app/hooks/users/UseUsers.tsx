@@ -74,7 +74,7 @@ export default function UseUsers() {
 
   const createUser = async (signup: Signup) => {
     const response = await axios.post(
-      `${CONSTANTS.APIURL}/signupNewPP`,
+      `${CONSTANTS.APIURL}/signUp`,
       {
         username: signup.username,
         password: signup.password,

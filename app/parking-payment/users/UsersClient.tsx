@@ -20,12 +20,14 @@ import { useRouter } from "next/navigation";
 import { ActionTooltips, CustomTooltip } from "@/components/customTooltip";
 import { createUserAction, getUserByIdAction, getUsersAction, updateUserAction } from "@/actions/users";
 import UsePermissions from "@/app/hooks/UsePermissions";
+import { TablePagination } from "@/components/Pagination";
 
 interface UsersClientProps {
   users: User[];
   roles: Rol[];
   existingUsernames: string[];
   existingUserEmails: string[];
+  pages: number;
 }
 
 interface EditUserData {
@@ -38,7 +40,7 @@ interface EditUserData {
 
 
 
-function UsersClient({ users, roles, existingUserEmails, existingUsernames }: UsersClientProps) {
+function UsersClient({ users, roles, existingUserEmails, existingUsernames, pages }: UsersClientProps) {
 
   const { hasPermission, permissions, isLoading } = UsePermissions();
   console.log("hasPermission:", permissions); // Agrega esta línea para verificar el valor de hasPermission en la consola
@@ -208,7 +210,7 @@ function UsersClient({ users, roles, existingUserEmails, existingUsernames }: Us
               <TableCell>{item.username}</TableCell>
               <TableCell>{item.email}</TableCell>
               <TableCell>{item.realm}</TableCell>
-              <TableCell>{item.eliminated}</TableCell>
+              <TableCell>{item.eliminated ? "Eliminado" : "Activo"}</TableCell>
               <TableCell>
                 <div className="flex h-full justify-center items-center w-full overflow-hidden">
                   <Button
@@ -236,6 +238,9 @@ function UsersClient({ users, roles, existingUserEmails, existingUsernames }: Us
           )}
         </TableBody>
       </Table>
+      <TablePagination
+        pages={pages}
+      />
       <Modal
         aria-describedby="user-modal-description"
         aria-labelledby="user-modal-title"

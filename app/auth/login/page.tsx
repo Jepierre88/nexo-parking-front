@@ -88,7 +88,7 @@ export default function Login() {
       console.log(CONSTANTS)
 
       const response = await axios.post(
-        `${CONSTANTS.APIURL}/users/loginNewPP`,
+        `${CONSTANTS.APIURL}/login`,
         data
       );
 

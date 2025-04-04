@@ -3,6 +3,7 @@ import * as XLSX from 'xlsx';
 import { CONSTANTS } from "@/config/constants";
 import { parseAbsoluteToLocal } from "@internationalized/date";
 import axios from "axios";
+import Income from '@/types/Income';
 
 export async function getIncomesAction({
   from,
@@ -31,17 +32,17 @@ export async function getIncomesAction({
     }
 
     const searchParams = {
-      from: fromDate.toISOString(),
-      to: toDate.toISOString(),
+      startDateTime: fromDate.toISOString(),
+      endDateTime: toDate.toISOString(),
       plate: plate ?? undefined,
-      page: page ?? undefined,
+      page: page ?? 1,
     }
 
+
     const incomes = await axios.get(
-      `${CONSTANTS.APIURL}/incomes`,
+      `${CONSTANTS.APIURL}/incomes/pp`,
       {
         method: "GET",
-        timeout: 500,
         headers: {
           "Content-Type": "application/json",
           ...searchParams,
@@ -49,29 +50,34 @@ export async function getIncomesAction({
       },
     )
 
+    console.log(searchParams)
 
-    return incomes.data
+
+    return { incomes: incomes.data.data, meta: incomes.data.meta }
     // const incomes = await getIncomesFromDb(fromDate, toDate, plate ?? "");
     // return incomes;
   } catch (error) {
-    // console.error("Error en getIncomesAction", error);
-    // lets do a fake response itering an array to generate objects like the below one
-    const incomes = Array.from({ length: 8 }, (_, i) => ({
-      id: i + 1,
-      datetime: new Date().toISOString(),
-      state: 0,
-      identificationMethod: "CC",
-      identificationId: "1152442957",
-      vehicle: "",
-      vehicleKind: "MOTO",
-      plate: "CCC13D",
-      plateImage: "C://COINS/img/20230117/11/1673956243552.jpg",
-      peopleAmount: null,
-      processId: 465,
-      incomePointId: null,
-    }));
-    console.log("Fake response", incomes)
-    return incomes
+    console.error("Error fetching incomes:", error);
+    throw error;
   }
 }
 
+//TODO Organizar en el back el endpoint
+export const updateIncome = async (income: Income): Promise<Income | null> => {
+  try {
+    const response = await axios.patch(
+      `${CONSTANTS.APIURL}/income/${income.id}`,
+      {
+        datetime: income.datetime || new Date().toISOString(),
+        vehicleKind: income.vehicleKind,
+        plate: income.plate,
+      }
+    );
+
+    console.log("Ingreso actualizado:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("Error al actualizar el ingreso:", error);
+    throw error;
+  }
+};

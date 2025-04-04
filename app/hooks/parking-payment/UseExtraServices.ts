@@ -13,7 +13,11 @@ export default function UseExtraServices() {
 	const getExtraServices = async () => {
 		try {
 			const response = await axios.get(
-				`${CONSTANTS.APIURL}/extraServices`
+				`${CONSTANTS.APIURL}/services`, {
+				headers: {
+					type: "extra"
+				}
+			}
 			);
 			setExtraServices(response.data);
 		} catch (error) {

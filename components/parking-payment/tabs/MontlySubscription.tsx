@@ -249,10 +249,9 @@ export default function Mensualidad() {
     setLoading(true);
     const loadingToastId = toast.loading("Consultando cédula...");
     try {
-      const data = await listInformation(identificationCode);
+      const customer = await listInformation(identificationCode);
       toast.dismiss(loadingToastId);
-      if (data.length > 0) {
-        const customer = data[0];
+      if (customer) {
         setSelectedService(customer.service || null);
         setFirstName(`${customer.firstName} ${customer.secondName || ""}`);
         setLastName(

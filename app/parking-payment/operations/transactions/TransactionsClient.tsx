@@ -6,7 +6,7 @@ import withPermission from "@/app/withPermission";
 import { TablePagination } from "@/components/Pagination";
 import { getLocalTimeZone, parseAbsoluteToLocal } from "@internationalized/date";
 import { useRouter, useSearchParams } from "next/navigation";
-import { ITEMS_PER_PAGE } from "@/config/constants";
+import { CONSTANTS, ITEMS_PER_PAGE } from "@/config/constants";
 import Transaction from "@/types/Transaction";
 import { ActionTooltips, CustomTooltip } from "@/components/customTooltip";
 import { PrinterIcon } from "@/components/icons";
@@ -20,19 +20,27 @@ import { exportToExcel } from "@/app/libs/utils";
 
 type TransactionsClientProps = {
   transactions: Transaction[];
+  pages: number;
 };
 
 
-function TransactionsClient({ transactions }: TransactionsClientProps) {
+function TransactionsClient({ transactions, pages }: TransactionsClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  const fromParam = searchParams.get("from");
+  const toParam = searchParams.get("to");
 
   const { getTransactionForPrint } = UseTransactions()
 
   const [plate, setPlate] = useState(searchParams.get("plate") ?? "");
   const [dateRange, setDateRange] = useState<any>({
-    start: parseAbsoluteToLocal(new Date(searchParams.get("from") ?? new Date().toISOString()).toISOString()),
-    end: parseAbsoluteToLocal(new Date(searchParams.get("to") ?? new Date().toISOString()).toISOString()),
+    start: fromParam
+      ? parseAbsoluteToLocal(new Date(fromParam).toISOString())
+      : parseAbsoluteToLocal(new Date(new Date().setDate(new Date().getDate() - 1)).toISOString()),
+    end: toParam
+      ? parseAbsoluteToLocal(new Date(toParam).toISOString())
+      : parseAbsoluteToLocal(new Date().toISOString()),
   });
 
   const { resolvedTheme } = useTheme();
@@ -53,6 +61,17 @@ function TransactionsClient({ transactions }: TransactionsClientProps) {
   };
 
 
+  useEffect(() => {
+    if (!fromParam || !toParam) {
+      setDateRange({
+        start: parseAbsoluteToLocal(new Date(new Date().setDate(new Date().getDate() - 1)).toISOString()),
+        end: parseAbsoluteToLocal(new Date().toISOString()),
+      });
+      handleFilter()
+    }
+  }, [])
+
+
   // Update the URL when filters change
   const handleFilter = () => {
     const params = new URLSearchParams(searchParams.toString());
@@ -65,7 +84,7 @@ function TransactionsClient({ transactions }: TransactionsClientProps) {
 
     params.set("page", "1"); // Reset to page 1 when filtering
 
-    router.push(`/parking-payment/operations/outcomes?${params.toString()}`);
+    router.push(`/parking-payment/operations/transactions?${params.toString()}`);
   };
 
 
@@ -74,7 +93,7 @@ function TransactionsClient({ transactions }: TransactionsClientProps) {
 
     try {
       // Obtiene la factura
-      const factura: Factura | null = await getTransactionForPrint(259801);
+      const factura: Factura | null = await getTransactionForPrint(id);
       console.log("Factura:", factura);
 
       if (!factura) {
@@ -84,7 +103,7 @@ function TransactionsClient({ transactions }: TransactionsClientProps) {
         return;
       }
 
-      const impresora = new Connector("EPSON");
+      const impresora = new Connector(CONSTANTS.PRINTER_NAME);
 
       // Intenta imprimir la factura
       impresora
@@ -224,7 +243,7 @@ function TransactionsClient({ transactions }: TransactionsClientProps) {
       {/* Pagination Component */}
       <div className="flex justify-center my-6">
         <TablePagination
-          pages={Math.ceil(transactions.length / ITEMS_PER_PAGE)}
+          pages={pages}
         />
       </div>
     </section>

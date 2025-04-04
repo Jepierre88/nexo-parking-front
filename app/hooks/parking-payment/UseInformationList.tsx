@@ -8,11 +8,8 @@ export default function UseInformationList() {
   const listInformation = async (identificationCode: string) => {
     setLoading(true);
     try {
-      const response = await axios.post(
-        `${CONSTANTS.APIURL}/customer-management/getCustomerInformationList`,
-        {
-          identificationCode,
-        }
+      const response = await axios.get(
+        `${CONSTANTS.APIURL}/CustomerInformation/${identificationCode}`,
       );
       return response.data;
     } catch (error: any) {

@@ -148,7 +148,7 @@ const enterExit = ({ }) => {
       setIsLoading(true);
 
       const response = await axios.post(
-        `${CONSTANTS.APIURL}/access-control/visitor-service/generateContingency`,
+        `${CONSTANTS.APIURL}/generateManualIncome`,
         {
           plate: placaIn,
           vehicleKind: vehicleType,

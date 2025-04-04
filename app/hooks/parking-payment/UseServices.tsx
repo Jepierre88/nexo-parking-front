@@ -11,8 +11,8 @@ export default function UseServices(type: string) {
       const response = await axios.get(
         `${CONSTANTS.APIURL}/services`,
         {
-          params: {
-            serviceType: type,
+          headers: {
+            type: type,
           },
         }
       );

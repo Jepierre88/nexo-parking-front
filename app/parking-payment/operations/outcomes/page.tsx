@@ -13,8 +13,10 @@ export default async function OutcomesPage({
 
   // Llamar a la acción para obtener las salidas con los parámetros recibidos
   // const outcomes = await getOutcomesAction({ from, to, plate, page });
-  const outcomes = await getOutcomesAction({ from, to, plate, page });
+  const { outcomes, meta: {
+    lastPage
+  } } = await getOutcomesAction({ from, to, plate, page });
 
   // Pasar los datos obtenidos al cliente
-  return <OutcomesClient outcomes={outcomes} />;
+  return <OutcomesClient outcomes={outcomes} pages={lastPage} />;
 }

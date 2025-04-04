@@ -30,8 +30,8 @@ export async function getOutcomesAction({
     }
 
     const searchParams = {
-      from: fromDate.toISOString(),
-      to: toDate.toISOString(),
+      startDateTime: fromDate.toISOString(),
+      endDateTime: toDate.toISOString(),
       plate: plate ?? undefined,
       page: page ?? undefined,
     }
@@ -40,7 +40,6 @@ export async function getOutcomesAction({
       `${CONSTANTS.APIURL}/outcomes`,
       {
         method: "GET",
-        timeout: 500,
         headers: {
           "Content-Type": "application/json",
           ...searchParams,
@@ -48,43 +47,17 @@ export async function getOutcomesAction({
       },
     )
 
-    const outcomesFake = Array.from({ length: 8 }, (_, i) => ({
-      id: i + 1,
-      datetime: new Date().toISOString(),
-      state: 0,
-      identificationMethod: "CC",
-      identificationId: "1152442957",
-      vehicle: "",
-      vehicleKind: "MOTO",
-      plate: "CCC13D",
-      plateImage: "C://COINS/img/20230117/11/1673956243552.jpg",
-      peopleAmount: null,
-      processId: 465,
-      incomePointId: null,
-    }));
+    console.log(searchParams)
+
+    console.log("outcomes", outcomes.data)
 
 
-    return outcomesFake
+    return {
+      outcomes: outcomes.data.data, meta: outcomes.data.meta
+    }
     // const incomes = await getIncomesFromDb(fromDate, toDate, plate ?? "");
     // return incomes;
   } catch (error) {
-    // console.error("Error en getIncomesAction", error);
-    // lets do a fake response itering an array to generate objects like the below one
-    const outcomes = Array.from({ length: 8 }, (_, i) => ({
-      id: i + 1,
-      datetime: new Date().toISOString(),
-      state: 0,
-      identificationMethod: "CC",
-      identificationId: "1152442957",
-      vehicle: "",
-      vehicleKind: "MOTO",
-      plate: "CCC13D",
-      plateImage: "C://COINS/img/20230117/11/1673956243552.jpg",
-      peopleAmount: null,
-      processId: 465,
-      incomePointId: null,
-    }));
-    console.log("Fake response", outcomes)
-    return outcomes
+    throw error;
   }
 }

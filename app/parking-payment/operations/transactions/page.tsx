@@ -11,8 +11,10 @@ export default async function TransactionsPage({
 
   // Llamar a la acción para obtener las transacciones con los parámetros recibidos
 
-  const transactions = await getTransactionsAction({ from, to, plate, page });
+  const { transactions, meta: {
+    lastPage
+  } } = await getTransactionsAction({ from, to, plate, page });
   // const transactions: Transaction[] = []
   // Pasar los datos obtenidos al cliente
-  return <TransactionsClient transactions={transactions} />;
+  return <TransactionsClient transactions={transactions} pages={lastPage} />;
 }

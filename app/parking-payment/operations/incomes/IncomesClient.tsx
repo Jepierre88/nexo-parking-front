@@ -26,6 +26,7 @@ import { TablePagination } from "@/components/Pagination";
 import TableSkeleton from "@/components/TableSkeleton";
 import { CONSTANTS, ITEMS_PER_PAGE } from "@/config/constants";
 import { exportToExcel } from "@/app/libs/utils";
+import { updateIncome } from "@/actions/incomes";
 
 const initialIncomeEdit: Income = {
   id: 0,
@@ -44,9 +45,10 @@ const initialIncomeEdit: Income = {
 
 type IncomesClientProps = {
   incomes: Income[];
+  pages: number
 };
 
-function IncomesClient({ incomes }: IncomesClientProps) {
+function IncomesClient({ incomes, pages }: IncomesClientProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
   const { resolvedTheme } = useTheme();
@@ -62,6 +64,8 @@ function IncomesClient({ incomes }: IncomesClientProps) {
   const fromParam = searchParams.get("from");
   const toParam = searchParams.get("to");
 
+
+
   const [filterDateRange, setFilterDateRange] = useState<any>({
     start: fromParam
       ? parseAbsoluteToLocal(new Date(fromParam).toISOString())
@@ -69,6 +73,7 @@ function IncomesClient({ incomes }: IncomesClientProps) {
     end: toParam
       ? parseAbsoluteToLocal(new Date(toParam).toISOString())
       : parseAbsoluteToLocal(new Date().toISOString()),
+
   });
 
   const [tryDate, setTryDate] = useState<any>(
@@ -76,6 +81,16 @@ function IncomesClient({ incomes }: IncomesClientProps) {
       ? parseAbsoluteToLocal(new Date(fromParam).toISOString())
       : parseAbsoluteToLocal(new Date().toISOString())
   );
+
+  useEffect(() => {
+    if (!fromParam || !toParam) {
+      setFilterDateRange({
+        start: parseAbsoluteToLocal(new Date(new Date().setDate(new Date().getDate() - 1)).toISOString()),
+        end: parseAbsoluteToLocal(new Date().toISOString()),
+      });
+      handleFilter()
+    }
+  }, [])
 
   useEffect(() => {
     setIsDark(resolvedTheme === "dark");
@@ -125,7 +140,7 @@ function IncomesClient({ incomes }: IncomesClientProps) {
         ...incomeEdit,
         datetime: tryDate.toDate(),
       };
-      // Aquí iría el update real al backend
+      await updateIncome(formattedData);
       toast.success("Ingreso actualizado con éxito.");
       onCloseEdit();
       handleFilter(); // Refresca la URL
@@ -303,7 +318,7 @@ function IncomesClient({ incomes }: IncomesClientProps) {
       {/* Pagination Component */}
       <div className="flex justify-center my-6">
         <TablePagination
-          pages={Math.ceil(incomes.length / ITEMS_PER_PAGE)}
+          pages={pages}
         />
       </div>
 

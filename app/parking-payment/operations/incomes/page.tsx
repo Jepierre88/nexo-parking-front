@@ -9,7 +9,7 @@ export default async function IncomesPage({
   searchParams: Promise<{ from?: string; to?: string; plate?: string, page?: string }>;
 }) {
   const { from, to, plate, page } = await searchParams;
-  const incomes = await getIncomesAction({ from, to, plate, page });
+  const { incomes, meta: { lastPage } } = await getIncomesAction({ from, to, plate, page });
 
-  return <IncomesClient incomes={incomes} />;
+  return <IncomesClient incomes={incomes} pages={lastPage} />;
 }

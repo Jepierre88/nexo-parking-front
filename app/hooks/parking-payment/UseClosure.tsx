@@ -28,7 +28,7 @@ export default function UseClosure() {
     setLoading(true);
     try {
       const response = await axios.get(
-        `${CONSTANTS.APIURL}/payment-closuresNewPP`,
+        `${CONSTANTS.APIURL}/payment-closures`,
         {
           params: {
             limit,
@@ -84,7 +84,7 @@ export default function UseClosure() {
     setLoadingDetails(true);
     try {
       const response = await axios.post(
-        `${CONSTANTS.APIURL}/sendEmailNewPP/${idClosure}`,
+        `${CONSTANTS.APIURL}/sendEmailPaymentClosure/${idClosure}`,
         { email }
       );
       setClosureDetails(response.data);
