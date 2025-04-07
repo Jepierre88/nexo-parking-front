@@ -2,6 +2,7 @@
 
 import { CONSTANTS } from "@/config/constants";
 import axios from "axios";
+import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 
 export default function UseRelationPermissions(id: number) {
@@ -11,7 +12,13 @@ export default function UseRelationPermissions(id: number) {
     if (!id) return;
     try {
       const response = await axios.get(
-        `${CONSTANTS.APIURL}/relationpermissions/${id}`
+        `${CONSTANTS.APIURL}/relationpermissions/${id}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Cookies.get("auth_token")}`,
+          },
+        }
       );
       setPermissionsById(response.data);
     } catch (error) {

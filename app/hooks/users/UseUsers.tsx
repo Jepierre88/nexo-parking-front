@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import User from "@/types/User";
 import Signup from "@/types/Auth";
 import { CONSTANTS } from "@/config/constants";
+import Cookies from "js-cookie";
 
 export default function UseUsers() {
   const [users, setUsers] = useState<User[]>([]);
@@ -59,6 +60,12 @@ export default function UseUsers() {
           email: user.email,
           realm: user.realm,
           eliminated: user.eliminated,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Cookies.get("auth_token")}`,
+          },
         }
       );
 
@@ -83,6 +90,12 @@ export default function UseUsers() {
         lastName: signup.lastName,
         cellPhoneNumber: signup.cellPhoneNumber,
         realm: signup.realm,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${Cookies.get("auth_token")}`,
+        },
       }
     );
 
@@ -95,7 +108,13 @@ export default function UseUsers() {
     setLoading(true);
     try {
       const response = await axios.delete(
-        `${CONSTANTS.APIURL}/users/${id}`
+        `${CONSTANTS.APIURL}/users/${id}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Cookies.get("auth_token")}`,
+          },
+        }
       );
       console.log(`Usuario con ID ${id} eliminado:`, response.data);
 

@@ -1,5 +1,6 @@
 import { CONSTANTS } from "@/config/constants";
 import axios from "axios";
+import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 
 export default function UseListsPaymentMethods(type: string) {
@@ -11,6 +12,10 @@ export default function UseListsPaymentMethods(type: string) {
 				{
 					params: {
 						namePaymentType: type,
+					},
+					headers: {
+						"Content-Type": "application/json",
+						Authorization: `Bearer ${Cookies.get("auth_token")}`,
 					},
 				}
 			);

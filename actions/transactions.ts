@@ -3,6 +3,7 @@
 import { CONSTANTS } from "@/config/constants";
 import Transaction from "@/types/Transaction";
 import axios from "axios";
+import { cookies } from "next/headers";
 
 export async function getTransactionsAction({
   from,
@@ -15,6 +16,10 @@ export async function getTransactionsAction({
   plate?: string;
   page?: string;
 }) {
+  const cookieStore = cookies();
+
+  const token = (await cookieStore).get('auth_token')?.value;
+
   try {
     console.log("Fetching transactions")
     let fromDate: Date;
@@ -44,6 +49,7 @@ export async function getTransactionsAction({
         headers: {
           "Content-Type": "application/json",
           ...searchParams,
+          Authorization: `Bearer ${token}`,
         }
       },
     )

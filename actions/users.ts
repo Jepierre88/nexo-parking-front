@@ -3,6 +3,7 @@ import { CONSTANTS } from "@/config/constants";
 import Signup from "@/types/Auth";
 import User from "@/types/User";
 import axios from "axios";
+import { cookies } from "next/headers";
 
 const isUserDataUnique = (newUserData: any, existingUsers: User[]) => {
   const exists = existingUsers.some(
@@ -15,6 +16,10 @@ const isUserDataUnique = (newUserData: any, existingUsers: User[]) => {
 };
 
 export const updateUserAction = async (user: User) => {
+  const cookieStore = cookies();
+
+  const token = (await cookieStore).get('auth_token')?.value;
+
   try {
     const response = await axios.patch(
       `${CONSTANTS.APIURL}/users/${user.id}`,
@@ -25,7 +30,11 @@ export const updateUserAction = async (user: User) => {
         email: user.email,
         realm: user.realm,
         eliminated: user.eliminated,
+      }, {
+      headers: {
+        Authorization: `Bearer ${token}`,
       }
+    }
     );
 
     console.log("Usuario actualizado:", response.data);
@@ -38,6 +47,10 @@ export const updateUserAction = async (user: User) => {
 };
 
 export const createUserAction = async (signup: Signup) => {
+  const cookieStore = cookies();
+
+  const token = (await cookieStore).get('auth_token')?.value;
+
   try {
     const response = await axios.post(
       `${CONSTANTS.APIURL}/signUp`,
@@ -49,7 +62,11 @@ export const createUserAction = async (signup: Signup) => {
         lastName: signup.lastName,
         cellPhoneNumber: signup.cellPhoneNumber,
         realm: signup.realm,
+      }, {
+      headers: {
+        Authorization: `Bearer ${token}`,
       }
+    }
     );
 
     console.log("Usuario creado:", response.data);
@@ -63,9 +80,17 @@ export const createUserAction = async (signup: Signup) => {
 };
 
 const deleteUserAction = async (id: string) => {
+  const cookieStore = cookies();
+
+  const token = (await cookieStore).get('auth_token')?.value;
+
   try {
     const response = await axios.delete(
-      `${CONSTANTS.APIURL}/users/${id}`
+      `${CONSTANTS.APIURL}/users/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
+    }
     );
     console.log(`Usuario con ID ${id} eliminado:`, response.data);
 
@@ -102,6 +127,10 @@ export const getUsersAction = async ({ page, eliminated }: {
   page?: string;
   eliminated?: string;
 }) => {
+  const cookieStore = cookies();
+
+  const token = (await cookieStore).get('auth_token')?.value;
+
   try {
     const response = await axios.get(
       `${CONSTANTS.APIURL}/users`,
@@ -109,6 +138,7 @@ export const getUsersAction = async ({ page, eliminated }: {
         headers: {
           page,
           eliminated,
+          Authorization: `Bearer ${token}`,
         },
       }
     );
@@ -140,9 +170,17 @@ export const getUsersAction = async ({ page, eliminated }: {
 };
 
 export const getUserByIdAction = async (id: string) => {
+  const cookieStore = cookies();
+
+  const token = (await cookieStore).get('auth_token')?.value;
+
   try {
     const response = await axios.get(
-      `${CONSTANTS.APIURL}/users/${id}`
+      `${CONSTANTS.APIURL}/users/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    }
     );
     console.log(response.data)
     return response.data;
@@ -153,9 +191,17 @@ export const getUserByIdAction = async (id: string) => {
 };
 
 export const getRolesAction = async () => {
+  const cookieStore = cookies();
+
+  const token = (await cookieStore).get('auth_token')?.value;
+
   try {
     const response = await axios.get(
-      `${CONSTANTS.APIURL}/rol`
+      `${CONSTANTS.APIURL}/rol`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      }
+    }
     );
     return response.data;
   } catch (error) {

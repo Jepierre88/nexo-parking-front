@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import Transaction from "@/types/Transaction";
 import { CONSTANTS } from "@/config/constants";
 import Factura from "@/types/Invoice";
+import Cookies from "js-cookie";
 
 export const UseTransactions = () => {
 	const [transactions, setTransactions] = useState<Transaction[]>([]);
@@ -42,7 +43,8 @@ export const UseTransactions = () => {
 			const response = await axios.get(
 				`${CONSTANTS.APIURL}/printForId`, {
 				headers: {
-					id
+					id,
+					Authorization: `Bearer ${Cookies.get("auth_token")}`,
 				}
 			}
 			);

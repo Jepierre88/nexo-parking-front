@@ -1,5 +1,6 @@
 import { CONSTANTS } from "@/config/constants";
 import axios from "axios";
+import Cookies from "js-cookie";
 import { useState } from "react";
 import { toast } from "sonner";
 
@@ -15,7 +16,13 @@ export default function UseIngresoSalida() {
     setLoading(true);
     try {
       const response = await axios.post(
-        `${CONSTANTS.APIURL}/zone-management/access-control/generateManualOutcome/${plate}`
+        `${CONSTANTS.APIURL}/zone-management/access-control/generateManualOutcome/${plate}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Cookies.get("auth_token")}`,
+          },
+        }
       );
 
       toast.success("Salida manual generada con éxito.");

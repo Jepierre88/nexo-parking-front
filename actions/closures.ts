@@ -1,6 +1,7 @@
 "use server";
 import { CONSTANTS } from "@/config/constants";
 import axios from "axios";
+import { cookies } from 'next/headers';
 
 export async function getClosuresAction({
   from,
@@ -11,8 +12,10 @@ export async function getClosuresAction({
   to?: string;
   page?: string;
 }) {
+  const cookieStore = cookies();
+  const token = (await cookieStore).get('auth_token')?.value;
+
   try {
-    console.log("Fetching closures")
     let fromDate: Date;
     let toDate: Date;
 
@@ -40,7 +43,8 @@ export async function getClosuresAction({
         headers: {
           "Content-Type": "application/json",
           ...searchParams,
-        }
+          Authorization: `Bearer ${token}`,
+        },
       },
     )
 
@@ -58,9 +62,19 @@ export async function getClosuresAction({
 }
 
 export const postClosure = async (cashier: string) => {
+  const cookieStore = cookies();
+  const token = (await cookieStore).get('auth_token')?.value;
+
   try {
     const response = await axios.post(
-      `${CONSTANTS.APIURL}/payment-closure/${cashier}`
+      `${CONSTANTS.APIURL}/payment-closure/${cashier}`,
+      {},
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
     return response.data;
   } catch (error) {
@@ -70,9 +84,18 @@ export const postClosure = async (cashier: string) => {
 };
 
 export const getClosureDetails = async (id: number) => {
+  const cookieStore = cookies();
+  const token = (await cookieStore).get('auth_token')?.value;
+
   try {
     const response = await axios.get(
-      `${CONSTANTS.APIURL}/payment-closure/${id}`
+      `${CONSTANTS.APIURL}/payment-closure/${id}`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
     return response.data;
   } catch (error) {
@@ -81,10 +104,19 @@ export const getClosureDetails = async (id: number) => {
 };
 
 export const postsendEmail = async (idClosure: number, email: string) => {
+  const cookieStore = cookies();
+  const token = (await cookieStore).get('auth_token')?.value;
+
   try {
     const response = await axios.post(
       `${CONSTANTS.APIURL}/sendEmailPaymentClosure/${idClosure}`,
-      { email }
+      { email },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
     );
     return response.data;
   } catch (error) {

@@ -1,6 +1,7 @@
 import { CONSTANTS } from "@/config/constants";
 import { parseAbsoluteToLocal } from "@internationalized/date";
 import axios from "axios";
+import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -42,6 +43,10 @@ export default function UseIncomes() {
             endDateTime: endDateTime?.toISOString(),
             plate: plate?.toString(),
           },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Cookies.get("auth_token")}`,
+          },
         }
       );
       const arrayfilter: Income[] = response.data;
@@ -66,7 +71,12 @@ export default function UseIncomes() {
         `${CONSTANTS.APIURL}/incomes/${id}`,
         {
           plate,
-        }
+        }, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${Cookies.get("auth_token")}`,
+        },
+      }
       );
 
       console.log("Placa actualizada:", response.data);
@@ -88,6 +98,12 @@ export default function UseIncomes() {
           datetime: income.datetime || new Date().toISOString(),
           vehicleKind: income.vehicleKind,
           plate: income.plate,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Cookies.get("auth_token")}`,
+          },
         }
       );
 

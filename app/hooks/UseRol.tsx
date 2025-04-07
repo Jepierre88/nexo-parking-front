@@ -1,5 +1,6 @@
 import { CONSTANTS } from "@/config/constants";
 import axios from "axios";
+import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 
 export default function UseRol() {
@@ -8,7 +9,12 @@ export default function UseRol() {
   const getRoles = async () => {
     try {
       const response = await axios.get(
-        `${CONSTANTS.APIURL}/rol`
+        `${CONSTANTS.APIURL}/rol`, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${Cookies.get("auth_token")}`,
+        },
+      }
       );
       setRoles(response.data);
     } catch (error) {

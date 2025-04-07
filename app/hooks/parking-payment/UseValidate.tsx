@@ -1,5 +1,6 @@
 import { CONSTANTS } from "@/config/constants";
 import axios from "axios";
+import Cookies from "js-cookie";
 import { useState } from "react";
 import { number } from "zod";
 
@@ -31,6 +32,12 @@ export default function UseValidate() {
           monthsForPay,
           apportionmentStartDatetime,
           apportionmentEndDatetime,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Cookies.get("auth_token")}`,
+          },
         }
       );
       return response.data;

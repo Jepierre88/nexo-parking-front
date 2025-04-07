@@ -1,5 +1,6 @@
 import { CONSTANTS } from "@/config/constants";
 import axios from "axios";
+import Cookies from "js-cookie";
 import { useState } from "react";
 
 interface ConfigurationData {
@@ -36,7 +37,12 @@ export default function UseConfigurationData() {
   const getConfiguration = async () => {
     try {
       const response = await axios.get(
-        `${CONSTANTS.APIURL}/common`
+        `${CONSTANTS.APIURL}/common`,
+        {
+          headers: {
+            Authorization: `Bearer ${Cookies.get("auth_token")}`,
+          },
+        }
       );
       setConfiguration(response.data);
       console.log("Configuración obtenida:", response.data);

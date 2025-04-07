@@ -1,6 +1,7 @@
 import { CONSTANTS } from "@/config/constants";
 import { parseAbsoluteToLocal } from "@internationalized/date";
 import axios from "axios";
+import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -41,6 +42,10 @@ export default function UseOutcomes() {
             startDateTime: startDateTime?.toISOString(),
             endDateTime: endDateTime?.toISOString(),
             plate: plate?.toString(),
+          },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Cookies.get("auth_token")}`,
           },
         }
       );

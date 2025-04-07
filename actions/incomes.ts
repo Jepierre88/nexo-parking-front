@@ -4,6 +4,7 @@ import { CONSTANTS } from "@/config/constants";
 import { parseAbsoluteToLocal } from "@internationalized/date";
 import axios from "axios";
 import Income from '@/types/Income';
+import { cookies } from 'next/headers';
 
 export async function getIncomesAction({
   from,
@@ -16,11 +17,13 @@ export async function getIncomesAction({
   plate?: string;
   page?: string;
 }) {
+  const cookieStore = cookies();
+
+  const token = (await cookieStore).get('auth_token')?.value;
   try {
     console.log("Fetching incomes")
     let fromDate: Date;
     let toDate: Date;
-
     if (from && to) {
       fromDate = new Date(from);
       toDate = new Date(to);
@@ -46,6 +49,7 @@ export async function getIncomesAction({
         headers: {
           "Content-Type": "application/json",
           ...searchParams,
+          Authorization: `Bearer ${token}`,
         }
       },
     )
@@ -64,6 +68,10 @@ export async function getIncomesAction({
 
 //TODO Organizar en el back el endpoint
 export const updateIncome = async (income: Income): Promise<Income | null> => {
+  const cookieStore = cookies();
+
+  const token = (await cookieStore).get('auth_token')?.value;
+
   try {
     const response = await axios.put(
       `${CONSTANTS.APIURL}/income/${income.id}`,
@@ -71,7 +79,12 @@ export const updateIncome = async (income: Income): Promise<Income | null> => {
         // datetime: income.datetime || new Date().toISOString(),
         // vehicleKind: income.vehicleKind,
         plate: income.plate,
-      }
+      }, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      },
+    }
     );
     // await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate a 2-second delay for the respons
     console.log("Ingreso actualizado:", response.data);

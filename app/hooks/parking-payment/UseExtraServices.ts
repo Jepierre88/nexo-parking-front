@@ -1,6 +1,7 @@
 import { CONSTANTS } from "@/config/constants";
 import ExtraService from "@/types/ExtraService";
 import axios from "axios";
+import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 
 export default function UseExtraServices() {
@@ -15,7 +16,8 @@ export default function UseExtraServices() {
 			const response = await axios.get(
 				`${CONSTANTS.APIURL}/services`, {
 				headers: {
-					type: "extra"
+					type: "extra",
+					Authorization: `Bearer ${Cookies.get("auth_token")}`,
 				}
 			}
 			);

@@ -2,6 +2,7 @@
 
 import { CONSTANTS } from "@/config/constants";
 import axios from "axios";
+import { cookies } from "next/headers";
 
 export async function getOutcomesAction({
   from,
@@ -14,6 +15,10 @@ export async function getOutcomesAction({
   plate?: string;
   page?: string;
 }) {
+  const cookieStore = cookies();
+
+  const token = (await cookieStore).get('auth_token')?.value;
+
   try {
     console.log("Fetching outcomes")
     let fromDate: Date;
@@ -43,6 +48,7 @@ export async function getOutcomesAction({
         headers: {
           "Content-Type": "application/json",
           ...searchParams,
+          Authorization: `Bearer ${token}`,
         }
       },
     )

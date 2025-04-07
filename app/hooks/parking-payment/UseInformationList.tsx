@@ -1,5 +1,6 @@
 import { CONSTANTS } from "@/config/constants";
 import axios from "axios";
+import Cookies from "js-cookie";
 import { useState } from "react";
 
 export default function UseInformationList() {
@@ -10,6 +11,12 @@ export default function UseInformationList() {
     try {
       const response = await axios.get(
         `${CONSTANTS.APIURL}/CustomerInformation/${identificationCode}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Cookies.get("auth_token")}`,
+          },
+        }
       );
       return response.data;
     } catch (error: any) {
