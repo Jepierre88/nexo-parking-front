@@ -30,13 +30,15 @@ export default function VisitanteQr() {
     return url.searchParams.get("companyCode") || "";
   };
 
+  // Solo limpiamos el estado cuando el componente se desmonta
   useEffect(() => {
-    router.refresh();
-    setPaymentData(initialPaymentData);
-    dispatch({ type: "CLEAR_PAYMENTS" });
-    setHasValidated(false);
-    setDebouncedIdentificationCode("");
-  }, []); // Se ejecuta cada vez que cambias de ruta
+    return () => {
+      setPaymentData(initialPaymentData);
+      dispatch({ type: "CLEAR_PAYMENTS" });
+      setHasValidated(false);
+      setDebouncedIdentificationCode("");
+    };
+  }, []); // Cleanup al desmontar el componente
 
 
   // Debounce: Espera 2 segundos después del último cambio antes de procesar el QR
