@@ -6,7 +6,6 @@ import { editProfileSchema } from "@/app/schemas/validationSchemas";
 import withPermission from "@/app/withPermission";
 import { EyeFilledIcon, EyeSlashFilledIcon } from "@/components/icons";
 import MessageError from "@/components/menssageError";
-import { UserData } from "@/types";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Card, CardHeader } from "@nextui-org/card";
 import { Input } from "@nextui-org/input";

@@ -269,12 +269,18 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
             size="md"
             value={filterDateRange}
             onChange={setFilterDateRange}
+            classNames={{
+              inputWrapper: "bg-white border border-primary",
+            }}
           />
           <Input
             label="Placa"
             maxLength={6}
             size="md"
             value={plate}
+            classNames={{
+              inputWrapper: "bg-white border border-primary",
+            }}
             onChange={(e) => setPlate(e.target.value.toUpperCase())}
           />
           <Button
@@ -336,7 +342,7 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
                         isDisabled={!canEditIncome}
                         onPress={() => handleEditIncome(item)}
                       >
-                        <PencilIcon fill={isDark ? "#FFF" : "#000"} size={20} />
+                        <PencilIcon fill={isDark ? "#000" : "#FFF"} color="#FFF" size={20} />
                       </Button>
                     </CustomTooltip>
                     <CustomTooltip content={ActionTooltips.PRINT}>
@@ -408,6 +414,7 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
                           variant="bordered"
                           value={incomeEdit.vehicleKind}
                           readOnly
+                          isDisabled
                         />
                       </div>
                     </div>
@@ -422,6 +429,7 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
                           variant="bordered"
                           value={tryDate}
                           onChange={setTryDate}
+                          isDisabled
                         />
                       </div>
                     </div>

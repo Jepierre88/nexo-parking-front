@@ -69,7 +69,7 @@ export const Navbar = () => {
           permission: 4,
         },
       ],
-      background: "bg-secondary bg-opacity-80",
+      background: "bg-secondary bg-opacity-100",
     },
     {
       label: (

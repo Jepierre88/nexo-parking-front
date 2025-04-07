@@ -94,12 +94,14 @@ export default function Login() {
 
       console.log(response.data);
 
+      const oneHourFromNow = new Date(new Date().getTime() + 60 * 60 * 1000);
+
       Cookies.set("auth_token", response.data.token, {
-        expires: 1,
+        expires: oneHourFromNow,
         secure: false,
       });
       Cookies.set("permissions", JSON.stringify(response.data.permissions), {
-        expires: 1,
+        expires: oneHourFromNow,
         secure: false,
       });
 
@@ -115,7 +117,7 @@ export default function Login() {
           username: response.data.username,
           email: response.data.email,
         }),
-        { expires: 1, secure: false }
+        { expires: oneHourFromNow, secure: false }
       );
 
       if (response.data.token) {

@@ -164,11 +164,19 @@ function TransactionsClient({ transactions, pages }: TransactionsClientProps) {
             size="md"
             value={dateRange}
             onChange={setDateRange}
+            classNames={{
+              inputWrapper: "bg-white border border-primary",
+            }}
           />
           <Input
             label="Placa"
             maxLength={6}
             size="md"
+            variant="flat"
+            // color="primary"
+            classNames={{
+              inputWrapper: "bg-white border border-primary",
+            }}
             value={plate}
             onChange={(e) => setPlate(e.target.value.toUpperCase())}
           />

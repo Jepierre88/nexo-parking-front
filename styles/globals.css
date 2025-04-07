@@ -80,3 +80,15 @@ body {
 	opacity: 0.8 !important;
   }
   
+
+	.main-bg{
+	background-image: url('/PARKING-PAYMENT-BG.png');
+		background-size: cover;
+		background-position: center;
+		background-repeat: no-repeat;
+	}
+	@media (prefers-color-scheme: dark) {
+  .main-bg {
+    background: #232323;
+  }
+}

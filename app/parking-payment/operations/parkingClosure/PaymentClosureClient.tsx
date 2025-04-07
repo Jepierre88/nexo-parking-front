@@ -302,6 +302,9 @@ function PaymentClosureClient({ closures, pages }: {
             label="Rango de Fechas"
             size="md"
             value={filterDateRange}
+            classNames={{
+              inputWrapper: "bg-white border border-primary",
+            }}
             onChange={setFilterDateRange}
           />
           <Button

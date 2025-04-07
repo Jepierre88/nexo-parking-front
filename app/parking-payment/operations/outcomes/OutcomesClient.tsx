@@ -114,12 +114,18 @@ function OutcomesClient({ outcomes, pages }: OutcomesClientProps) {
             size="md"
             value={dateRange}
             onChange={setDateRange}
+            classNames={{
+              inputWrapper: "bg-white border border-primary",
+            }}
           />
           <Input
             label="Placa"
             maxLength={6}
             size="md"
             value={plate}
+            classNames={{
+              inputWrapper: "bg-white border border-primary",
+            }}
             onChange={(e) => setPlate(e.target.value.toUpperCase())}
           />
           <Button
