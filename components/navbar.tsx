@@ -176,10 +176,10 @@ export const Navbar = () => {
             {option.items.length === 1 ? (
               <NavbarItem>
                 <Button
-                  onClick={() => router.push(option.items[0].href)}
+                  onPress={() => router.push(option.items[0].href)}
                   className={`px-4 bg-transparent text-white  ${pathname === option.items[0].href
-                      ? `${option.background ? option.background : "bg-white"}  bg-opacity-20  rounded-md`
-                      : ""
+                    ? `${option.background ? option.background : "bg-white"}  bg-opacity-20  rounded-md`
+                    : ""
 
                     //Llamamos a la propiedad
                     } ${option.background ? option.background : ""}
@@ -199,8 +199,8 @@ export const Navbar = () => {
                       className={`px-4 bg-transparent text-white  ${option.items.some((item) =>
                         pathname.startsWith(item.href)
                       )
-                          ? "bg-white bg-opacity-20 rounded-md"
-                          : ""
+                        ? "bg-white bg-opacity-20 rounded-md"
+                        : ""
                         }`}
                       radius="sm"
                       variant="light"
@@ -239,8 +239,8 @@ export const Navbar = () => {
               <Button
                 disableRipple
                 className={`px-4 bg-transparent text-white transition-all ${pathname.startsWith("/parking-payment/profile")
-                    ? "bg-white bg-opacity-20 rounded-md"
-                    : ""
+                  ? "bg-white bg-opacity-20 rounded-md"
+                  : ""
                   } hover:bg-white hover:bg-opacity-20`}
                 radius="sm"
                 variant="light"

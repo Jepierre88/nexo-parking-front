@@ -51,7 +51,7 @@ export async function getIncomesAction({
     )
 
     console.log(searchParams)
-
+    // await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate a 2-second delay for the respons
 
     return { incomes: incomes.data.data, meta: incomes.data.meta }
     // const incomes = await getIncomesFromDb(fromDate, toDate, plate ?? "");
@@ -65,15 +65,15 @@ export async function getIncomesAction({
 //TODO Organizar en el back el endpoint
 export const updateIncome = async (income: Income): Promise<Income | null> => {
   try {
-    const response = await axios.patch(
+    const response = await axios.put(
       `${CONSTANTS.APIURL}/income/${income.id}`,
       {
-        datetime: income.datetime || new Date().toISOString(),
-        vehicleKind: income.vehicleKind,
+        // datetime: income.datetime || new Date().toISOString(),
+        // vehicleKind: income.vehicleKind,
         plate: income.plate,
       }
     );
-
+    // await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate a 2-second delay for the respons
     console.log("Ingreso actualizado:", response.data);
     return response.data;
   } catch (error) {

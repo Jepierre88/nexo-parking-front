@@ -16,11 +16,12 @@ import MessageError from "@/components/menssageError";
 import { AxiosError } from "axios";
 import { title } from "@/components/primitives";
 import UseUsers from "@/app/hooks/users/UseUsers";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { ActionTooltips, CustomTooltip } from "@/components/customTooltip";
 import { createUserAction, getUserByIdAction, getUsersAction, updateUserAction } from "@/actions/users";
 import UsePermissions from "@/app/hooks/UsePermissions";
 import { TablePagination } from "@/components/Pagination";
+import Loading from "@/app/loading";
 
 interface UsersClientProps {
   users: User[];
@@ -67,6 +68,23 @@ function UsersClient({ users, roles, existingUserEmails, existingUsernames, page
   const canEditUser = useMemo(() => hasPermission(9), [hasPermission]);
   const canSeeUser = useMemo(() => hasPermission(10), [hasPermission]);
 
+  const searchParams = useSearchParams()
+
+  const pageParam = parseInt(searchParams.get("page") || "1");
+  const [currentPage, setCurrentPage] = useState(pageParam);
+
+  // sincroniza cuando cambia en la URL
+  useEffect(() => {
+    const newPage = parseInt(searchParams.get("page") || "1");
+    setCurrentPage(newPage);
+  }, [searchParams]);
+
+  // función para paginación
+  const handlePageChange = (page: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", page.toString());
+    router.push(`/parking-payment/users?${params.toString()}`);
+  };
 
   const {
     register: editRegister,
@@ -97,16 +115,25 @@ function UsersClient({ users, roles, existingUserEmails, existingUsernames, page
 
   const onSubmit = async (data: any) => {
     setLoading(true);
+    const toastId = toast.loading("Guardando cambios...");
     try {
       await createUserAction(data);
       console.log("Usuario creado exitosamente:", data);
       router.refresh()
-      toast.success("Usuario creado con éxito");
+      toast.success("Usuario creado con éxito", {
+        id: toastId,
+      });
+      onClose()
     } catch (error) {
       if (error instanceof AxiosError && error.response) {
-        toast.error("Error al crear el usuario");
+        toast.error("Error al crear el usuario", {
+          id: toastId,
+        });
       } else {
-        toast.error("Ocurrió un error desconocido. Inténtalo de nuevo.");
+        console.error("Error desconocido:", error);
+        toast.error("Ocurrió un error desconocido. Inténtalo de nuevo.", {
+          id: toastId,
+        });
       }
     } finally {
       setLoading(false);
@@ -114,18 +141,23 @@ function UsersClient({ users, roles, existingUserEmails, existingUsernames, page
   };
   const onEditSubmit = async (data: any) => {
     setLoading(true);
+    const toastId = toast.loading("Guardando cambios...");
     try {
       console.log("Editando usuario con datos:", data);
       const updatedUser = { ...userEdit, ...data, eliminated: isSelected };
 
       await updateUserAction(updatedUser);
       console.log("Usuario actualizado exitosamente:", data);
-      toast.success("Usuario actualizado con éxito");
+      toast.success("Usuario actualizado con éxito", {
+        id: toastId,
+      });
       onCloseEdit();
       router.refresh()
     } catch (error) {
       console.error("Error desconocidi:", error);
-      toast.error("Ocurrió un error desconocido. Inténtalo de nuevo.");
+      toast.error("Ocurrió un error desconocido. Inténtalo de nuevo.", {
+        id: toastId,
+      });
     } finally {
       setLoading(false);
     }
@@ -155,7 +187,7 @@ function UsersClient({ users, roles, existingUserEmails, existingUsernames, page
 
   return !isLoading && (
     <section className="relative flex-col overflow-hidden h-full">
-      {loading && <div>Loading...</div>}
+      {loading && <Loading />}{" "}
       <div className="flex flex-col my-3 gap-4 justify-center h-min flex-wrap md:flex-nowrap">
         <h1 className={title()}>Usuarios</h1>
         <div className="flex justify-end">
@@ -238,9 +270,13 @@ function UsersClient({ users, roles, existingUserEmails, existingUsernames, page
           )}
         </TableBody>
       </Table>
-      <TablePagination
-        pages={pages}
-      />
+      <div className="flex justify-center my-6">
+        <TablePagination
+          pages={pages}
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
+        />
+      </div>
       <Modal
         aria-describedby="user-modal-description"
         aria-labelledby="user-modal-title"

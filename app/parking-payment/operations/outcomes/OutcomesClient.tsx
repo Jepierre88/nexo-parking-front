@@ -30,6 +30,21 @@ function OutcomesClient({ outcomes, pages }: OutcomesClientProps) {
 
   const fromParam = searchParams.get("from");
   const toParam = searchParams.get("to");
+  const pageParam = parseInt(searchParams.get("page") || "1");
+  const [currentPage, setCurrentPage] = useState(pageParam);
+
+  // sincroniza cuando cambia en la URL
+  useEffect(() => {
+    const newPage = parseInt(searchParams.get("page") || "1");
+    setCurrentPage(newPage);
+  }, [searchParams]);
+
+  // función para paginación
+  const handlePageChange = (page: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", page.toString());
+    router.push(`/parking-payment/operations/outcomes?${params.toString()}`);
+  };
 
   const [plate, setPlate] = useState(searchParams.get("plate") ?? "");
   const [dateRange, setDateRange] = useState<any>({
@@ -53,15 +68,21 @@ function OutcomesClient({ outcomes, pages }: OutcomesClientProps) {
     });
   };
 
+  // useEffect(() => {
+  //   if (!fromParam || !toParam) {
+  //     setDateRange({
+  //       start: parseAbsoluteToLocal(new Date(new Date().setDate(new Date().getDate() - 1)).toISOString()),
+  //       end: parseAbsoluteToLocal(new Date().toISOString()),
+  //     });
+  //     handleFilter()
+  //   }
+  // }, [])
   useEffect(() => {
-    if (!fromParam || !toParam) {
-      setDateRange({
-        start: parseAbsoluteToLocal(new Date(new Date().setDate(new Date().getDate() - 1)).toISOString()),
-        end: parseAbsoluteToLocal(new Date().toISOString()),
-      });
-      handleFilter()
+    handleFilter(); return () => {
+      console.log("Cleaning");
     }
   }, [])
+
 
   // Update the URL when filters change
   const handleFilter = () => {
@@ -116,7 +137,7 @@ function OutcomesClient({ outcomes, pages }: OutcomesClientProps) {
       <div className="w-full overflow-auto">
         <Button onPress={() => {
           exportToExcel(outcomes, "salidas");
-        }} color="danger" variant="bordered" className="ml-4">
+        }} color="danger" variant="bordered" className="ml-4 my-2">
           Exportar a excel
         </Button>
         <Table
@@ -170,6 +191,8 @@ function OutcomesClient({ outcomes, pages }: OutcomesClientProps) {
       <div className="flex justify-center my-6">
         <TablePagination
           pages={pages}
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
         />
       </div>
     </section>

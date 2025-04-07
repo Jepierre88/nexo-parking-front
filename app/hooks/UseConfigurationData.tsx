@@ -36,9 +36,10 @@ export default function UseConfigurationData() {
   const getConfiguration = async () => {
     try {
       const response = await axios.get(
-        `${CONSTANTS.APIURL}/configuration-data`
+        `${CONSTANTS.APIURL}/common`
       );
       setConfiguration(response.data);
+      console.log("Configuración obtenida:", response.data);
     } catch (error) {
       console.error("Error obteniendo configuración:", error);
     }

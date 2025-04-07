@@ -44,7 +44,7 @@ export async function getClosuresAction({
       },
     )
 
-    console.log("closures", closures.data)
+    // console.log("closures", closures.data)
 
 
     return {

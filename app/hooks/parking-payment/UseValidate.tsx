@@ -20,7 +20,7 @@ export default function UseValidate() {
     setLoadingValidate(true);
     try {
       const response = await axios.post(
-        `${CONSTANTS.APIURL}/access-control/monthly-subscription-serviceNewPP/validate`,
+        `${CONSTANTS.APIURL}/validatePaymentVisitorService`,
         {
           identificationType,
           identificationCode,

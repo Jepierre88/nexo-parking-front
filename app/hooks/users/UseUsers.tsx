@@ -111,18 +111,18 @@ export default function UseUsers() {
   };
 
   const resetPassword = async (
-    username: string,
-    password: string,
-    confirmPassword: string
+    email: string,
+    newPassword: string,
+    lastPassword: string
   ) => {
     setLoading(true);
     try {
       const response = await axios.put(
-        `${CONSTANTS.APIURL}/reset-password/NewPP`,
+        `${CONSTANTS.APIURL}/reset-password/finish`,
         {
-          username,
-          password,
-          confirmPassword,
+          email,
+          newPassword,
+          lastPassword,
         }
       );
       console.log("Contraseña reseteada exitosamente:", response.data);

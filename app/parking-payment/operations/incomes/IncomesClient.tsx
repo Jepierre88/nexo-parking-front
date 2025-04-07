@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo, useState, useEffect } from "react";
-import { useSearchParams, useRouter } from "next/navigation";
+import { useSearchParams, useRouter, redirect } from "next/navigation";
 import { Button } from "@nextui-org/button";
 import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Accordion, AccordionItem } from "@nextui-org/react";
 import { DateInput, DateRangePicker, Input } from "@nextui-org/react";
@@ -64,7 +64,21 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
   const fromParam = searchParams.get("from");
   const toParam = searchParams.get("to");
 
+  const pageParam = parseInt(searchParams.get("page") || "1");
+  const [currentPage, setCurrentPage] = useState(pageParam);
 
+  // sincroniza cuando cambia en la URL
+  useEffect(() => {
+    const newPage = parseInt(searchParams.get("page") || "1");
+    setCurrentPage(newPage);
+  }, [searchParams]);
+
+  // función para paginación
+  const handlePageChange = (page: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", page.toString());
+    router.push(`/parking-payment/operations/incomes?${params.toString()}`);
+  };
 
   const [filterDateRange, setFilterDateRange] = useState<any>({
     start: fromParam
@@ -82,15 +96,38 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
       : parseAbsoluteToLocal(new Date().toISOString())
   );
 
+  // useEffect(() => {
+  //   if (!fromParam || !toParam) {
+  //     setFilterDateRange({
+  //       start: parseAbsoluteToLocal(new Date(new Date().setDate(new Date().getDate() - 1)).toISOString()),
+  //       end: parseAbsoluteToLocal(new Date().toISOString()),
+  //     });
+  //     handleFilter()
+  //   }
+  // }, [])
+  // useEffect(() => {
+  //   const start = fromParam
+  //     ? parseAbsoluteToLocal(new Date(fromParam).toISOString())
+  //     : parseAbsoluteToLocal(new Date(new Date().setDate(new Date().getDate() - 1)).toISOString());
+
+  //   const end = toParam
+  //     ? parseAbsoluteToLocal(new Date(toParam).toISOString())
+  //     : parseAbsoluteToLocal(new Date().toISOString());
+
+  //   setFilterDateRange({ start, end });
+
+  //   if (fromParam && toParam) {
+  //     handleFilter(); // Ejecuta si vienen de la URL
+  //   }
+  // }, []);
+
   useEffect(() => {
-    if (!fromParam || !toParam) {
-      setFilterDateRange({
-        start: parseAbsoluteToLocal(new Date(new Date().setDate(new Date().getDate() - 1)).toISOString()),
-        end: parseAbsoluteToLocal(new Date().toISOString()),
-      });
-      handleFilter()
+    handleFilter(); return () => {
+      console.log("Cleaning");
     }
   }, [])
+
+
 
   useEffect(() => {
     setIsDark(resolvedTheme === "dark");
@@ -98,8 +135,13 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
 
   const handlePlateChange = (value: string) => {
     const formattedPlate = value.toUpperCase().slice(0, 6);
-    const lastChar = formattedPlate.slice(-1);
-    const vehicleKind = isNaN(Number(lastChar)) ? "CARRO" : "MOTO";
+    // Verificar si es una moto basado en el patrón colombiano
+    const isMotorcycle = (
+      formattedPlate.length === 5 || // Si tiene 5 caracteres es moto
+      /^[A-Z]{3}\d{2}[A-Z]$/.test(formattedPlate) || // Patrón de 3 letras, 2 números y 1 letra
+      /[A-Z]$/.test(formattedPlate) // Termina en letra
+    );
+    const vehicleKind = isMotorcycle ? "MOTO" : "CARRO";
     setIncomeEdit((prev) => ({
       ...prev,
       plate: formattedPlate,
@@ -123,6 +165,7 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
     params.set("page", "1");
 
     router.push(`/parking-payment/operations/incomes?${params.toString()}`);
+    // redirect(`/parking-payment/operations/incomes?${params.toString()}`);
   };
 
   const handleEditIncome = (data: Income) => {
@@ -135,18 +178,23 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
   };
 
   const handleUpdateIncome: SubmitHandler<Income> = async () => {
+    const toastId = toast.loading("Actualizando ingreso...");
     try {
       const formattedData = {
         ...incomeEdit,
         datetime: tryDate.toDate(),
       };
       await updateIncome(formattedData);
-      toast.success("Ingreso actualizado con éxito.");
+      toast.success("Ingreso actualizado con éxito.", {
+        id: toastId,
+      });
       onCloseEdit();
       handleFilter(); // Refresca la URL
     } catch (error) {
       console.error("Error al actualizar el ingreso:", error);
-      toast.error("Hubo un error al actualizar el ingreso.");
+      toast.error("Hubo un error al actualizar el ingreso.", {
+        id: toastId,
+      });
     }
   };
 
@@ -245,7 +293,7 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
       <div className="w-full overflow-auto">
         <Button onPress={() => {
           exportToExcel(incomes, "ingresos");
-        }} color="danger" variant="bordered" className="ml-4">
+        }} color="danger" variant="bordered" className="ml-4 my-2">
           Exportar a excel
         </Button>
         <Table
@@ -319,6 +367,8 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
       <div className="flex justify-center my-6">
         <TablePagination
           pages={pages}
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
         />
       </div>
 

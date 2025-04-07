@@ -19,10 +19,11 @@ import { toast } from "sonner";
 interface PasswordData {
   password: string;
   confirmPassword: string;
+  lastPassword: string;
 }
 
 
-const Profile = ({}) => {
+const Profile = ({ }) => {
   const [visiblePassword1, setVisiblePassword1] = useState(false);
   const [visiblePassword2, setVisiblePassword2] = useState(false);
   const toggleVisibilityPassword1 = () =>
@@ -34,22 +35,22 @@ const Profile = ({}) => {
   const { resetPassword } = UseUsers();
 
   const { existingUsernames, existingUserEmails } = UseUsers();
-const {
-  register,
-  handleSubmit,
-  formState: { errors },
-} = useForm<PasswordData>({
-  resolver: zodResolver(editProfileSchema),
-});
+  const {
+    register,
+    handleSubmit,
+    formState: { errors },
+  } = useForm<PasswordData>({
+    resolver: zodResolver(editProfileSchema),
+  });
 
 
   const reset = async (data: any) => {
-    const { password, confirmPassword } = data;
+    const { password, confirmPassword, lastPassword } = data;
     try {
       const response = await resetPassword(
-        user.username,
+        user.email,
         password,
-        confirmPassword
+        lastPassword
       );
       toast.success("Contraseña actualizada con éxito");
       console.log("Respuesta:", response);
@@ -97,6 +98,33 @@ const {
                   value={user.email}
                 />
               </div>
+            </div>
+            <div className="block mt-4">
+              <label className="font-semibold text-sm" htmlFor="lastPassword">
+                Contraseña anterior
+              </label>
+              <Input
+                className="text-xs"
+                placeholder="Digita la contraseña anterior"
+                size="md"
+                variant="faded"
+                {...register("lastPassword")}
+                endContent={
+                  <button
+                    arial-label="toggle password visibility"
+                    className="focus:outline-none"
+                    type="button"
+                    onClick={toggleVisibilityPassword1}
+                  >
+                    {visiblePassword1 ? (
+                      <EyeSlashFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                    ) : (
+                      <EyeFilledIcon className="text-2xl text-default-400 pointer-events-none" />
+                    )}
+                  </button>
+                }
+                type={visiblePassword1 ? "text" : "password"}
+              />
             </div>
             <div className="flex justify-between w-full mb-8 mt-4 space-x-6">
               <div className="flex flex-col w-full">

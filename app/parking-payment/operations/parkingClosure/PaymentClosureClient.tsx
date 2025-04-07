@@ -70,6 +70,21 @@ function PaymentClosureClient({ closures, pages }: {
 
   const fromParam = searchParams.get("from");
   const toParam = searchParams.get("to");
+  const pageParam = parseInt(searchParams.get("page") || "1");
+  const [currentPage, setCurrentPage] = useState(pageParam);
+
+  // sincroniza cuando cambia en la URL
+  useEffect(() => {
+    const newPage = parseInt(searchParams.get("page") || "1");
+    setCurrentPage(newPage);
+  }, [searchParams]);
+
+  // función para paginación
+  const handlePageChange = (page: number) => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.set("page", page.toString());
+    router.push(`/parking-payment/operations/parkingClosure?${params.toString()}`);
+  };
   const [filterDateRange, setFilterDateRange] = useState<any>({
     start: fromParam
       ? parseAbsoluteToLocal(new Date(fromParam).toISOString())
@@ -80,21 +95,24 @@ function PaymentClosureClient({ closures, pages }: {
   });
 
   useEffect(() => {
-    if (!fromParam || !toParam) {
-      setFilterDateRange({
-        start: parseAbsoluteToLocal(new Date(new Date().setDate(new Date().getDate() - 1)).toISOString()),
-        end: parseAbsoluteToLocal(new Date().toISOString()),
-      });
-      handleFilter()
+    getConfiguration()
+    // if (!fromParam || !toParam) {
+    //   setFilterDateRange({
+    //     start: parseAbsoluteToLocal(new Date(new Date().setDate(new Date().getDate() - 1)).toISOString()),
+    //     end: parseAbsoluteToLocal(new Date().toISOString()),
+    //   });
+    //   handleFilter()
+    // }
+    handleFilter()
+    return () => {
+      console.log("Cleaning");
     }
   }, [])
+
 
   useEffect(() => {
     setIsDark(resolvedTheme === "dark");
   }, [resolvedTheme]);
-  useEffect(() => {
-    getConfiguration();
-  }, []);
 
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const {
@@ -203,10 +221,13 @@ function PaymentClosureClient({ closures, pages }: {
       return;
     }
     setLoading(true);
+    const toastId = toast.loading("Enviando correo...");
     try {
       const result = await postsendEmail(currentClosureId, email);
       if (result) {
-        const toastId = toast.success("Informe enviado con éxito");
+        toast.success("Informe enviado con éxito", {
+          id: toastId,
+        });
         resetModal();
         setTimeout(() => {
           toast.dismiss(toastId);
@@ -215,11 +236,15 @@ function PaymentClosureClient({ closures, pages }: {
           }, 500);
         }, 1500);
       } else {
-        toast.error("Error al enviar el correo");
+        toast.error("Error al enviar el correo", {
+          id: toastId,
+        });
       }
     } catch (error) {
       setMessage("Error al enviar el correo");
-      toast.error("Error al enviar el correo");
+      toast.error("Error al enviar el correo", {
+        id: toastId,
+      });
     } finally {
       // setCurrentClosureId(null);
       setLoading(false);
@@ -395,6 +420,8 @@ function PaymentClosureClient({ closures, pages }: {
       <div className="flex justify-center my-6">
         <TablePagination
           pages={pages}
+          currentPage={currentPage}
+          onPageChange={handlePageChange}
         />
       </div>
       <Modal isOpen={isOpenClose} onOpenChange={onOpenChangeClose}>
@@ -430,81 +457,45 @@ function PaymentClosureClient({ closures, pages }: {
         isOpen={isOpen}
         onOpenChange={onOpenChange}
         size="full"
-        scrollBehavior="inside"
+        // scrollBehavior="inside"
         classNames={{
           base: "max-h-[96vh] w-full md:w-[90vw] lg:w-[80vw]", // ✅ Controla el ancho en pantallas grandes
-          body: "p-0 max-h-[90vh] overflow-y-auto", // ✅ Controla el alto del contenido para evitar recortes
+          body: "p-0 overflow-y-auto", // ✅ Controla el alto del contenido para evitar recortes
           wrapper: "flex items-center justify-center", // ✅ Centra el modal correctamente
         }}
       >
         <ModalContent>
           {() => (
-            <div className="flex flex-col w-full p-4 flex-grow min-h-0">
-              <ModalBody className="flex flex-col w-full flex-grow min-h-0 max-h-[80vh] overflow-y-auto">
-                {closureData && (
-                  <div className="flex flex-col w-full space-y-4">
-                    {/* Encabezado */}
-                    <div className="text-center">
-                      <p>Nit:</p>
-                      <p>Dirección:</p>
-                      <p className="font-bold">Cierre de Ventas</p>
-                      <hr className="my-2" />
-                      <p>Máquina: {getDeviceName()}</p>
-                      <p>
-                        DESDE:{" "}
-                        {new Date(closureData[0].fromDatetime).toLocaleString()}
-                      </p>
+            // <div className="flex flex-col w-full p-4 flex-grow min-h-0">
+            <ModalBody className="flex flex-col w-full flex-grow min-h-0 overflow-y-auto px-12 py-4">
+              {closureData && (
+                <div className="flex flex-col w-full space-y-4">
+                  {/* Encabezado */}
+                  <div className="text-center">
+                    <p>Nit:</p>
+                    <p>Dirección:</p>
+                    <p className="font-bold">Cierre de Ventas</p>
+                    <hr className="my-2" />
+                    <p>Máquina: {getDeviceName()}</p>
+                    <p>
+                      DESDE:{" "}
+                      {new Date(closureData[0].fromDatetime).toLocaleString()}
+                    </p>
 
-                      <p>
-                        HASTA:{" "}
-                        {new Date(closureData[0].toDatetime).toLocaleString()}
-                      </p>
-                    </div>
+                    <p>
+                      HASTA:{" "}
+                      {new Date(closureData[0].toDatetime).toLocaleString()}
+                    </p>
+                  </div>
 
-                    {/* Transacciones */}
-                    {closureData[1].map((transaccion, index) => (
-                      <div key={index} className="border-b pb-4">
-                        <h3 className="font-bold">
-                          Transacciones {transaccion.transactionType}
-                        </h3>
-                        <div className="overflow-x-auto max-w-full">
-                          <table className="w-full text-sm md:text-base">
-                            <thead>
-                              <tr className="border-b">
-                                <th className="text-left w-1/2">Item</th>
-                                <th className="text-center w-1/4">Cant</th>
-                                <th className="text-right w-1/4">Total</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {transaccion.items.map((item, idx) => (
-                                <tr key={idx}>
-                                  <td className="text-left">{item.code}</td>
-                                  <td className="text-center">{item.cnt}</td>
-                                  <td className="text-right">
-                                    {item.total.toLocaleString()}
-                                  </td>
-                                </tr>
-                              ))}
-                              <tr className="font-bold border-t">
-                                <td colSpan={2} className="text-right">
-                                  Total:
-                                </td>
-                                <td className="text-right">
-                                  {transaccion.total.toLocaleString()}
-                                </td>
-                              </tr>
-                            </tbody>
-                          </table>
-                        </div>
-                      </div>
-                    ))}
-
-                    {/* Dinero Recibido */}
-                    <div className="border-b pb-4">
-                      <h3 className="font-bold">Dinero Recibido</h3>
-                      <div className="overflow-x-auto">
-                        <table className="w-full">
+                  {/* Transacciones */}
+                  {closureData[1].map((transaccion, index) => (
+                    <div key={index} className="border-b pb-4">
+                      <h3 className="font-bold">
+                        Transacciones {transaccion.transactionType}
+                      </h3>
+                      <div className="overflow-x-auto max-w-full">
+                        <table className="w-full text-sm md:text-base">
                           <thead>
                             <tr className="border-b">
                               <th className="text-left w-1/2">Item</th>
@@ -513,14 +504,12 @@ function PaymentClosureClient({ closures, pages }: {
                             </tr>
                           </thead>
                           <tbody>
-                            {closureData[2].amountReceived.map((monto, idx) => (
+                            {transaccion.items.map((item, idx) => (
                               <tr key={idx}>
-                                <td className="text-left">{monto.item}</td>
-                                <td className="text-center">
-                                  {monto.cantidad}
-                                </td>
+                                <td className="text-left">{item.code}</td>
+                                <td className="text-center">{item.cnt}</td>
                                 <td className="text-right">
-                                  {monto.total.toLocaleString()}
+                                  {item.total.toLocaleString()}
                                 </td>
                               </tr>
                             ))}
@@ -529,103 +518,141 @@ function PaymentClosureClient({ closures, pages }: {
                                 Total:
                               </td>
                               <td className="text-right">
-                                {closureData[2].totalAmountReceived.toLocaleString()}
+                                {transaccion.total.toLocaleString()}
                               </td>
                             </tr>
                           </tbody>
                         </table>
                       </div>
                     </div>
+                  ))}
 
-                    {/* Dinero Devolución */}
-                    <div className="border-b pb-4">
-                      <h3 className="font-bold">Dinero Devolución</h3>
-                      <div className="overflow-x-auto">
-                        <table className="w-full">
-                          <thead>
-                            <tr className="border-b">
-                              <th className="text-left w-1/2">Item</th>
-                              <th className="text-center w-1/4">Cant</th>
-                              <th className="text-right w-1/4">Total</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {closureData[2].amountToReturn.map(
-                              (devolucion, idx) => (
-                                <tr key={idx}>
-                                  <td className="text-left">
-                                    {devolucion.item}
-                                  </td>
-                                  <td className="text-center">
-                                    {devolucion.cantidad}
-                                  </td>
-                                  <td className="text-right">
-                                    {devolucion.total.toLocaleString()}
-                                  </td>
-                                </tr>
-                              )
-                            )}
-                            <tr className="font-bold border-t">
-                              <td colSpan={2} className="text-right">
-                                Total:
+                  {/* Dinero Recibido */}
+                  <div className="border-b pb-4">
+                    <h3 className="font-bold">Dinero Recibido</h3>
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="border-b">
+                            <th className="text-left w-1/2">Item</th>
+                            <th className="text-center w-1/4">Cant</th>
+                            <th className="text-right w-1/4">Total</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {closureData[2].amountReceived.map((monto, idx) => (
+                            <tr key={idx}>
+                              <td className="text-left">{monto.item}</td>
+                              <td className="text-center">
+                                {monto.cantidad}
                               </td>
                               <td className="text-right">
-                                {closureData[2].totalAmountToReturn.toLocaleString()}
+                                {monto.total.toLocaleString()}
                               </td>
                             </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-
-                    {/* Medios de Pago */}
-                    <div className="pb-4">
-                      <h3 className="font-bold">Medio de Pago</h3>
-                      <div className="overflow-x-auto">
-                        <table className="w-full">
-                          <thead>
-                            <tr className="border-b">
-                              <th className="text-left w-1/2">Item</th>
-                              <th className="text-center w-1/4">Cant</th>
-                              <th className="text-right w-1/4">Total</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {closureData[2].paymentMethods.map(
-                              (metodo, idx) => (
-                                <tr key={idx}>
-                                  <td className="text-left">{metodo.item}</td>
-                                  <td className="text-center">
-                                    {metodo.cantidad}
-                                  </td>
-                                  <td className="text-right">
-                                    {metodo.total.toLocaleString()}
-                                  </td>
-                                </tr>
-                              )
-                            )}
-                            <tr className="font-bold border-t">
-                              <td colSpan={2} className="text-right">
-                                Total:
-                              </td>
-                              <td className="text-right">
-                                {closureData[2].totalPaymentMethods.toLocaleString()}
-                              </td>
-                            </tr>
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-
-                    <div className="flex justify-end gap-4">
-                      <Button color="primary" variant="ghost" onPress={onClose}>
-                        Cerrar
-                      </Button>
+                          ))}
+                          <tr className="font-bold border-t">
+                            <td colSpan={2} className="text-right">
+                              Total:
+                            </td>
+                            <td className="text-right">
+                              {closureData[2].totalAmountReceived.toLocaleString()}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
                     </div>
                   </div>
-                )}
-              </ModalBody>
-            </div>
+
+                  {/* Dinero Devolución */}
+                  <div className="border-b pb-4">
+                    <h3 className="font-bold">Dinero Devolución</h3>
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="border-b">
+                            <th className="text-left w-1/2">Item</th>
+                            <th className="text-center w-1/4">Cant</th>
+                            <th className="text-right w-1/4">Total</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {closureData[2].amountToReturn.map(
+                            (devolucion, idx) => (
+                              <tr key={idx}>
+                                <td className="text-left">
+                                  {devolucion.item}
+                                </td>
+                                <td className="text-center">
+                                  {devolucion.cantidad}
+                                </td>
+                                <td className="text-right">
+                                  {devolucion.total.toLocaleString()}
+                                </td>
+                              </tr>
+                            )
+                          )}
+                          <tr className="font-bold border-t">
+                            <td colSpan={2} className="text-right">
+                              Total:
+                            </td>
+                            <td className="text-right">
+                              {closureData[2].totalAmountToReturn.toLocaleString()}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  {/* Medios de Pago */}
+                  <div className="pb-4">
+                    <h3 className="font-bold">Medio de Pago</h3>
+                    <div className="overflow-x-auto">
+                      <table className="w-full">
+                        <thead>
+                          <tr className="border-b">
+                            <th className="text-left w-1/2">Item</th>
+                            <th className="text-center w-1/4">Cant</th>
+                            <th className="text-right w-1/4">Total</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {closureData[2].paymentMethods.map(
+                            (metodo, idx) => (
+                              <tr key={idx}>
+                                <td className="text-left">{metodo.item}</td>
+                                <td className="text-center">
+                                  {metodo.cantidad}
+                                </td>
+                                <td className="text-right">
+                                  {metodo.total.toLocaleString()}
+                                </td>
+                              </tr>
+                            )
+                          )}
+                          <tr className="font-bold border-t">
+                            <td colSpan={2} className="text-right">
+                              Total:
+                            </td>
+                            <td className="text-right">
+                              {closureData[2].totalPaymentMethods.toLocaleString()}
+                            </td>
+                          </tr>
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-4">
+                    <Button color="primary" variant="ghost" onPress={onClose}>
+                      Cerrar
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </ModalBody>
+            // </div>
           )}
         </ModalContent>
       </Modal>
@@ -642,8 +669,7 @@ function PaymentClosureClient({ closures, pages }: {
             <Input
               placeholder="Correo Electrónico"
               type="email"
-              // value={configuration?.informationConfig?.automaticemailClosure}
-              value={"jeanpierre.ortiz@coins-colombia.com"}
+              value={configuration?.informationConfig?.automaticemailClosure}
               disabled
               {...registerModal("recoveryEmail", { required: true })}
             />

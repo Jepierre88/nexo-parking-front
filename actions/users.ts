@@ -32,27 +32,34 @@ export const updateUserAction = async (user: User) => {
 
     return response.data;
   } catch (error) {
-    console.error("Error actualizando el usuario:", error);
+    console.error("Error al actualizar el usuario:", error);
+    throw error;
   }
 };
 
 export const createUserAction = async (signup: Signup) => {
-  const response = await axios.post(
-    `${CONSTANTS.APIURL}/signUp`,
-    {
-      username: signup.username,
-      password: signup.password,
-      email: signup.email,
-      name: signup.name,
-      lastName: signup.lastName,
-      cellPhoneNumber: signup.cellPhoneNumber,
-      realm: signup.realm,
-    }
-  );
+  try {
+    const response = await axios.post(
+      `${CONSTANTS.APIURL}/signUp`,
+      {
+        username: signup.username,
+        password: signup.password,
+        email: signup.email,
+        name: signup.name,
+        lastName: signup.lastName,
+        cellPhoneNumber: signup.cellPhoneNumber,
+        realm: signup.realm,
+      }
+    );
 
-  console.log("Usuario creado:", response.data);
+    console.log("Usuario creado:", response.data);
 
-  return response.data;
+    return response.data;
+  } catch (error) {
+    console.error("Error al crear el usuario:", error);
+    throw error;
+
+  }
 };
 
 const deleteUserAction = async (id: string) => {
