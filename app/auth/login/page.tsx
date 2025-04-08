@@ -142,7 +142,7 @@ export default function Login() {
           email: response.data.email,
         });
         setIsAuthenticated(true);
-        router.push("/parking-payment");
+        router.push("/parking-payment/landing");
       }
     } catch (error: any) {
       console.error("Error capturado:", error);

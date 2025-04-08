@@ -29,6 +29,7 @@ import UseIngresoSalida from "@/app/hooks/ingresoSalida/UseIngresoSalida";
 import withPermission from "@/app/withPermission";
 import { formatDate } from "@/app/libs/utils";
 import { CONSTANTS } from "@/config/constants";
+import Cookies from "js-cookie";
 
 const enterExit = ({ }) => {
   const { hasPermission } = UsePermissions();
@@ -155,7 +156,12 @@ const enterExit = ({ }) => {
           datetime: currentDate.toDate().toISOString(),
           identificationType: "QR",
           incomeConditionType: INCOME_CONDITION_TYPE.visitor,
+        }, {
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${Cookies.get("auth_token")}`
         }
+      }
       );
 
       await handlePrint(response.data);
