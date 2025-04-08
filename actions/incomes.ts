@@ -2,7 +2,7 @@
 import * as XLSX from 'xlsx';
 import { CONSTANTS } from "@/config/constants";
 import { parseAbsoluteToLocal } from "@internationalized/date";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import Income from '@/types/Income';
 import { cookies } from 'next/headers';
 
@@ -42,6 +42,7 @@ export async function getIncomesAction({
     }
 
 
+
     const incomes = await axios.get(
       `${CONSTANTS.APIURL}/incomes/pp`,
       {
@@ -54,13 +55,16 @@ export async function getIncomesAction({
       },
     )
 
-    console.log(searchParams)
     // await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate a 2-second delay for the respons
 
     return { incomes: incomes.data.data, meta: incomes.data.meta }
     // const incomes = await getIncomesFromDb(fromDate, toDate, plate ?? "");
     // return incomes;
   } catch (error) {
+    if (error instanceof AxiosError) {
+      console.log(error.response?.data)
+      throw error
+    }
     console.error("Error fetching incomes:", error);
     throw error;
   }
@@ -87,7 +91,6 @@ export const updateIncome = async (income: Income): Promise<Income | null> => {
     }
     );
     // await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate a 2-second delay for the respons
-    console.log("Ingreso actualizado:", response.data);
     return response.data;
   } catch (error) {
     console.error("Error al actualizar el ingreso:", error);

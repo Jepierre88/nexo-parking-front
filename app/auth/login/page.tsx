@@ -5,7 +5,7 @@ import { Card, CardBody, CardHeader } from "@nextui-org/card";
 import { Input } from "@nextui-org/input";
 import Image from "next/image";
 import { SubmitHandler, useForm } from "react-hook-form";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import {
   Modal,
   ModalBody,
@@ -130,23 +130,40 @@ export default function Login() {
       );
 
       if (response.data.token) {
-        setToken(response.data.token);
-        setUser({
-          name: response.data.name,
-          lastName: response.data.lastName,
-          realm: response.data.realm,
-          permissions: response.data.permissions,
-          deviceNme: response.data.deviceNme,
-          cellPhoneNumber: response.data.cellPhoneNumber,
-          username: response.data.username,
-          email: response.data.email,
-        });
-        setIsAuthenticated(true);
+        // Primero establecemos todos los estados de autenticación
+        await Promise.all([
+          setToken(response.data.token),
+          setUser({
+            name: response.data.name,
+            lastName: response.data.lastName,
+            realm: response.data.realm,
+            permissions: response.data.permissions,
+            deviceNme: response.data.deviceNme,
+            cellPhoneNumber: response.data.cellPhoneNumber,
+            username: response.data.username,
+            email: response.data.email,
+          }),
+          setIsAuthenticated(true)
+        ]);
+
+        // Esperamos un momento para asegurar que los estados se han actualizado
+        await new Promise(resolve => setTimeout(resolve, 100));
+
+        // Ahora redirigimos
         router.push("/parking-payment/landing");
       }
     } catch (error: any) {
       console.error("Error capturado:", error);
-      toast.error("Error de autenticación.");
+
+      if (error instanceof AxiosError) {
+        if (error.response?.data?.error?.message) {
+          toast.error(error.response.data.error.message);
+        } else {
+          toast.error("Error al iniciar sesión");
+        }
+      } else {
+        toast.error("Error de autenticación.");
+      }
 
       setToken("");
       setIsAuthenticated(false);

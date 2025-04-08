@@ -47,6 +47,25 @@ const enterExit = ({ }) => {
     parseAbsoluteToLocal(new Date().toISOString())
   );
 
+  React.useEffect(() => {
+    const interval = setInterval(() => {
+      setCurrentDate(parseAbsoluteToLocal(new Date().toISOString()));
+    }, 5000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  const handleQROutChange = (e: any) => {
+    const value = e.target.value;
+    setQROut(value);
+  };
+
+  const getCompanyCode = (value: string) => {
+    if (!value.includes("http")) return value;
+    const url = new URL(value);
+    return url.searchParams.get("companyCode") || "";
+  };
+
   const handleCurrentDateChange = (
     value: CalendarDate | CalendarDateTime | ZonedDateTime | any
   ) => {
@@ -117,9 +136,9 @@ const enterExit = ({ }) => {
 
   const handleGenerateExit = async () => {
     const loadingToastId = toast.loading("Registrando salida...");
-
+    console.log(QROut, placaOut)
     try {
-      const response = await outcomeManual(placaOut);
+      const response = await outcomeManual(QROut, placaOut);
 
       if (response) {
         toast.dismiss(loadingToastId);
@@ -305,12 +324,11 @@ const enterExit = ({ }) => {
                   placeholder="QR"
                   size="md"
                   type="text"
-                  maxLength={6}
                   value={QROut}
                   variant="bordered"
                   className="w-full"
-                  onChange={handleInputChangeOn}
-                  isDisabled
+                  onChange={handleQROutChange}
+                // isDisabled
                 />
               </div>
               <RadioGroup
