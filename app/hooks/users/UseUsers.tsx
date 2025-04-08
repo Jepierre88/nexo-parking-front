@@ -140,7 +140,7 @@ export default function UseUsers() {
         `${CONSTANTS.APIURL}/reset-password/finish`,
         {
           email,
-          newPassword,
+          password: newPassword,
           lastPassword,
         }
       );
