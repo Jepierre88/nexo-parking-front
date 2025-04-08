@@ -1,27 +1,19 @@
-#!/bin/bash
-
-# Limpiar carpeta anterior
-rm -rf prod && \
-echo "🧹 Eliminando carpeta prod anterior..."
-
-# Compilar en modo standalone
-echo "⚙️ Ejecutando build..."
-npm run build
-
-# Crear carpeta destino
-mkdir -p prod
-
-# Buscar la ruta interna generada (match con el nombre del proyecto)
-INNER_PATH=$(find .next/standalone -name server.js | head -n 1 | xargs dirname)
-
-# Copiar archivos internos a prod/
-echo "📦 Copiando archivos desde: $INNER_PATH"
-cp -r "$INNER_PATH/"* prod/
-
-# Copiar estáticos y públicos
-mkdir -p prod/.next && cp -r .next/static prod/.next/
-[ -d public ] && cp -r public prod/ || echo "⚠️ No hay carpeta public, omitida."
-cp package.json prod/
-cp .env.production prod/ 2>/dev/null || true
-
-echo "✅ ¡Listo! Carpeta 'prod/' limpia y lista para desplegar."
+@echo off
+echo Limpiando node_modules...
+rmdir /s /q node_modules
+echo Instalando dependencias...
+call npm install
+echo Limpiando y creando directorio de producción...
+rmdir /s /q prod
+mkdir prod
+echo Compilando aplicación...
+call npm run build
+echo Copiando archivos necesarios a producción...
+xcopy /E /I /Y .next\standalone\* prod\
+echo Copiando carpeta .next completa...
+xcopy /E /I /Y .next prod\.next\
+echo Copiando archivos públicos...
+xcopy /E /I /Y public prod\public\
+echo Copiando package.json...
+copy package.json prod\
+echo Script completado con éxito!
