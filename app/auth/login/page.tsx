@@ -26,7 +26,7 @@ import { loginSchema } from "@/app/schemas/validationSchemas";
 import { LoginData } from "@/types";
 import { toast, Toaster } from "sonner";
 import { CONSTANTS } from "@/config/constants";
-import LicenceModal from "@/components/licence/LicenceModal";
+import LicenseModal from "@/components/licence/LicenseModal";
 
 export default function Login() {
   const { router } = UseNavigateContext();
@@ -290,8 +290,9 @@ export default function Login() {
                   Click aquí
                 </span>
               </div>
+              <p className="text-center text-lg">o</p>
               <div
-                className="space-x-2 mb-4"
+                className="space-x-2 mb-4 flex w-full justify-center"
                 onClick={() => {
 
                   onOpenLicenceModal();
@@ -386,7 +387,7 @@ export default function Login() {
             onOpenChange: onOpenChangeExitoModal,
           }}
         />
-        <LicenceModal
+        <LicenseModal
           isOpen={isOpenLicenceModal}
           onOpenChange={onOpenChangeLicenceModal}
           onClose={onCloseLicenceModal}
