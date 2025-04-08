@@ -156,11 +156,7 @@ export default function Login() {
       console.error("Error capturado:", error);
 
       if (error instanceof AxiosError) {
-        if (error.response?.data?.error?.message) {
-          toast.error(error.response.data.error.message);
-        } else {
-          toast.error("Error al iniciar sesión");
-        }
+        toast.error(error?.response?.data?.message);
       } else {
         toast.error("Error de autenticación.");
       }
