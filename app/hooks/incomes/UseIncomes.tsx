@@ -1,6 +1,7 @@
 import { CONSTANTS } from "@/config/constants";
 import { parseAbsoluteToLocal } from "@internationalized/date";
 import axios from "axios";
+import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
@@ -42,6 +43,10 @@ export default function UseIncomes() {
             endDateTime: endDateTime?.toISOString(),
             plate: plate?.toString(),
           },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Cookies.get("auth_token")}`,
+          },
         }
       );
       const arrayfilter: Income[] = response.data;
@@ -62,11 +67,16 @@ export default function UseIncomes() {
   const updatePlate = async (id: string, plate: string) => {
     setLoading(true);
     try {
-      const response = await axios.patch(
+      const response = await axios.put(
         `${CONSTANTS.APIURL}/incomes/${id}`,
         {
           plate,
-        }
+        }, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${Cookies.get("auth_token")}`,
+        },
+      }
       );
 
       console.log("Placa actualizada:", response.data);
@@ -82,12 +92,18 @@ export default function UseIncomes() {
   const updateIncome = async (income: Income): Promise<Income | null> => {
     setLoading(true);
     try {
-      const response = await axios.patch(
+      const response = await axios.put(
         `${CONSTANTS.APIURL}/incomes/${income.id}`,
         {
           datetime: income.datetime || new Date().toISOString(),
           vehicleKind: income.vehicleKind,
           plate: income.plate,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Cookies.get("auth_token")}`,
+          },
         }
       );
 

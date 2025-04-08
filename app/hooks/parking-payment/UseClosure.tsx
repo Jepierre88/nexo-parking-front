@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { Closure } from "@/types/Closure";
 import { toast } from "sonner";
 import { CONSTANTS } from "@/config/constants";
+import Cookies from "js-cookie";
 
 export default function UseClosure() {
   const [closure, setClosure] = useState<Closure[]>([]);
@@ -28,12 +29,16 @@ export default function UseClosure() {
     setLoading(true);
     try {
       const response = await axios.get(
-        `${CONSTANTS.APIURL}/payment-closuresNewPP`,
+        `${CONSTANTS.APIURL}/payment-closures`,
         {
           params: {
             limit,
             startDateTime: startDateTime?.toISOString(),
             endDateTime: endDateTime?.toISOString(),
+          },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Cookies.get("auth_token")}`,
           },
         }
       );
@@ -51,7 +56,13 @@ export default function UseClosure() {
     setLoadingDetails(true);
     try {
       const response = await axios.get(
-        `${CONSTANTS.APIURL}/payment-closuresNewPP/${id}`
+        `${CONSTANTS.APIURL}/payment-closuresNewPP/${id}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Cookies.get("auth_token")}`,
+          },
+        }
       );
       return response.data;
       setClosureDetails(response.data);
@@ -67,7 +78,13 @@ export default function UseClosure() {
     setLoadingDetails(true);
     try {
       const response = await axios.post(
-        `${CONSTANTS.APIURL}/payment-closuresNewPP/${cashier}`
+        `${CONSTANTS.APIURL}/payment-closuresNewPP/${cashier}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Cookies.get("auth_token")}`,
+          },
+        }
       );
       setClosureDetails(response.data);
       return response.data;
@@ -84,8 +101,14 @@ export default function UseClosure() {
     setLoadingDetails(true);
     try {
       const response = await axios.post(
-        `${CONSTANTS.APIURL}/sendEmailNewPP/${idClosure}`,
-        { email }
+        `${CONSTANTS.APIURL}/sendEmailPaymentClosure/${idClosure}`,
+        { email },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Cookies.get("auth_token")}`,
+          },
+        }
       );
       setClosureDetails(response.data);
       return response.data;

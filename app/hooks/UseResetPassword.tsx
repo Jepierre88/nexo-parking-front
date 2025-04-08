@@ -3,6 +3,7 @@ import { useState } from "react";
 
 import { Email } from "@/types";
 import { CONSTANTS } from "@/config/constants";
+import Cookies from "js-cookie";
 
 export default function UseResetPassword() {
   const [loading, setLoading] = useState(false);
@@ -14,6 +15,12 @@ export default function UseResetPassword() {
         `${CONSTANTS.APIURL}/reset-password/init`,
         {
           email: email,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Cookies.get("auth_token")}`,
+          },
         }
       );
 

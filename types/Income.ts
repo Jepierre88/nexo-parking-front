@@ -1,4 +1,4 @@
-export default interface Ingreso {
+export default interface Income {
 	datetime?: any;
 	id: number;
 	identificationId: string;

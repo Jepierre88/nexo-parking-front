@@ -66,17 +66,11 @@ export default function Mensualidad() {
   useEffect(() => {
     if (!identificationCode) return;
 
-    const loadingToastId = toast.loading("Validando cédula...");
-
     const handler = setTimeout(() => {
       setDebouncedIdentificationCode(identificationCode);
-      toast.dismiss(loadingToastId); // Cierra el toast después de los 4 segundos
-    }, 4000);
+    }, 1000); // 1 second debounce
 
-    return () => {
-      clearTimeout(handler);
-      toast.dismiss(loadingToastId);
-    };
+    return () => clearTimeout(handler);
   }, [identificationCode]);
 
   useEffect(() => {
@@ -249,10 +243,9 @@ export default function Mensualidad() {
     setLoading(true);
     const loadingToastId = toast.loading("Consultando cédula...");
     try {
-      const data = await listInformation(identificationCode);
+      const customer = await listInformation(identificationCode);
       toast.dismiss(loadingToastId);
-      if (data.length > 0) {
-        const customer = data[0];
+      if (customer) {
         setSelectedService(customer.service || null);
         setFirstName(`${customer.firstName} ${customer.secondName || ""}`);
         setLastName(
@@ -374,7 +367,7 @@ export default function Mensualidad() {
 
         <div className="flex flex-col gap-0">
           <div className="flex items-center justify-between mb-2 ">
-            <label className="text-base font-bold ">Cedula</label>
+            <label className="text-base font-bold ">Cédula</label>
             <div className="flex items-center w-1/2">
               <Input
                 className="w-full"

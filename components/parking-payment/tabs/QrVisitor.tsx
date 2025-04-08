@@ -14,18 +14,32 @@ import { Autocomplete, AutocompleteItem } from "@nextui-org/react";
 import { animals } from "@/app/libs/data";
 import { custom } from "zod";
 import { CONSTANTS } from "@/config/constants";
+import { usePathname, useRouter } from "next/navigation";
 
 export default function VisitanteQr() {
+
+  const router = useRouter()
+
   const { state, dispatch, paymentData, setPaymentData } = usePaymentContext();
   const [hasValidated, setHasValidated] = useState(false);
   const [debouncedIdentificationCode, setDebouncedIdentificationCode] =
     useState(paymentData.identificationCode);
-
   const getCompanyCode = (value: string) => {
     if (!value.includes("http")) return value;
     const url = new URL(value);
     return url.searchParams.get("companyCode") || "";
   };
+
+  // Solo limpiamos el estado cuando el componente se desmonta
+  useEffect(() => {
+    return () => {
+      setPaymentData(initialPaymentData);
+      dispatch({ type: "CLEAR_PAYMENTS" });
+      setHasValidated(false);
+      setDebouncedIdentificationCode("");
+    };
+  }, []); // Cleanup al desmontar el componente
+
 
   // Debounce: Espera 2 segundos después del último cambio antes de procesar el QR
   useEffect(() => {
@@ -75,10 +89,10 @@ export default function VisitanteQr() {
   const searchDataValidate = async (data: data) => {
     toast.promise(
       axios.post(
-        `${CONSTANTS.APIURL}/access-control/visitor-service/validateNewPP`,
+        `${CONSTANTS.APIURL}/validatePaymentVisitorService`,
         {
           identificationType: "QR",
-          identificationCode: data.identificationCode,
+          identificationCode: data.identificationCode.trim(),
           plate: data.plate,
           customType: data.customType,
         }
@@ -218,20 +232,7 @@ export default function VisitanteQr() {
 
               if (!value) {
                 // Si el usuario borra el QR, limpiar completamente el estado
-                setPaymentData({
-                  ...paymentData,
-                  namePaymentType: "",
-                  identificationCode: "",
-                  validationDetail: null,
-                  extraServices: [],
-                  netTotalServices: 0,
-                  totalServices: 0,
-                  totalParking: 0,
-                  totalCost: 0,
-                  plate: "",
-                  vehicleKind: "",
-                  subtotal: 0,
-                });
+                setPaymentData(initialPaymentData);
                 setDebouncedIdentificationCode(""); // Evita que el useEffect vuelva a escribirlo
                 setHasValidated(false); // Permitir nueva validación
               } else {

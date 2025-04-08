@@ -43,7 +43,7 @@ export default function RootLayout({
         )}
       >
         <Providers themeProps={{ attribute: "class" }}>
-          <div className="relative flex flex-col h-screen overflow-x-hidden">
+          <div className="relative flex flex-col h-screen overflow-x-hidden main-bg">
             <NavigateProvider>
               <AuthProvider>
                 {CONSTANTS.NODE_ENV === "production" ? (

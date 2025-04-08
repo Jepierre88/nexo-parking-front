@@ -1,5 +1,6 @@
 import { CONSTANTS } from "@/config/constants";
 import axios from "axios";
+import Cookies from "js-cookie";
 import { useEffect, useState } from "react";
 
 export default function UseServices(type: string) {
@@ -11,8 +12,9 @@ export default function UseServices(type: string) {
       const response = await axios.get(
         `${CONSTANTS.APIURL}/services`,
         {
-          params: {
-            serviceType: type,
+          headers: {
+            type: type,
+            Authorization: `Bearer ${Cookies.get("auth_token")}`,
           },
         }
       );

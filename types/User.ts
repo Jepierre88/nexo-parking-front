@@ -15,7 +15,7 @@ export default interface User {
 	username: string;
 	verificationToken: string;
 	zoneId: number;
-	permissions:[];
+	permissions: [];
 	deviceNme: string;
 	eliminated: boolean;
 }
@@ -49,4 +49,10 @@ export const initialNewUser: Signup = {
 	cellPhoneNumber: "",
 	realm: "",
 	permissions: [],
+}
+
+export interface Rol {
+	id: number;
+	name: string;
+	eliminated: boolean;
 }

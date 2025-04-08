@@ -4,6 +4,7 @@ import {
   createContext,
   ReactNode,
   useContext,
+  useEffect,
   useReducer,
   useState,
 } from "react";
@@ -146,12 +147,18 @@ export const PaymentProvider = ({ children }: { children: ReactNode }) => {
   const [state, dispatch] = useReducer(paymentReducer, initialState);
 
   const [paymentData, setPaymentData] =
-    useState<PaymentData>(initialPaymentData);
+    useState<PaymentData>({
+      ...initialPaymentData,
+    });
 
   // Función adicional para limpiar todo
   const clearAll = () => {
     dispatch({ type: "CLEAR_PAYMENTS" });
   };
+
+  useEffect(() => {
+    setPaymentData(initialPaymentData)
+  }, [])
 
   return (
     <PaymentContext.Provider
@@ -161,7 +168,7 @@ export const PaymentProvider = ({ children }: { children: ReactNode }) => {
         clearAll,
         paymentData,
         setPaymentData,
-        clearInputs: () => setPaymentData(createEmptyObject<PaymentData>()), // Ejemplo de función adicional para limpiar los inputs del formulario de pago
+        clearInputs: () => setPaymentData(initialPaymentData), // Ejemplo de función adicional para limpiar los inputs del formulario de pago
       }}
     >
       {children}

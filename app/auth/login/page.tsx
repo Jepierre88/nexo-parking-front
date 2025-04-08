@@ -26,6 +26,7 @@ import { loginSchema } from "@/app/schemas/validationSchemas";
 import { LoginData } from "@/types";
 import { toast, Toaster } from "sonner";
 import { CONSTANTS } from "@/config/constants";
+import LicenceModal from "@/components/licence/LicenceModal";
 
 export default function Login() {
   const { router } = UseNavigateContext();
@@ -38,6 +39,14 @@ export default function Login() {
     onOpen: onOpenExitoModal,
     onOpenChange: onOpenChangeExitoModal,
     onClose: onCloseExitoModal,
+  } = useDisclosure();
+
+
+  const {
+    isOpen: isOpenLicenceModal,
+    onOpen: onOpenLicenceModal,
+    onOpenChange: onOpenChangeLicenceModal,
+    onClose: onCloseLicenceModal,
   } = useDisclosure();
 
   const {
@@ -88,18 +97,20 @@ export default function Login() {
       console.log(CONSTANTS)
 
       const response = await axios.post(
-        `${CONSTANTS.APIURL}/users/loginNewPP`,
+        `${CONSTANTS.APIURL}/login`,
         data
       );
 
       console.log(response.data);
 
+      const oneHourFromNow = new Date(new Date().getTime() + 60 * 60 * 1000);
+
       Cookies.set("auth_token", response.data.token, {
-        expires: 1,
+        expires: oneHourFromNow,
         secure: false,
       });
       Cookies.set("permissions", JSON.stringify(response.data.permissions), {
-        expires: 1,
+        expires: oneHourFromNow,
         secure: false,
       });
 
@@ -115,7 +126,7 @@ export default function Login() {
           username: response.data.username,
           email: response.data.email,
         }),
-        { expires: 1, secure: false }
+        { expires: oneHourFromNow, secure: false }
       );
 
       if (response.data.token) {
@@ -279,6 +290,17 @@ export default function Login() {
                   Click aquí
                 </span>
               </div>
+              <div
+                className="space-x-2 mb-4"
+                onClick={() => {
+
+                  onOpenLicenceModal();
+                }}
+              >
+                <span className="text-primary cursor-pointer text-center font-bold">
+                  Activar licencia
+                </span>
+              </div>
             </CardBody>
           </Card>
           <div
@@ -295,7 +317,7 @@ export default function Login() {
         </section>
 
         {/*Primera modal para buscar el correo y enviar el codigo*/}
-        <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+        <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={false}>
           <ModalContent>
             <ModalHeader className="flex justify-center items-center">
               Recuperar Contraseña
@@ -363,6 +385,11 @@ export default function Login() {
             onClose: handleSuccessClose,
             onOpenChange: onOpenChangeExitoModal,
           }}
+        />
+        <LicenceModal
+          isOpen={isOpenLicenceModal}
+          onOpenChange={onOpenChangeLicenceModal}
+          onClose={onCloseLicenceModal}
         />
       </main>
     </>

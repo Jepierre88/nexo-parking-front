@@ -46,8 +46,8 @@ export const createUserSchema = (
       .transform((value) =>
         value
           ? value
-              .toLowerCase()
-              .replace(/(^\w|\s\w)/g, (match) => match.toUpperCase())
+            .toLowerCase()
+            .replace(/(^\w|\s\w)/g, (match) => match.toUpperCase())
           : ""
       ),
     lastName: z
@@ -55,8 +55,8 @@ export const createUserSchema = (
       .transform((value) =>
         value
           ? value
-              .toLowerCase()
-              .replace(/(^\w|\s\w)/g, (match) => match.toUpperCase())
+            .toLowerCase()
+            .replace(/(^\w|\s\w)/g, (match) => match.toUpperCase())
           : ""
       ),
     cellPhoneNumber: z
@@ -180,6 +180,7 @@ export const editProfileSchema = z
         8,
         "La confirmación de la contraseña debe tener mínimo 8 caracteres"
       ),
+    lastPassword: z.string().min(8, "La contraseña debe tener mínimo 8 caracteres"),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Las contraseñas no coinciden",

@@ -216,14 +216,12 @@ export default function ExtraServices(props: {
 
   return (
     <article
-      className={`fixed w-full min-h-screen backdrop-brightness-75 z-50 top-0 transition-opacity duration-300 ease-in-out ${
-        props.showCart ? "opacity-100 visible" : "opacity-0 invisible"
-      }`}
+      className={`fixed w-full min-h-screen backdrop-brightness-75 z-50 top-0 transition-opacity duration-300 ease-in-out ${props.showCart ? "opacity-100 visible" : "opacity-0 invisible"
+        }`}
     >
       <Card
-        className={`fixed z-40 max-w-xl w-full h-5/6 flex flex-col justify-center items-center top-4 sm:top-20 right-0 transform transition-transform ease-in-out duration-300 ${
-          props.showCart ? "translate-x-0" : "translate-x-full"
-        }`}
+        className={`fixed z-40 max-w-xl w-full h-5/6 flex flex-col justify-center items-center top-4 sm:top-20 right-0 transform transition-transform ease-in-out duration-300 ${props.showCart ? "translate-x-0" : "translate-x-full"
+          }`}
       >
         {" "}
         <CardHeader className="flex flex-col">

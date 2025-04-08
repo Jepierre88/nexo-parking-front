@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import User from "@/types/User";
 import Signup from "@/types/Auth";
 import { CONSTANTS } from "@/config/constants";
+import Cookies from "js-cookie";
 
 export default function UseUsers() {
   const [users, setUsers] = useState<User[]>([]);
@@ -12,30 +13,30 @@ export default function UseUsers() {
   const [existingUsernames, setExistingUsernames] = useState<string[]>([]);
   const [existingUserEmails, setExistingEmails] = useState<string[]>([]);
 
-  const getUsers = async () => {
-    setLoading(true);
-    try {
-      const response = await axios.get(
-        `${CONSTANTS.APIURL}/users`
-      );
-      const arrayfilter: User[] = Array.isArray(response.data)
-        ? response.data
-        : [];
-      const filteredUsers = arrayfilter.filter(
-        (item) => item.realm !== "Consultorio" && item.realm !== "consultorio"
-      );
+  // const getUsers = async () => {
+  //   setLoading(true);
+  //   try {
+  //     const response = await axios.get(
+  //       `${CONSTANTS.APIURL}/users`
+  //     );
+  //     const arrayfilter: User[] = Array.isArray(response.data)
+  //       ? response.data
+  //       : [];
+  //     const filteredUsers = arrayfilter.filter(
+  //       (item) => item.realm !== "Consultorio" && item.realm !== "consultorio"
+  //     );
 
-      setUsers(filteredUsers);
-      setExistingUsernames(filteredUsers.map((user) => user.username));
-      setExistingEmails(filteredUsers.map((user) => user.email));
-      console.log(users);
-    } catch (error) {
-      console.error("Error al obtener los usuarios:", error);
-      setUsers([]);
-    } finally {
-      setLoading(false);
-    }
-  };
+  //     setUsers(filteredUsers);
+  //     setExistingUsernames(filteredUsers.map((user) => user.username));
+  //     setExistingEmails(filteredUsers.map((user) => user.email));
+  //     console.log(users);
+  //   } catch (error) {
+  //     console.error("Error al obtener los usuarios:", error);
+  //     setUsers([]);
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const isUserDataUnique = (newUserData: any, existingUsers: User[]) => {
     const exists = existingUsers.some(
@@ -59,6 +60,12 @@ export default function UseUsers() {
           email: user.email,
           realm: user.realm,
           eliminated: user.eliminated,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Cookies.get("auth_token")}`,
+          },
         }
       );
 
@@ -74,7 +81,7 @@ export default function UseUsers() {
 
   const createUser = async (signup: Signup) => {
     const response = await axios.post(
-      `${CONSTANTS.APIURL}/signupNewPP`,
+      `${CONSTANTS.APIURL}/signUp`,
       {
         username: signup.username,
         password: signup.password,
@@ -83,6 +90,12 @@ export default function UseUsers() {
         lastName: signup.lastName,
         cellPhoneNumber: signup.cellPhoneNumber,
         realm: signup.realm,
+      },
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${Cookies.get("auth_token")}`,
+        },
       }
     );
 
@@ -95,7 +108,13 @@ export default function UseUsers() {
     setLoading(true);
     try {
       const response = await axios.delete(
-        `${CONSTANTS.APIURL}/users/${id}`
+        `${CONSTANTS.APIURL}/users/${id}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Cookies.get("auth_token")}`,
+          },
+        }
       );
       console.log(`Usuario con ID ${id} eliminado:`, response.data);
 
@@ -111,18 +130,18 @@ export default function UseUsers() {
   };
 
   const resetPassword = async (
-    username: string,
-    password: string,
-    confirmPassword: string
+    email: string,
+    newPassword: string,
+    lastPassword: string
   ) => {
     setLoading(true);
     try {
       const response = await axios.put(
-        `${CONSTANTS.APIURL}/reset-password/NewPP`,
+        `${CONSTANTS.APIURL}/reset-password/finish`,
         {
-          username,
-          password,
-          confirmPassword,
+          email,
+          newPassword,
+          lastPassword,
         }
       );
       console.log("Contraseña reseteada exitosamente:", response.data);
@@ -136,16 +155,16 @@ export default function UseUsers() {
     }
   };
 
-  useEffect(() => {
-    setLoading(true);
-    getUsers();
-  }, []);
+  // useEffect(() => {
+  //   setLoading(true);
+  //   getUsers();
+  // }, []);
 
   return {
     users,
     signup,
     loading,
-    getUsers,
+    // getUsers,
     updateUser,
     createUser,
     deleteUser,

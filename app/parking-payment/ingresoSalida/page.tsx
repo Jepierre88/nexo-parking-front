@@ -30,7 +30,7 @@ import withPermission from "@/app/withPermission";
 import { formatDate } from "@/app/libs/utils";
 import { CONSTANTS } from "@/config/constants";
 
-const enterExit = () => {
+const enterExit = ({ }) => {
   const { hasPermission } = UsePermissions();
   const canViewDate = useMemo(() => hasPermission(28), [hasPermission]);
   // const canViewDateOutcome = useMemo(() => hasPermission(41), [hasPermission]);
@@ -101,7 +101,7 @@ const enterExit = () => {
     const loadingToastId = toast.loading("Imprimiendo ticket de ingreso...");
 
     try {
-      const impresora = new Connector("EPSON");
+      const impresora = new Connector(CONSTANTS.PRINTER_NAME);
       await impresora.imprimirIngreso(row);
       toast.success("Ticket impreso correctamente.", {
         id: loadingToastId,
@@ -148,7 +148,7 @@ const enterExit = () => {
       setIsLoading(true);
 
       const response = await axios.post(
-        `${CONSTANTS.APIURL}/access-control/visitor-service/generateContingency`,
+        `${CONSTANTS.APIURL}/generateManualIncome`,
         {
           plate: placaIn,
           vehicleKind: vehicleType,

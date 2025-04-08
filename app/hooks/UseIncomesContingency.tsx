@@ -3,6 +3,7 @@ import { useState } from "react";
 import { enterExit } from "@/types";
 import IncomeContingency from "@/types/IncomeContingency";
 import { CONSTANTS } from "@/config/constants";
+import Cookies from "js-cookie";
 
 export default function UseIncomesContingency() {
   const [loading, setLoading] = useState(false);
@@ -15,6 +16,12 @@ export default function UseIncomesContingency() {
         {
           ...data,
           datetime: data.datetime || new Date().toISOString(),
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Cookies.get("auth_token")}`,
+          },
         }
       );
 
@@ -41,6 +48,10 @@ export default function UseIncomesContingency() {
         {
           params: {
             plate,
+          },
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Cookies.get("auth_token")}`,
           },
         }
       );

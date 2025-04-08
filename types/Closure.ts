@@ -1,5 +1,5 @@
 export interface Closure {
-  id?: number;
+  id: number;
   datetime?: Date;
   initialConsecutive?: number;
   finalConsecutive?: number;
@@ -17,7 +17,7 @@ export interface Closure {
   paymentPoint?: string;
   fromDatetime?: Date;
   toDatetime?: Date;
-  transactions?: Transaction[]; 
+  transactions?: Transaction[];
   endDatetime?: Date;
 }
 
@@ -40,7 +40,7 @@ export interface PaymentMethodSummary {
 }
 
 export interface ClosureDetails {
-  id?:number;
+  id?: number;
   paymentMethods: PaymentMethodSummary[];
   totalPaymentMethods: number;
   amountReceived: PaymentMethodSummary[];

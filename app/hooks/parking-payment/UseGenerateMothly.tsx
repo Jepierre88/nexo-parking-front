@@ -3,6 +3,7 @@ import axios from "axios";
 import { MonthlySubscriptionPaymentData } from "@/types";
 import { UseAuthContext } from "@/app/context/AuthContext";
 import { CONSTANTS } from "@/config/constants";
+import Cookies from "js-cookie";
 
 export async function POST(request: Request) {
   try {
@@ -33,7 +34,12 @@ export async function POST(request: Request) {
     // Envío de la solicitud al backend
     const response = await axios.post(
       `${CONSTANTS.APIURL}/access-control/monthly-subscription-serviceNewPP/generate`,
-      requestData
+      requestData, {
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${Cookies.get("auth_token")}`,
+      },
+    }
     );
 
     return NextResponse.json(response.data);
