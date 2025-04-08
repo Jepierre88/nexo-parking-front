@@ -26,6 +26,7 @@ import { loginSchema } from "@/app/schemas/validationSchemas";
 import { LoginData } from "@/types";
 import { toast, Toaster } from "sonner";
 import { CONSTANTS } from "@/config/constants";
+import LicenceModal from "@/components/licence/LicenceModal";
 
 export default function Login() {
   const { router } = UseNavigateContext();
@@ -38,6 +39,14 @@ export default function Login() {
     onOpen: onOpenExitoModal,
     onOpenChange: onOpenChangeExitoModal,
     onClose: onCloseExitoModal,
+  } = useDisclosure();
+
+
+  const {
+    isOpen: isOpenLicenceModal,
+    onOpen: onOpenLicenceModal,
+    onOpenChange: onOpenChangeLicenceModal,
+    onClose: onCloseLicenceModal,
   } = useDisclosure();
 
   const {
@@ -281,6 +290,17 @@ export default function Login() {
                   Click aquí
                 </span>
               </div>
+              <div
+                className="space-x-2 mb-4"
+                onClick={() => {
+
+                  onOpenLicenceModal();
+                }}
+              >
+                <span className="text-primary cursor-pointer text-center font-bold">
+                  Activar licencia
+                </span>
+              </div>
             </CardBody>
           </Card>
           <div
@@ -297,7 +317,7 @@ export default function Login() {
         </section>
 
         {/*Primera modal para buscar el correo y enviar el codigo*/}
-        <Modal isOpen={isOpen} onOpenChange={onOpenChange}>
+        <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={false}>
           <ModalContent>
             <ModalHeader className="flex justify-center items-center">
               Recuperar Contraseña
@@ -365,6 +385,11 @@ export default function Login() {
             onClose: handleSuccessClose,
             onOpenChange: onOpenChangeExitoModal,
           }}
+        />
+        <LicenceModal
+          isOpen={isOpenLicenceModal}
+          onOpenChange={onOpenChangeLicenceModal}
+          onClose={onCloseLicenceModal}
         />
       </main>
     </>
