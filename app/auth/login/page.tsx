@@ -206,13 +206,13 @@ export default function Login() {
     <>
       <Toaster richColors duration={2000} />
       <main
-        className="min-h-screen flex items-center justify-center bg-cover bg-center"
+        className="min-h-dvh flex flex-col items-center justify-center bg-cover bg-center py-8 px-4"
         style={{
           backgroundImage: "url('/background_login.png')",
         }}
       >
-        <section className="flex flex-col items-center h-max">
-          <Card className="flex flex-col justify-center h-full w-full max-w-96">
+        <section className="flex flex-col items-center w-full max-w-sm">
+          <Card className="w-full">
             <CardHeader
               className={`"flex justify-center w-full  " ${theme === "dark" ? "bg-gray-800" : "bg-primary"}`}
             >
@@ -228,11 +228,11 @@ export default function Login() {
 
             <CardBody>
               <form
-                className="flex flex-col justify-evenly h-80"
+                className="flex flex-col justify-evenly h-64"
                 onSubmit={handleSubmit(onSubmit)}
               >
-                <h1 className="font-bold text-3xl mx-auto">Inicio de Sesión</h1>
-                <div className="flex flex-col w-full ">
+                <h1 className="font-bold text-2xl mx-auto">Inicio de Sesión</h1>
+                <div className="flex flex-col w-full gap-1">
                   <label className="font-bold">Correo electrónico</label>
                   <Input
                     placeholder="Correo electronico"
@@ -242,13 +242,11 @@ export default function Login() {
                     {...register("email", { required: true })}
                   />
                   <div className="h-2">
-                    {errors.email && (
-                      <MessageError message={errors.email.message} />
-                    )}
+                    {errors.email && <MessageError message={errors.email.message} />}
                   </div>
                 </div>
-                <div className="flex flex-col w-full ">
-                  <label className="font-bold ">Contraseña</label>
+                <div className="flex flex-col w-full gap-1">
+                  <label className="font-bold">Contraseña</label>
                   <Input
                     placeholder="Contraseña"
                     size="md"
@@ -271,14 +269,12 @@ export default function Login() {
                     }
                     type={isVisiblePassword1 ? "text" : "password"}
                   />
-                  <div className="h-2">
-                    {errors.password && (
-                      <MessageError message={errors.password.message} />
-                    )}
-                  </div>
+                </div>
+                <div className="h-5">
+                  {errors.password && <MessageError message={errors.password.message} />}
                 </div>
                 <Button
-                  className="border-2 border-primary focus:border-blue-500 focus:ring-blue-500 rounded-lg mx-auto w-full"
+                  className="border-2 border-primary focus:border-blue-500 focus:ring-blue-500 rounded-lg mx-auto w-full mt-2"
                   color="primary"
                   size="md"
                   type="submit"
@@ -290,14 +286,14 @@ export default function Login() {
               </form>
 
               <div
-                className="space-x-2 mb-4"
+                className="space-x-2 mt-2 flex justify-center"
                 onClick={() => {
                   setShowEmailInput(true);
                   setShowAdditionalInputs(false);
                   onOpen();
                 }}
               >
-                <span className="text-black dark:text-white cursor-pointer   text-center ">
+                <span className="text-black dark:text-white cursor-pointer text-center ">
                   ¿Haz olvidado tu contraseña?
                 </span>
                 <span className="text-primary cursor-pointer text-center font-bold">
@@ -306,7 +302,7 @@ export default function Login() {
               </div>
               <p className="text-center text-lg">o</p>
               <div
-                className="space-x-2 mb-4 flex w-full justify-center"
+                className="space-x-2 flex w-full justify-center"
                 onClick={() => {
 
                   onOpenLicenceModal();
@@ -318,18 +314,19 @@ export default function Login() {
               </div>
             </CardBody>
           </Card>
-          <div
-            className="flex z-30 justify-between w-full mt-16"
-            style={{
-              backgroundImage: "url('/LogoCoins.png')",
-              backgroundSize: "contain",
-              backgroundRepeat: "no-repeat",
-              backgroundPosition: "center",
-              height: "80px",
-              width: "150px",
-            }}
-          ></div>
         </section>
+        <footer
+          className="flex justify-center items-center w-full mt-8 absolute bottom-4"
+          style={{
+            backgroundImage: "url('/LogoCoins.png')",
+            backgroundSize: "contain",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "center",
+            height: "60px",
+            width: "120px",
+            margin: "0 auto"
+          }}
+        ></footer>
 
         {/*Primera modal para buscar el correo y enviar el codigo*/}
         <Modal isOpen={isOpen} onOpenChange={onOpenChange} isDismissable={false}>
