@@ -35,6 +35,7 @@ export default function UseResetPassword() {
         "Error al enviar la solicitud de restablecimiento de contraseña:",
         error
       );
+      throw error;
     } finally {
       setLoading(false);
     }

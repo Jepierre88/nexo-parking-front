@@ -13,6 +13,12 @@ export default function LicenseModal({
   const [loading, setLoading] = useState(false);
 
   const activateLicense = async () => {
+    if (
+      license.length < 10
+    ) {
+      toast.error("El código de la licencia es inválido");
+      return;
+    }
     try {
       setLoading(true);
       const response = await activateLicenseAction(license);

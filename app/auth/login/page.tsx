@@ -187,8 +187,8 @@ export default function Login() {
         toast.error("Correo electrónico no válido");
       }
     } catch (error) {
-      setMessage("Correo electrónico no válido");
-      toast.error("Correo electrónico no válido");
+
+      toast.error("No se pudo enviar el correo de recuperación");
     } finally {
       setLoading(false);
     }
@@ -206,50 +206,50 @@ export default function Login() {
     <>
       <Toaster richColors duration={2000} />
       <main
-        className="min-h-dvh flex flex-col items-center justify-center bg-cover bg-center py-8 px-4"
+        className="min-h-dvh flex flex-col items-center justify-center bg-cover bg-center py-4 px-2 sm:px-4"
         style={{
           backgroundImage: "url('/background_login.png')",
         }}
       >
-        <section className="flex flex-col items-center w-full max-w-sm">
+        <section className="flex flex-col items-center w-full max-w-[320px] sm:max-w-sm">
           <Card className="w-full">
             <CardHeader
-              className={`"flex justify-center w-full  " ${theme === "dark" ? "bg-gray-800" : "bg-primary"}`}
+              className={`flex justify-center w-full py-2 ${theme === "dark" ? "bg-gray-800" : "bg-primary"}`}
             >
               <div className="flex flex-col items-center">
                 <Image
                   src={"/NexoParkingAzul.svg"}
                   alt="Logo"
-                  width={160}
-                  height={80}
+                  width={140}
+                  height={70}
                 />
               </div>
             </CardHeader>
 
-            <CardBody>
+            <CardBody className="px-4 py-3">
               <form
-                className="flex flex-col justify-evenly h-64"
+                className="flex flex-col justify-evenly gap-2 text-sm"
                 onSubmit={handleSubmit(onSubmit)}
               >
-                <h1 className="font-bold text-2xl mx-auto">Inicio de Sesión</h1>
+                <h1 className="font-bold text-xl mx-auto">Inicio de Sesión</h1>
                 <div className="flex flex-col w-full gap-1">
                   <label className="font-bold">Correo electrónico</label>
                   <Input
                     placeholder="Correo electronico"
-                    size="md"
+                    size="sm"
                     className="border-2 border-primary focus:border-blue-500 focus:ring-blue-500 rounded-lg"
                     startContent={<Envelope />}
                     {...register("email", { required: true })}
                   />
-                  <div className="h-2">
-                    {errors.email && <MessageError message={errors.email.message} />}
-                  </div>
+                </div>
+                <div className="h-5 text-end">
+                  {errors.email && <MessageError message={errors.email.message} />}
                 </div>
                 <div className="flex flex-col w-full gap-1">
                   <label className="font-bold">Contraseña</label>
                   <Input
                     placeholder="Contraseña"
-                    size="md"
+                    size="sm"
                     className="border-2 border-primary focus:border-blue-500 focus:ring-blue-500 rounded-lg"
                     startContent={<Lock />}
                     {...register("password", { required: true })}
@@ -270,13 +270,13 @@ export default function Login() {
                     type={isVisiblePassword1 ? "text" : "password"}
                   />
                 </div>
-                <div className="h-5">
+                <div className="h-5 text-end">
                   {errors.password && <MessageError message={errors.password.message} />}
                 </div>
                 <Button
                   className="border-2 border-primary focus:border-blue-500 focus:ring-blue-500 rounded-lg mx-auto w-full mt-2"
                   color="primary"
-                  size="md"
+                  size="sm"
                   type="submit"
                   variant="shadow"
                   isLoading={loading}
@@ -286,7 +286,7 @@ export default function Login() {
               </form>
 
               <div
-                className="space-x-2 mt-2 flex justify-center"
+                className="space-x-2 mt-2 flex justify-center text-sm"
                 onClick={() => {
                   setShowEmailInput(true);
                   setShowAdditionalInputs(false);
@@ -302,13 +302,11 @@ export default function Login() {
               </div>
               <p className="text-center text-lg">o</p>
               <div
-                className="space-x-2 flex w-full justify-center"
-                onClick={() => {
-
-                  onOpenLicenceModal();
-                }}
+                className="space-x-2 flex w-full justify-center text-sm"
               >
-                <span className="text-primary cursor-pointer text-center font-bold">
+                <span className="text-primary cursor-pointer text-center hover:underline  font-bold" onClick={() => {
+                  onOpenLicenceModal();
+                }}>
                   Activar licencia
                 </span>
               </div>
