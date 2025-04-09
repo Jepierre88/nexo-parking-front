@@ -94,6 +94,7 @@ function ParkingPayment({ }) {
   useEffect(() => {
     if (paymentData?.status === 110) {
       onOpenStatusModal();
+      // setPaymentData({ ...paymentData, identificationCode: "" })
     }
   }, [paymentData?.status]);
 
@@ -269,8 +270,14 @@ function ParkingPayment({ }) {
     toast.promise(
       axios
         .post(
-          `${CONSTANTS.APIURL}/access-control/visitor-service/generateNewPP`,
-          data
+          `${CONSTANTS.APIURL}/generatePaymentVisitorService`,
+          data,
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${Cookies.get("auth_token")}`,
+            },
+          }
         )
         .then(async (response: any) => {
           console.log("Pago registrado:", response.data);
@@ -396,7 +403,7 @@ function ParkingPayment({ }) {
                       <strong>Fecha de entrada:</strong>
                     </span>
                     <span className="w-full">
-                      {paymentData?.validationDetail?.incomeDatetime}
+                      {formatDate(new Date(paymentData?.validationDetail?.incomeDatetime))}
                     </span>
                   </div>
                   <div className="text-base text-start mb-1 flex gap-4 justify-between">
@@ -609,7 +616,10 @@ function ParkingPayment({ }) {
         onOpenChange={(open) => {
           if (!open) {
             // Si se cierra el modal, limpia los datos
-            setPaymentData(initialPaymentData);
+            setPaymentData({
+              ...initialPaymentData,
+              identificationCode: "",
+            });
             onCloseStatusModal();
           }
         }}
@@ -625,7 +635,7 @@ function ParkingPayment({ }) {
             <p>{paymentData?.messageBody || "No hay mensaje disponible."}</p>
             <Button
               color="primary"
-              onClick={() => {
+              onPress={() => {
                 setPaymentData(initialPaymentData);
                 onCloseStatusModal();
               }}

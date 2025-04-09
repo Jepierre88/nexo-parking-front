@@ -15,6 +15,7 @@ import { animals } from "@/app/libs/data";
 import { custom } from "zod";
 import { CONSTANTS } from "@/config/constants";
 import { usePathname, useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 export default function VisitanteQr() {
 
@@ -48,9 +49,26 @@ export default function VisitanteQr() {
       setDebouncedIdentificationCode(companyId);
     }, 500);
 
-
     return () => clearTimeout(handler);
   }, [paymentData.identificationCode]);
+
+  useEffect(() => {
+    if (debouncedIdentificationCode && debouncedIdentificationCode.length >= 15 && !hasValidated) {
+      const newData = {
+        ...initialPaymentData,
+        identificationType: paymentData.identificationType,
+        identificationCode: debouncedIdentificationCode,
+        plate: paymentData.plate,
+        customType: paymentData.customType,
+        vehicleKind: paymentData.vehicleKind,
+      };
+
+      setPaymentData(newData);
+      dispatch({ type: "CLEAR_PAYMENTS" });
+      setHasValidated(true);
+      searchDataValidate(newData);
+    }
+  }, [debouncedIdentificationCode, hasValidated]);
 
   // Validación después del debounce
   //? EL debounce es un hook que permite realizar una peticion despues de un tiempo de espera
@@ -95,6 +113,12 @@ export default function VisitanteQr() {
           identificationCode: data.identificationCode.trim(),
           plate: data.plate,
           customType: data.customType,
+        },
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Cookies.get("auth_token")}`,
+          },
         }
       ),
       {

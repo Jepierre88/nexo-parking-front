@@ -65,14 +65,16 @@ export function createEmptyObject<T>(): T {
 	return {} as T; // Esto devuelve un objeto vacío sin inicializar propiedades
 }
 
-export const formatDate = (date: Date) => {
+export const formatDate = (date: Date | null | undefined) => {
+	if (!date || isNaN(date.getTime())) {
+		return "";
+	}
 	const year = date.getFullYear();
 	const month = String(date.getMonth() + 1).padStart(2, "0");
 	const day = String(date.getDate()).padStart(2, "0");
 	const hours = String(date.getHours()).padStart(2, "0");
 	const minutes = String(date.getMinutes()).padStart(2, "0");
 	const seconds = String(date.getSeconds()).padStart(2, "0");
-
 
 	return `${day}/${month}/${year}, ${hours}:${minutes}:${seconds}`;
 };

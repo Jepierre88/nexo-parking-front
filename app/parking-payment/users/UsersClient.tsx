@@ -467,7 +467,7 @@ function UsersClient({ users, roles, existingUserEmails, existingUsernames, page
             <div className="flex flex-col items-start w-full p-4">
               <ModalHeader className="flex justify-between w-full p-0">
                 <h1 className="text-center text-2xl font-bold mb-2">
-                  Editar Usuario
+                  {isView ? "Información del usuario" : "Editar usuario"}
                 </h1>
               </ModalHeader>
               <ModalBody className="flex w-full p-0">
@@ -600,6 +600,7 @@ function UsersClient({ users, roles, existingUserEmails, existingUsernames, page
                         <div className="w-2/3 mb-6">
                           <Switch
                             className="w-full"
+                            isDisabled={isView}
                             isSelected={!userEdit.eliminated}
                             onValueChange={(value) =>
                               setUserEdit((prev) => ({
