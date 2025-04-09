@@ -142,6 +142,7 @@ export default function Login() {
             cellPhoneNumber: response.data.cellPhoneNumber,
             username: response.data.username,
             email: response.data.email,
+            expirationDateInMinutes: response.data.expirationDateInMinutes,
           }),
           setIsAuthenticated(true)
         ]);
