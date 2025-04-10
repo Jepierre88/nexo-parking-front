@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import {
   NextUIProvider,
   Input,
@@ -47,13 +47,26 @@ const enterExit = ({ }) => {
     parseAbsoluteToLocal(new Date().toISOString())
   );
 
-  React.useEffect(() => {
+  useEffect(() => {
     const interval = setInterval(() => {
       setCurrentDate(parseAbsoluteToLocal(new Date().toISOString()));
     }, 5000);
 
     return () => clearInterval(interval);
   }, []);
+
+
+  useEffect(() => {
+    const timeout = setTimeout(() => {
+      if ((placaOut.length === 6 || QROut.length > 4) && !loading) {
+        handleGenerateExit();
+      }
+    }, 1000); // 1 segundo
+
+    return () => clearTimeout(timeout); // Limpiar timeout si cambia antes de que termine
+  }, [placaOut, QROut]);
+
+
 
   const handleQROutChange = (e: any) => {
     const value = e.target.value;
@@ -331,7 +344,7 @@ const enterExit = ({ }) => {
                 // isDisabled
                 />
               </div>
-              <RadioGroup
+              {/* <RadioGroup
                 className="mt-0"
                 label="Detalles de ingreso"
                 orientation="horizontal"
@@ -354,7 +367,7 @@ const enterExit = ({ }) => {
                     width={50}
                   />
                 </Radio>
-              </RadioGroup>
+              </RadioGroup> */}
               {/* <div className="flex flex-col items-start w-full">
                 <label className="block font-sans text-right text-[16px] font-semibold leading-[24px]  decoration-skip-ink-none decoration-from-font mb-2">
                   Fecha y hora de ingreso
