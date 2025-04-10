@@ -164,6 +164,10 @@ const enterExit = ({ }) => {
     } catch (error) {
       toast.dismiss(loadingToastId);
       console.error("Error al registrar la salida:", error);
+    } finally {
+      setIsLoading(false);
+      setPlacaOut("");
+      setQROut("");
     }
   };
 
@@ -216,6 +220,8 @@ const enterExit = ({ }) => {
       setPlacaIn("");
     } finally {
       setIsLoading(false);
+      setPlacaOut("");
+      setQROut("");
     }
   };
 
