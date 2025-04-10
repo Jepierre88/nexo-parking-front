@@ -318,7 +318,7 @@ const enterExit = ({ }) => {
 
               <div className="flex flex-col items-start w-full ">
                 <label className="block font-sans text-right text-[16px] font-semibold leading-[24px]  decoration-skip-ink-none decoration-from-font mb-2">
-                  QR (solo lectura)
+                  QR
                 </label>
                 <Input
                   placeholder="QR"
