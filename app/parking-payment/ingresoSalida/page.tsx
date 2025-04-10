@@ -157,6 +157,7 @@ const enterExit = ({ }) => {
         toast.dismiss(loadingToastId);
         console.log("Salida registrada con exito");
         setPlacaOut("");
+        setQROut("");
       } else {
         toast.dismiss(loadingToastId);
       }
