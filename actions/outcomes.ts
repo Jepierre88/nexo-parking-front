@@ -67,3 +67,36 @@ export async function getOutcomesAction({
     throw error;
   }
 }
+
+export const generateReport = async ({
+  from, to
+}: {
+  from?: string;
+  to?: string;
+}): Promise<any[]> => {
+  const cookieStore = cookies();
+
+  const token = (await cookieStore).get('auth_token')?.value;
+
+  try {
+    console.log(from, to)
+
+    const response = await axios.get(
+      `${CONSTANTS.APIURL}/outcomesReport`,
+      {
+        headers: {
+          startDateTime: from,
+          endDateTime: to,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data: any[] = response.data;
+    return data
+  } catch (error) {
+    console.error("Error al generar el reporte:", error);
+    throw error;
+  }
+}

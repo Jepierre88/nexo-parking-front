@@ -193,11 +193,6 @@ function TransactionsClient({ transactions, pages }: TransactionsClientProps) {
 
       {/* Table Display */}
       <div className="w-full overflow-auto">
-        <Button onPress={() => {
-          exportToExcel(transactions, "transacciones");
-        }} color="danger" variant="bordered" className="ml-4 my-2">
-          Exportar a excel
-        </Button>
         <Table
           aria-label="Tabla de ingresos"
           shadow="none"

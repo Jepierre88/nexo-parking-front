@@ -30,6 +30,7 @@ import withPermission from "@/app/withPermission";
 import { formatDate } from "@/app/libs/utils";
 import { CONSTANTS } from "@/config/constants";
 import Cookies from "js-cookie";
+import { getIncomeForPrint } from "@/actions/incomes";
 
 const enterExit = ({ }) => {
   const { hasPermission } = UsePermissions();
@@ -134,8 +135,10 @@ const enterExit = ({ }) => {
     const loadingToastId = toast.loading("Imprimiendo ticket de ingreso...");
 
     try {
+      const printInformation = await getIncomeForPrint(row.id)
+      console.log(printInformation);
       const impresora = new Connector(CONSTANTS.PRINTER_NAME);
-      await impresora.imprimirIngreso(row);
+      await impresora.imprimirIngreso(printInformation);
       toast.success("Ticket impreso correctamente.", {
         id: loadingToastId,
       });

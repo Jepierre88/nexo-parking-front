@@ -26,7 +26,7 @@ import { TablePagination } from "@/components/Pagination";
 import TableSkeleton from "@/components/TableSkeleton";
 import { CONSTANTS, ITEMS_PER_PAGE } from "@/config/constants";
 import { exportToExcel } from "@/app/libs/utils";
-import { updateIncome } from "@/actions/incomes";
+import { generateReport, getIncomeForPrint, updateIncome } from "@/actions/incomes";
 
 const initialIncomeEdit: Income = {
   id: 0,
@@ -149,7 +149,10 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
     }));
   };
 
-  const [exportDateRange, setExportDateRange] = useState<any>({ start: parseAbsoluteToLocal(new Date(new Date().setDate(new Date().getDate() - 1)).toISOString()), end: parseAbsoluteToLocal(new Date().toISOString()), });
+  const [exportDateRange, setExportDateRange] = useState<any>({
+    start: parseAbsoluteToLocal(new Date(new Date().setHours(0, 0, 0, 0)).toISOString()),
+    end: parseAbsoluteToLocal(new Date(new Date().setHours(23, 59, 59, 999)).toISOString()),
+  });
 
   const handleFilter = () => {
     const params = new URLSearchParams(searchParams.toString());
@@ -213,8 +216,10 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
     const loadingToastId = toast.loading("Imprimiendo ticket de ingreso...");
 
     try {
+      const printData = await getIncomeForPrint(row.id);
+      console.log(printData, row)
       const impresora = new Connector(CONSTANTS.PRINTER_NAME);
-      await impresora.imprimirIngreso(row);
+      await impresora.imprimirIngreso(printData);
       toast.success("Ticket impreso correctamente.", {
         id: loadingToastId,
       });
@@ -238,6 +243,30 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
       minute: '2-digit'
     });
   };
+
+  const generateIncomesReport = async () => {
+    const startDate: Date = exportDateRange.start.toDate(getLocalTimeZone());
+    const endDate: Date = exportDateRange.end.toDate(getLocalTimeZone());
+    const toastId = toast.loading("Generando informe...");
+    try {
+
+      const report = await generateReport({
+        from: startDate.toISOString(),
+        to: endDate.toISOString(),
+      })
+      if (report) {
+        exportToExcel(report, `REPORTE_INGRESOS__${startDate.toISOString().split("T")[0]}_${endDate.toISOString().split("T")[0]}.xlsx`);
+      }
+      toast.success("Informe generado correctamente.", {
+        id: toastId,
+      });
+    } catch (error) {
+      console.error("Error al generar el informe", error);
+      toast.error("Error al generar el informe", {
+        id: toastId,
+      });
+    }
+  }
 
   return isLoading ? (
     <section className="h-full">
@@ -295,13 +324,34 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
       </div>
 
 
+      <Accordion className="px-4 py-2 mb-4">
+        <AccordionItem key="1" aria-label="Generar Informes" title="Generar Informes">
+          <div className="flex gap-4 items-center justify-start flex-wrap md:flex-nowrap">
+            <DateRangePicker
+              lang="es-ES"
+              hideTimeZone
+              label="Rango de Fechas para Informe"
+              size="md"
+              value={exportDateRange}
+              onChange={setExportDateRange}
+              classNames={{
+                inputWrapper: "bg-white border border-primary",
+              }}
+            />
+            <Button
+              className="bg-primary text-white my-auto"
+              size="lg"
+              variant="shadow"
+              onPress={generateIncomesReport}
+            >
+              Generar Informe
+            </Button>
+          </div>
+        </AccordionItem>
+      </Accordion>
+
       {/* NextUI Table Implementation with Paginated Data */}
       <div className="w-full overflow-auto">
-        <Button onPress={() => {
-          exportToExcel(incomes, "ingresos");
-        }} color="danger" variant="bordered" className="ml-4 my-2">
-          Exportar a excel
-        </Button>
         <Table
           aria-label="Tabla de ingresos"
           selectionMode="none"

@@ -319,11 +319,6 @@ function PaymentClosureClient({ closures, pages }: {
       </div>
       <div className="w-full overflow-auto">
         <div className="justify-between items-center flex my-2">
-          <Button onPress={() => {
-            exportToExcel(closures, "cierres");
-          }} color="danger" variant="bordered" className="ml-4">
-            Exportar a excel
-          </Button>
           <Button
             className="bg-primary relative z-10 text-white"
             color="primary"

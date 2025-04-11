@@ -4,7 +4,7 @@ import { Encabezado } from './../../types/Closure';
 import axios from "axios";
 
 import Invoice from "@/types/Invoice";
-import Income from "@/types/Income";
+import Income, { PrintIncome } from "@/types/Income";
 import { Closure, Transaction, ClosureDetails } from "@/types/Closure";
 import Cookies from "js-cookie";
 import { ConstructionOutlined } from '@mui/icons-material';
@@ -284,7 +284,7 @@ export class Connector {
 		return this.imprimir(); // Devuelve la promesa generada por imprimir
 	}
 
-	async imprimirIngreso(ingreso: Income) {
+	async imprimirIngreso({ data: ingreso, printInformation }: PrintIncome) {
 		const fechaIngreso = new Date(ingreso.datetime);
 		//Encabezado
 		this.operaciones.push({
@@ -309,6 +309,18 @@ export class Connector {
 			// datos: `https://pay.coins-colombia.com/validate-data?companyId=2&serviceId=1&companyCode=${ingreso.identificationId}`,
 			datos: `${ingreso.identificationId}`,
 		});
+		this.operaciones.push({
+			accion: "text",
+			datos: `${printInformation.privacyPolicyInfo}`
+		})
+		this.operaciones.push({
+			accion: "text",
+			datos: `${printInformation.endDatePolicy}`,
+		})
+		this.operaciones.push({
+			accion: "text",
+			datos: `${printInformation.paymentPointInfo}`,
+		})
 		await this.imprimir();
 	}
 

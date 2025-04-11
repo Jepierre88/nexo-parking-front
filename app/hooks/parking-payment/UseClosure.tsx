@@ -78,7 +78,7 @@ export default function UseClosure() {
     setLoadingDetails(true);
     try {
       const response = await axios.post(
-        `${CONSTANTS.APIURL}/payment-closuresNewPP/${cashier}`,
+        `${CONSTANTS.APIURL}/generatePaymentClosure/${cashier}`,
         {
           headers: {
             "Content-Type": "application/json",

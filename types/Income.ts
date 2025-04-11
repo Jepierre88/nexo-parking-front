@@ -12,3 +12,13 @@ export default interface Income {
 	vehicle: string;
 	vehicleKind: string;
 }
+
+
+export interface PrintIncome {
+	data: Income;
+	printInformation: {
+		privacyPolicyInfo: string;
+		endDatePolicy: string;
+		paymentPointInfo: string
+	}
+}

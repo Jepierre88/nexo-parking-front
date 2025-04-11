@@ -63,3 +63,30 @@ export async function getTransactionsAction({
     throw error;
   }
 }
+
+
+export const generateReport = async ({
+  from, to
+}: {
+  from?: string;
+  to?: string;
+}): Promise<any[]> => {
+  try {
+    const response = await axios.get(
+      //TODO Cambiar endpoint
+      `${CONSTANTS.APIURL}/generate-report`,
+      {
+        params: {
+          startDateTime: from,
+          endDateTime: to,
+        },
+      }
+    );
+
+    const data: any[] = response.data;
+    return data
+  } catch (error) {
+    console.error("Error al generar el reporte:", error);
+    throw error;
+  }
+}

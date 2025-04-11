@@ -3,7 +3,7 @@ import * as XLSX from 'xlsx';
 import { CONSTANTS } from "@/config/constants";
 import { parseAbsoluteToLocal } from "@internationalized/date";
 import axios, { AxiosError } from "axios";
-import Income from '@/types/Income';
+import Income, { PrintIncome } from '@/types/Income';
 import { cookies } from 'next/headers';
 
 export async function getIncomesAction({
@@ -97,3 +97,60 @@ export const updateIncome = async (income: Income): Promise<Income | null> => {
     throw error;
   }
 };
+
+export const generateReport = async ({
+  from, to
+}: {
+  from?: string;
+  to?: string;
+}): Promise<any[]> => {
+  const cookieStore = cookies();
+
+  const token = (await cookieStore).get('auth_token')?.value;
+
+  try {
+
+    console.log(from, to)
+
+    const response = await axios.get(
+      //TODO Cambiar endpoint
+      `${CONSTANTS.APIURL}/incomesReport/pp`,
+      {
+        headers: {
+          startDateTime: from,
+          endDateTime: to,
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      }
+    );
+
+    const data: any[] = response.data;
+    return data
+  } catch (error) {
+    console.error("Error al generar el reporte:", error);
+    throw error;
+  }
+}
+
+
+export const getIncomeForPrint = async (id: number): Promise<PrintIncome> => {
+  const cookieStore = cookies();
+  const token = (await cookieStore).get('auth_token')?.value;
+  try {
+    const response = await axios.get(
+      `${CONSTANTS.APIURL}/printIncomeId`,
+      {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+          id
+        },
+      }
+    )
+    return response.data
+  } catch (error) {
+    console.error("Error al generar el reporte:", error);
+    throw error;
+  }
+}

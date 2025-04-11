@@ -1,13 +1,15 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, DateValue, DateRangePicker, Input, Button } from "@nextui-org/react";
+import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, DateValue, DateRangePicker, Input, Button, Accordion, AccordionItem } from "@nextui-org/react";
 import withPermission from "@/app/withPermission";
 import { TablePagination } from "@/components/Pagination";
 import { getLocalTimeZone, parseAbsoluteToLocal } from "@internationalized/date";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ITEMS_PER_PAGE } from "@/config/constants";
 import { exportToExcel } from "@/app/libs/utils";
+import { generateReport } from "@/actions/outcomes";
+import { toast } from "sonner";
 
 type Outcome = {
   id: number;
@@ -99,6 +101,36 @@ function OutcomesClient({ outcomes, pages }: OutcomesClientProps) {
     router.push(`/parking-payment/operations/outcomes?${params.toString()}`);
   };
 
+
+  const [exportDateRange, setExportDateRange] = useState<any>({
+    start: parseAbsoluteToLocal(new Date(new Date().setHours(0, 0, 0, 0)).toISOString()),
+    end: parseAbsoluteToLocal(new Date(new Date().setHours(23, 59, 59, 999)).toISOString()),
+  });
+
+  const generateOutcomesReport = async () => {
+    const startDate: Date = exportDateRange.start.toDate(getLocalTimeZone());
+    const endDate: Date = exportDateRange.end.toDate(getLocalTimeZone());
+    const toastId = toast.loading("Generando informe...");
+    try {
+
+      const report = await generateReport({
+        from: startDate.toISOString(),
+        to: endDate.toISOString(),
+      })
+      if (report) {
+        exportToExcel(report, `REPORTE_SALIDAS__${startDate.toISOString().split("T")[0]}_${endDate.toISOString().split("T")[0]}.xlsx`);
+      }
+      toast.success("Informe generado correctamente.", {
+        id: toastId,
+      });
+    } catch (error) {
+      console.error("Error al generar el informe", error);
+      toast.error("Error al generar el informe", {
+        id: toastId,
+      });
+    }
+  }
+
   return (
     <section className="h-full">
       <div className="flex justify-between items-center flex-col xl:flex-row overflow-hidden">
@@ -139,13 +171,36 @@ function OutcomesClient({ outcomes, pages }: OutcomesClientProps) {
         </div>
       </div>
 
+      <Accordion className="px-0">
+        <AccordionItem key="1" aria-label="Generar informes" title="Generar informes">
+          <div className="flex flex-col gap-4">
+            <div className="flex gap-4 items-center justify-center h-min flex-wrap md:flex-nowrap">
+              <DateRangePicker
+                lang="es-ES"
+                hideTimeZone
+                label="Rango de Fechas"
+                size="md"
+                value={exportDateRange}
+                onChange={setExportDateRange}
+                classNames={{
+                  inputWrapper: "bg-white border border-primary",
+                }}
+              />
+              <Button
+                className="bg-primary text-white my-auto"
+                size="lg"
+                variant="shadow"
+                onPress={generateOutcomesReport}
+              >
+                Generar Reporte
+              </Button>
+            </div>
+          </div>
+        </AccordionItem>
+      </Accordion>
+
       {/* Table Display */}
       <div className="w-full overflow-auto">
-        <Button onPress={() => {
-          exportToExcel(outcomes, "salidas");
-        }} color="danger" variant="bordered" className="ml-4 my-2">
-          Exportar a excel
-        </Button>
         <Table
           shadow="none"
           aria-label="Tabla de ingresos"
