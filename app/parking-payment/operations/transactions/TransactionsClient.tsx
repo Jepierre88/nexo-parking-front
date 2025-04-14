@@ -24,35 +24,14 @@ type TransactionsClientProps = {
 };
 
 
-function TransactionsClient() {
+function TransactionsClient({
+  transactions,
+}: TransactionsClientProps) {
 
-  const { getTransactionsAction } = UseTransactions();
   const searchParams = useSearchParams();
 
 
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [pages, setPages] = useState<number>(0);
-  // Esto toca hacerlo en el lado del cliente ya que el programa precisa de la
-  // IP del cliente para separar las transacciones
-  useEffect(() => {
-    const fetchTransactions = async () => {
-      try {
-        const params = new URLSearchParams(searchParams.toString());
-        const from = params.get("from") || "";
-        const to = params.get("to") || "";
-        const page = params.get("page") || "1";
-        const plate = params.get("plate") || "";
-
-        const result = await getTransactionsAction({ from, to, page, plate });
-        setTransactions(result.transactions);
-        setPages(result.meta.pages);
-      } catch (error) {
-        console.error("Error fetching transactions:", error);
-      }
-    };
-
-    fetchTransactions();
-  }, [searchParams]);
 
 
   const router = useRouter();
@@ -108,28 +87,42 @@ function TransactionsClient() {
 
 
   useEffect(() => {
-    // if (!fromParam || !toParam) {
-    //   setDateRange({
-    //     start: parseAbsoluteToLocal(new Date(new Date().setDate(new Date().getDate() - 1)).toISOString()),
-    //     end: parseAbsoluteToLocal(new Date().toISOString()),
-    //   });
-
     handleFilter()
-    // }
-  }, [])
+    return () => {
+      // Cleanup code here, if needed
+    };
+  }
+    , [])
 
 
-  // Update the URL when filters change
+  // // Update the URL when filters change
+  // const handleFilter = () => {
+  //   const params = new URLSearchParams(searchParams.toString());
+
+  //   if (plate) params.set("plate", plate);
+  //   else params.delete("plate");
+
+  //   if (dateRange.start) params.set("from", dateRange.start.toDate(getLocalTimeZone()).toISOString());
+  //   if (dateRange.end) params.set("to", dateRange.end.toDate(getLocalTimeZone()).toISOString());
+
+  //   params.set("page", "1"); // Reset to page 1 when filtering
+
+  //   router.push(`/parking-payment/operations/transactions?${params.toString()}`);
+  //   router.refresh()
+  // };
   const handleFilter = () => {
     const params = new URLSearchParams(searchParams.toString());
 
     if (plate) params.set("plate", plate);
     else params.delete("plate");
 
-    if (dateRange.start) params.set("from", dateRange.start.toDate(getLocalTimeZone()).toISOString());
-    if (dateRange.end) params.set("to", dateRange.end.toDate(getLocalTimeZone()).toISOString());
+    if (dateRange.start)
+      params.set("from", dateRange.start.toDate(getLocalTimeZone()).toISOString());
+    if (dateRange.end)
+      params.set("to", dateRange.end.toDate(getLocalTimeZone()).toISOString());
 
-    params.set("page", "1"); // Reset to page 1 when filtering
+    // Reset to page 1 when filtering
+    params.set("page", "1");
 
     router.push(`/parking-payment/operations/transactions?${params.toString()}`);
   };

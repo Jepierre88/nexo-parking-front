@@ -150,6 +150,10 @@ export const getIncomeForPrint = async (id: number): Promise<PrintIncome> => {
     )
     return response.data
   } catch (error) {
+    if (error instanceof AxiosError) {
+      console.log(error.response?.data)
+      throw error
+    }
     console.error("Error al generar el reporte:", error);
     throw error;
   }

@@ -1,5 +1,5 @@
 'use client'
-import { getClosureDetails, postClosure, postsendEmail } from "@/actions/closures";
+import { useClosures } from "@/app/hooks/parking-payment/UseClosures";
 import UseConfigurationData from "@/app/hooks/UseConfigurationData";
 import UsePermissions from "@/app/hooks/UsePermissions";
 import { exportToExcel, formatDate } from "@/app/libs/utils";
@@ -91,7 +91,7 @@ function PaymentClosureClient({ closures, pages }: {
       : parseAbsoluteToLocal(new Date(new Date().setDate(new Date().getDate() - 1)).toISOString()),
     end: toParam
       ? parseAbsoluteToLocal(new Date(toParam).toISOString())
-      : parseAbsoluteToLocal(new Date().toISOString()),
+      : parseAbsoluteToLocal(new Date(new Date().setDate(new Date().getDate() + 1)).toISOString()),
   });
 
   useEffect(() => {
@@ -181,6 +181,8 @@ function PaymentClosureClient({ closures, pages }: {
 
     router.push(`/parking-payment/operations/parkingClosure?${params.toString()}`);
   };
+  const { postClosure, getClosureDetails, sendEmail } = useClosures();
+
   const handleClose = async () => {
     const cashier = getCashier();
     setLoadingClose(true);
@@ -223,7 +225,7 @@ function PaymentClosureClient({ closures, pages }: {
     setLoading(true);
     const toastId = toast.loading("Enviando correo...");
     try {
-      const result = await postsendEmail(currentClosureId, email);
+      const result = await sendEmail(currentClosureId, email);
       if (result) {
         toast.success("Informe enviado con éxito", {
           id: toastId,

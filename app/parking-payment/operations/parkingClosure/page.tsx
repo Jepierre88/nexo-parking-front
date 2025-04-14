@@ -1,18 +1,30 @@
-'use server'
-import { getIncomesAction } from "@/actions/incomes";
+'use client'
 import { parse } from "url";
 import PaymentClosureClient from "./PaymentClosureClient";
-import { getClosuresAction } from "@/actions/closures";
+import { useClosures } from "@/app/hooks/parking-payment/UseClosures";
+import { useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
 
-export default async function IncomesPage({
-  searchParams,
-}: {
-  searchParams: Promise<{ from?: string; to?: string; page?: string }>;
-}) {
-  const { from, to, page } = await searchParams;
+export default function IncomesPage() {
+  const searchParams = useSearchParams();
+  const { getClosures } = useClosures();
+  const [closureData, setClosureData] = useState({ closures: [], pages: 1 });
 
-  const { closures, meta: {
-    lastPage
-  } } = await getClosuresAction({ from, to, page });
-  return <PaymentClosureClient closures={closures} pages={lastPage} />;
+  const from = searchParams.get("from") || "";
+  const to = searchParams.get("to") || "";
+  const page = searchParams.get("page") || "1";
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const { closures, meta } = await getClosures({ from, to, page });
+        setClosureData({ closures, pages: meta.lastPage });
+      } catch (error) {
+        console.error("Error fetching closures:", error);
+      }
+    };
+    fetchData();
+  }, [from, to, page]);
+
+  return <PaymentClosureClient closures={closureData.closures} pages={closureData.pages} />;
 }
