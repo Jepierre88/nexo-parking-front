@@ -24,9 +24,38 @@ type TransactionsClientProps = {
 };
 
 
-function TransactionsClient({ transactions, pages }: TransactionsClientProps) {
-  const router = useRouter();
+function TransactionsClient() {
+
+  const { getTransactionsAction } = UseTransactions();
   const searchParams = useSearchParams();
+
+
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [pages, setPages] = useState<number>(0);
+  // Esto toca hacerlo en el lado del cliente ya que el programa precisa de la
+  // IP del cliente para separar las transacciones
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      try {
+        const params = new URLSearchParams(searchParams.toString());
+        const from = params.get("from") || "";
+        const to = params.get("to") || "";
+        const page = params.get("page") || "1";
+        const plate = params.get("plate") || "";
+
+        const result = await getTransactionsAction({ from, to, page, plate });
+        setTransactions(result.transactions);
+        setPages(result.meta.pages);
+      } catch (error) {
+        console.error("Error fetching transactions:", error);
+      }
+    };
+
+    fetchTransactions();
+  }, [searchParams]);
+
+
+  const router = useRouter();
 
   const fromParam = searchParams.get("from");
   const toParam = searchParams.get("to");
@@ -233,7 +262,7 @@ function TransactionsClient({ transactions, pages }: TransactionsClientProps) {
                 <TableCell>{item.transactionConcept}</TableCell>
                 <TableCell>{formatDate(item.datetime)}</TableCell>
                 <TableCell>{item.identificationMethod}</TableCell>
-                <TableCell>{item.code}</TableCell>
+                <TableCell>{item.identificationId}</TableCell>
                 <TableCell>{item.vehicleType}</TableCell>
                 <TableCell>{item.vehiclePlate}</TableCell>
                 <TableCell>

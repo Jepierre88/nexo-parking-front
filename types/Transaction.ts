@@ -1,6 +1,6 @@
 export default interface Transaction {
 	cashier: string;
-	code: string;
+	identificationId: string;
 	consecutive: string;
 	datetime: string;
 	id: number;
