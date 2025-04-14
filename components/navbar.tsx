@@ -177,7 +177,7 @@ export const Navbar = () => {
         <Image alt="Logo" className="my-auto" height={70} src={NEXOLOGO} />
       </NavbarBrand>
 
-      <NavbarContent className="hidden lg:flex flex-row gap-4 justify-center ml-auto">
+      <NavbarContent className="hidden lg:flex flex-row gap-4 justify-center ml-auto" >
         {filteredNavbarOptions.map((option) => (
           <ul className="flex gap-5" key={option.key}>
             {option.items.length === 1 ? (
@@ -198,7 +198,7 @@ export const Navbar = () => {
                 </Button>
               </NavbarItem>
             ) : (
-              <Dropdown>
+              <Dropdown shouldBlockScroll={false}>
                 <NavbarItem>
                   <DropdownTrigger>
                     <Button
@@ -222,6 +222,7 @@ export const Navbar = () => {
                       ? option.label
                       : "Menú de opciones"
                   }
+                  onScroll={(e) => e.stopPropagation()}
                 >
                   {option.items.map((item) => (
                     <DropdownItem
@@ -240,7 +241,7 @@ export const Navbar = () => {
       </NavbarContent>
 
       <NavbarContent className="hidden lg:flex justify-end ml-auto">
-        <Dropdown>
+        <Dropdown shouldBlockScroll={false}>
           <NavbarItem>
             <DropdownTrigger>
               <Button
@@ -302,7 +303,7 @@ export const Navbar = () => {
                 {option.label}
               </Button>
             ) : (
-              <Dropdown>
+              <Dropdown shouldBlockScroll={false}>
                 <DropdownTrigger>
                   <Button
                     disableRipple

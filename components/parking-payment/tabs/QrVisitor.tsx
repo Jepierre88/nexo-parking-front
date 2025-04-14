@@ -1,7 +1,7 @@
 import { Input } from "@nextui-org/input";
 import { Select, SelectItem } from "@nextui-org/select";
 import axios from "axios";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { Checkbox } from "@nextui-org/checkbox";
 
 import UseServices from "../../../app/hooks/parking-payment/UseServices";
@@ -18,6 +18,7 @@ import { usePathname, useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 
 export default function VisitanteQr() {
+  const qrInputRef = useRef<HTMLInputElement>(null);
 
   const router = useRouter()
 
@@ -33,6 +34,10 @@ export default function VisitanteQr() {
 
   // Solo limpiamos el estado cuando el componente se desmonta
   useEffect(() => {
+    // Enfocar el input de QR cuando el componente se monta
+    if (qrInputRef.current) {
+      qrInputRef.current.focus();
+    }
     return () => {
       setPaymentData(initialPaymentData);
       dispatch({ type: "CLEAR_PAYMENTS" });
@@ -40,6 +45,13 @@ export default function VisitanteQr() {
       setDebouncedIdentificationCode("");
     };
   }, []); // Cleanup al desmontar el componente
+
+  // Enfocar el input cuando se limpia el estado después de una transacción
+  useEffect(() => {
+    if (paymentData.identificationCode === "" && qrInputRef.current) {
+      qrInputRef.current.focus();
+    }
+  }, [paymentData.identificationCode]);
 
 
   // Debounce: Espera 2 segundos después del último cambio antes de procesar el QR
@@ -51,6 +63,9 @@ export default function VisitanteQr() {
 
     return () => clearTimeout(handler);
   }, [paymentData.identificationCode]);
+
+
+
 
   useEffect(() => {
     if (debouncedIdentificationCode && debouncedIdentificationCode.length >= 15 && !hasValidated) {
@@ -192,6 +207,8 @@ export default function VisitanteQr() {
           <Select
             className="w-1/2"
             value={paymentData.selectedService?.id}
+            selectedKeys={[`${paymentData.selectedService?.id || 1}`]}
+            // paymentData.selectedService?.id ? [paymentData.selectedService.id] : []
             variant="bordered"
             label="Seleccionar"
             radius="lg"
@@ -247,9 +264,11 @@ export default function VisitanteQr() {
             }}
           /> */}
           <Input
+            ref={qrInputRef}
             className="w-1/2"
             variant="bordered"
             required
+            autoFocus
             value={paymentData.identificationCode}
             onChange={(e) => {
               const value = e.target.value;

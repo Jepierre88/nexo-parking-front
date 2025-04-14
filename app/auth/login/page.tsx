@@ -204,7 +204,7 @@ export default function Login() {
 
   return (
     <>
-      <Toaster richColors duration={2000} />
+      <Toaster richColors duration={3000} />
       <main
         className="min-h-dvh flex flex-col items-center justify-center bg-cover bg-center py-4 px-2 sm:px-4"
         style={{

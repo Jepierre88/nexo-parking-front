@@ -10,7 +10,7 @@ export default function ParkingLayout({ children }: { children: ReactNode }) {
       <Navbar />
       <main className="container mx-auto max-w-7xl px-6 flex-grow">
         <ProtectedRoute>
-          <Toaster richColors duration={2000} />
+          <Toaster richColors duration={3000} />
           {children}
         </ProtectedRoute>
       </main>
