@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
-import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, DateValue, DateRangePicker, Input, Button } from "@nextui-org/react";
+import React, { useEffect, useState, useTransition } from "react";
+import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, DateValue, DateRangePicker, Input, Button, Spinner } from "@nextui-org/react";
 import withPermission from "@/app/withPermission";
 import { TablePagination } from "@/components/Pagination";
 import { getLocalTimeZone, parseAbsoluteToLocal } from "@internationalized/date";
@@ -26,12 +26,13 @@ type TransactionsClientProps = {
 
 function TransactionsClient({
   transactions,
+  pages
 }: TransactionsClientProps) {
+
+  const [isPending, startTransition] = useTransition()
 
   const searchParams = useSearchParams();
 
-
-  const [pages, setPages] = useState<number>(0);
 
 
   const router = useRouter();
@@ -124,7 +125,9 @@ function TransactionsClient({
     // Reset to page 1 when filtering
     params.set("page", "1");
 
-    router.push(`/parking-payment/operations/transactions?${params.toString()}`);
+    startTransition(() => {
+      router.push(`/parking-payment/operations/transactions?${params.toString()}`);
+    })
   };
 
 
@@ -249,7 +252,12 @@ function TransactionsClient({
               Acciones
             </TableColumn>
           </TableHeader>
-          <TableBody items={transactions} emptyContent="No hay registros disponibles">
+          <TableBody items={transactions} emptyContent="No hay registros disponibles" isLoading={isPending}
+            loadingContent={
+              <div className="w-full h-full bg-white/90 py-6 flex justify-center items-center">
+                <Spinner color="primary" size="lg" label="Cargando salidas..." />
+              </div>
+            }>
             {(item: Transaction) => (
               <TableRow key={item.id}>
                 <TableCell>{item.transactionConcept}</TableCell>

@@ -11,11 +11,11 @@ import { Closure, ClosureDetails, Encabezado } from "@/types/Closure";
 import Income from "@/types/Income";
 import { Transaction } from "@/types/Closure";
 import { CalendarDate, CalendarDateTime, getLocalTimeZone, parseAbsoluteToLocal, ZonedDateTime } from "@internationalized/date";
-import { Button, DateInput, DateRangePicker, Input, Modal, ModalBody, ModalContent, ModalHeader, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, useDisclosure } from "@nextui-org/react";
+import { Button, DateInput, DateRangePicker, Input, Modal, ModalBody, ModalContent, ModalHeader, Spinner, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow, useDisclosure } from "@nextui-org/react";
 import Cookies from "js-cookie";
 import { useTheme } from "next-themes";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
 import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Connector } from "@/app/libs/Printer";
@@ -40,6 +40,8 @@ function PaymentClosureClient({ closures, pages }: {
   closures: Closure[],
   pages: number,
 }) {
+
+  const [isPending, startTransition] = useTransition()
 
   const { resolvedTheme } = useTheme();
 
@@ -84,6 +86,7 @@ function PaymentClosureClient({ closures, pages }: {
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", page.toString());
     router.push(`/parking-payment/operations/parkingClosure?${params.toString()}`);
+
   };
   const [filterDateRange, setFilterDateRange] = useState<any>({
     start: fromParam
@@ -179,7 +182,9 @@ function PaymentClosureClient({ closures, pages }: {
     // Reset to page 1 when filtering
     params.set("page", "1");
 
-    router.push(`/parking-payment/operations/parkingClosure?${params.toString()}`);
+    startTransition(() => {
+      router.push(`/parking-payment/operations/parkingClosure?${params.toString()}`);
+    })
   };
   const { postClosure, getClosureDetails, sendEmail } = useClosures();
 
@@ -351,7 +356,12 @@ function PaymentClosureClient({ closures, pages }: {
             <TableColumn key="deviceName" align="center">Punto de pago</TableColumn>
             <TableColumn key="actions" align="center">Acciones</TableColumn>
           </TableHeader>
-          <TableBody items={closures} emptyContent="No hay registros disponibles">
+          <TableBody items={closures} emptyContent="No hay registros disponibles" isLoading={isPending}
+            loadingContent={
+              <div className="w-full h-full bg-white/90 py-6 flex justify-center items-center">
+                <Spinner color="primary" size="lg" label="Cargando salidas..." />
+              </div>
+            }>
             {(item) => (
               <TableRow key={item.id}>
                 <TableCell>{item.id}</TableCell>

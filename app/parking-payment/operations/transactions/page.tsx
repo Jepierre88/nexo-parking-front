@@ -19,7 +19,8 @@ export default function TransactionsPage() {
     const fetchData = async () => {
       try {
         const result = await getTransactionsAction({ from, to, page, plate });
-        setTransactionData({ transactions: result.transactions, pages: result.meta.pages });
+        console.log(result.meta.lastPage);
+        setTransactionData({ transactions: result.transactions, pages: result.meta.lastPage });
       } catch (error) {
         console.error("Error fetching transactions:", error);
       }
@@ -27,5 +28,9 @@ export default function TransactionsPage() {
     fetchData();
   }, [from, to, page, plate]);
 
-  return <TransactionsClient transactions={transactionData.transactions} pages={transactionData.pages} />;
+  return <TransactionsClient
+    transactions={transactionData.transactions}
+    pages={transactionData.pages}
+  // pages={2}
+  />;
 }

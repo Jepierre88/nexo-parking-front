@@ -52,7 +52,7 @@ type IncomesClientProps = {
 function IncomesClient({ incomes, pages }: IncomesClientProps) {
 
   const [isPending, startTransition] = useTransition()
- 
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const { resolvedTheme } = useTheme();
@@ -160,22 +160,22 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
 
   const handleFilter = () => {
     const params = new URLSearchParams(searchParams.toString());
-  
+
     if (plate) params.set("plate", plate);
     else params.delete("plate");
-  
+
     if (filterDateRange.start)
       params.set("from", filterDateRange.start.toDate(getLocalTimeZone()).toISOString());
     if (filterDateRange.end)
       params.set("to", filterDateRange.end.toDate(getLocalTimeZone()).toISOString());
-  
+
     params.set("page", "1");
-  
+
     startTransition(() => {
       router.push(`/parking-payment/operations/incomes?${params.toString()}`);
     });
   };
-  
+
 
   const handleEditIncome = (data: Income) => {
     setIncomeEdit(data);
@@ -368,6 +368,7 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
             td: "h-14",
           }}
           isHeaderSticky
+
         >
           <TableHeader>
             <TableColumn key="id" align="center">Id</TableColumn>
@@ -378,7 +379,16 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
             <TableColumn key="plate" align="center">Placa</TableColumn>
             <TableColumn key="actions" align="center">Acciones</TableColumn>
           </TableHeader>
-          <TableBody items={incomes} emptyContent="No hay registros disponibles" isLoading={isPending} loadingContent={<Spinner/>}>
+          <TableBody
+            items={incomes}
+            emptyContent="No hay registros disponibles"
+            isLoading={isPending}
+            loadingContent={
+              <div className="w-full h-full bg-white/90 py-6 flex justify-center items-center">
+                <Spinner color="primary" size="lg" label="Cargando ingresos..." />
+              </div>
+            }
+          >
             {(item) => (
               <TableRow key={item.id}>
                 <TableCell>{item.id}</TableCell>
