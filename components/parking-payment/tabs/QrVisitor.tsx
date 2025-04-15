@@ -300,7 +300,7 @@ export default function VisitanteQr() {
             className="w-1/2"
             value={paymentData.plate}
             variant="bordered"
-            isDisabled
+            // isDisabled
             onChange={(e) => {
               setPaymentData({
                 ...paymentData,
