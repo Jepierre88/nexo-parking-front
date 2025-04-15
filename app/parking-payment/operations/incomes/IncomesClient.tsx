@@ -3,13 +3,14 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { useSearchParams, useRouter, redirect } from "next/navigation";
 import { Button } from "@nextui-org/button";
-import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Accordion, AccordionItem } from "@nextui-org/react";
+import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Accordion, AccordionItem, Spinner } from "@nextui-org/react";
 import { DateInput, DateRangePicker, Input } from "@nextui-org/react";
 import { useTheme } from "next-themes";
 import { getLocalTimeZone, parseAbsoluteToLocal } from "@internationalized/date";
 import { PencilIcon, PrinterIcon } from "@/components/icons";
 import { Connector } from "@/app/libs/Printer";
 import { toast } from "sonner";
+import { useTransition } from "react";
 import {
   Modal,
   ModalBody,
@@ -49,6 +50,9 @@ type IncomesClientProps = {
 };
 
 function IncomesClient({ incomes, pages }: IncomesClientProps) {
+
+  const [isPending, startTransition] = useTransition()
+ 
   const router = useRouter();
   const searchParams = useSearchParams();
   const { resolvedTheme } = useTheme();
@@ -156,20 +160,22 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
 
   const handleFilter = () => {
     const params = new URLSearchParams(searchParams.toString());
+  
     if (plate) params.set("plate", plate);
     else params.delete("plate");
-
+  
     if (filterDateRange.start)
       params.set("from", filterDateRange.start.toDate(getLocalTimeZone()).toISOString());
     if (filterDateRange.end)
       params.set("to", filterDateRange.end.toDate(getLocalTimeZone()).toISOString());
-
-    // Reset to page 1 when filtering
+  
     params.set("page", "1");
-
-    router.push(`/parking-payment/operations/incomes?${params.toString()}`);
-    // redirect(`/parking-payment/operations/incomes?${params.toString()}`);
+  
+    startTransition(() => {
+      router.push(`/parking-payment/operations/incomes?${params.toString()}`);
+    });
   };
+  
 
   const handleEditIncome = (data: Income) => {
     setIncomeEdit(data);
@@ -372,7 +378,7 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
             <TableColumn key="plate" align="center">Placa</TableColumn>
             <TableColumn key="actions" align="center">Acciones</TableColumn>
           </TableHeader>
-          <TableBody items={incomes} emptyContent="No hay registros disponibles">
+          <TableBody items={incomes} emptyContent="No hay registros disponibles" isLoading={isPending} loadingContent={<Spinner/>}>
             {(item) => (
               <TableRow key={item.id}>
                 <TableCell>{item.id}</TableCell>

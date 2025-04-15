@@ -2,7 +2,7 @@
 import { CONSTANTS } from "@/config/constants";
 import Signup from "@/types/Auth";
 import User from "@/types/User";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { cookies } from "next/headers";
 
 const isUserDataUnique = (newUserData: any, existingUsers: User[]) => {
@@ -165,6 +165,7 @@ export const getUsersAction = async ({ page, eliminated }: {
       count: meta.count,
     }
   } catch (error) {
+    if(error instanceof AxiosError) console.log(error.response?.data)
     throw error;
   }
 };
