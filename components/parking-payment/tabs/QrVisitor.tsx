@@ -17,6 +17,9 @@ import { CONSTANTS } from "@/config/constants";
 import { usePathname, useRouter } from "next/navigation";
 import Cookies from "js-cookie";
 
+type TYPES_VALIDATIONS = "responseDiscountCode" | "responseIdentificationCode" | "responsePlate"
+
+
 export default function VisitanteQr() {
   const qrInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
@@ -26,6 +29,9 @@ export default function VisitanteQr() {
   // Refs for managing timers
   const qrTimerRef = useRef<NodeJS.Timeout | null>(null);
   const plateTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const discountTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const [validationType, setValidationType] = useState<TYPES_VALIDATIONS | null>(null); // New stat
 
   // State to track if we're ready to validate
   const [shouldValidate, setShouldValidate] = useState(false);
@@ -52,6 +58,7 @@ export default function VisitanteQr() {
       // Clear any pending timers
       if (qrTimerRef.current) clearTimeout(qrTimerRef.current);
       if (plateTimerRef.current) clearTimeout(plateTimerRef.current);
+      if (discountTimerRef.current) clearTimeout(discountTimerRef.current);
     };
   }, []);
 
@@ -74,12 +81,13 @@ export default function VisitanteQr() {
         plate: paymentData.plate,
         customType: paymentData.customType,
         vehicleKind: paymentData.vehicleKind,
+        discountCode: paymentData.discountCode,
       };
 
       console.log("Datos que se enviarán:", newData);
       setHasValidated(true);
       dispatch({ type: "CLEAR_PAYMENTS" });
-      searchDataValidate(newData);
+      searchDataValidate(newData, validationType);
 
       // Reset the validation flag
       setShouldValidate(false);
@@ -96,6 +104,7 @@ export default function VisitanteQr() {
       setPaymentData(initialPaymentData);
       setHasValidated(false);
     } else {
+      setValidationType(null)
       // Update paymentData immediately for UI feedback
       setPaymentData({
         ...paymentData,
@@ -112,32 +121,128 @@ export default function VisitanteQr() {
 
   const handlePlateChange = (value: string) => {
     // Clear any existing timer
-    if (plateTimerRef.current) clearTimeout(plateTimerRef.current);
+    // if (plateTimerRef.current) clearTimeout(plateTimerRef.current);
 
     // Update paymentData immediately for UI feedback
+    setValidationType("responsePlate")
     setPaymentData({
       ...paymentData,
       plate: value,
     });
     setHasValidated(false);
 
-    // Set a new timer for validation
-    plateTimerRef.current = setTimeout(() => {
-      setShouldValidate(true);
-    }, 1000);
+    // // Set a new timer for validation
+    // plateTimerRef.current = setTimeout(() => {
+    //   setShouldValidate(true);
+    // }, 1000);
   };
+
+  const handleDiscountChange = (value: string) => {
+    // Clear any existing timer
+    if (discountTimerRef.current) clearTimeout(discountTimerRef.current);
+    // Update paymentData immediately for UI feedback
+    setValidationType("responseDiscountCode")
+    setPaymentData({
+      ...paymentData,
+      discountCode: value,
+    });
+    setHasValidated(false);
+    // Set a new timer for validation
+    discountTimerRef.current = setTimeout(() => {
+      setShouldValidate(true);
+    }, 1500);
+  }
 
   const { services } = UseServices("Visitante");
 
-  const searchDataValidate = async (data: data) => {
-    toast.promise(
-      axios.post(
+
+  // const searchDataValidate = async (data: data, type?: TYPES_VALIDATIONS) => {
+  //   toast.promise(
+  //     axios.post(
+  //       `${CONSTANTS.APIURL}/validatePaymentVisitorService`,
+  //       {
+  //         identificationType: "QR",
+  //         identificationCode: data.identificationCode.trim(),
+  //         plate: data.plate,
+  //         customType: data.customType,
+  //         discountCode: data.discountCode.trim(),
+  //       },
+  //       {
+  //         headers: {
+  //           "Content-Type": "application/json",
+  //           Authorization: `Bearer ${Cookies.get("auth_token")}`,
+  //         },
+  //       }
+  //     ),
+  //     {
+  //       loading: "Validando datos del visitante...",
+  //       success: (response) => {
+  //         // Procesar servicios recibidos del backend
+  //         const updatedExtraServices =
+  //           response.data.extraServices?.map((service: any) => ({
+  //             code: service.code,
+  //             name: service.name,
+  //             quantity: service.quantity || 1,
+  //             unitPrice: service.unitPrice,
+  //             totalPrice:
+  //               service.unitPrice *
+  //               (service.quantity || 1) *
+  //               (1 + service.iva / 100),
+  //             iva: service.iva,
+  //             ivaAmount:
+  //               service.unitPrice *
+  //               (service.quantity || 1) *
+  //               (service.iva / 100),
+  //             netTotal: service.unitPrice * (service.quantity || 1),
+  //             isLocked: true,
+  //           })) || [];
+
+  //         // Recalcular totales
+  //         const recalculatedTotals = updatedExtraServices.reduce(
+  //           (acc: any, service: any) => {
+  //             acc.netTotalServices += service.netTotal;
+  //             acc.totalServices += service.totalPrice;
+  //             acc.totalIVA += service.ivaAmount;
+  //             return acc;
+  //           },
+  //           { netTotalServices: 0, totalServices: 0, totalIVA: 0 }
+  //         );
+
+  //         // Calcular total final, incluyendo totalParking
+  //         const totalParking = response.data.total || 0; // Valor de totalParking proporcionado por el backend
+  //         const totalCost = recalculatedTotals.totalServices + totalParking;
+  //         const selectedService = services.find(
+  //           (item) => item.name === response.data.customType
+  //         );
+  //         // Actualizar paymentData
+  //         setPaymentData({
+  //           ...response.data,
+  //           extraServices: updatedExtraServices,
+  //           netTotalServices: recalculatedTotals.netTotalServices,
+  //           totalServices: recalculatedTotals.totalServices,
+  //           totalParking, // Actualizamos totalParking directamente
+  //           totalCost, // Incluye totalParking y servicios adicionales
+  //         });
+
+  //         return "Datos validados correctamente";
+  //       },
+  //       error: "Error al validar los datos. Por favor, intente de nuevo.",
+  //     }
+  //   );
+  // };
+
+  const searchDataValidate = async (data: data, type: TYPES_VALIDATIONS | null) => {
+    const toastId = toast.loading("Validando datos del visitante...");
+
+    try {
+      const response = await axios.post(
         `${CONSTANTS.APIURL}/validatePaymentVisitorService`,
         {
           identificationType: "QR",
           identificationCode: data.identificationCode.trim(),
           plate: data.plate,
           customType: data.customType,
+          discountCode: data.discountCode.trim(),
         },
         {
           headers: {
@@ -145,63 +250,75 @@ export default function VisitanteQr() {
             Authorization: `Bearer ${Cookies.get("auth_token")}`,
           },
         }
-      ),
-      {
-        loading: "Validando datos del visitante...",
-        success: (response) => {
-          // Procesar servicios recibidos del backend
-          const updatedExtraServices =
-            response.data.extraServices?.map((service: any) => ({
-              code: service.code,
-              name: service.name,
-              quantity: service.quantity || 1,
-              unitPrice: service.unitPrice,
-              totalPrice:
-                service.unitPrice *
-                (service.quantity || 1) *
-                (1 + service.iva / 100),
-              iva: service.iva,
-              ivaAmount:
-                service.unitPrice *
-                (service.quantity || 1) *
-                (service.iva / 100),
-              netTotal: service.unitPrice * (service.quantity || 1),
-              isLocked: true,
-            })) || [];
+      );
 
-          // Recalcular totales
-          const recalculatedTotals = updatedExtraServices.reduce(
-            (acc: any, service: any) => {
-              acc.netTotalServices += service.netTotal;
-              acc.totalServices += service.totalPrice;
-              acc.totalIVA += service.ivaAmount;
-              return acc;
-            },
-            { netTotalServices: 0, totalServices: 0, totalIVA: 0 }
-          );
+      const updatedExtraServices =
+        response.data.extraServices?.map((service: any) => ({
+          code: service.code,
+          name: service.name,
+          quantity: service.quantity || 1,
+          unitPrice: service.unitPrice,
+          totalPrice:
+            service.unitPrice *
+            (service.quantity || 1) *
+            (1 + service.iva / 100),
+          iva: service.iva,
+          ivaAmount:
+            service.unitPrice *
+            (service.quantity || 1) *
+            (service.iva / 100),
+          netTotal: service.unitPrice * (service.quantity || 1),
+          isLocked: true,
+        })) || [];
 
-          // Calcular total final, incluyendo totalParking
-          const totalParking = response.data.total || 0; // Valor de totalParking proporcionado por el backend
-          const totalCost = recalculatedTotals.totalServices + totalParking;
-          const selectedService = services.find(
-            (item) => item.name === response.data.customType
-          );
-          // Actualizar paymentData
-          setPaymentData({
-            ...response.data,
-            extraServices: updatedExtraServices,
-            netTotalServices: recalculatedTotals.netTotalServices,
-            totalServices: recalculatedTotals.totalServices,
-            totalParking, // Actualizamos totalParking directamente
-            totalCost, // Incluye totalParking y servicios adicionales
-          });
-
-          return "Datos validados correctamente";
+      const recalculatedTotals = updatedExtraServices.reduce(
+        (acc: any, service: any) => {
+          acc.netTotalServices += service.netTotal;
+          acc.totalServices += service.totalPrice;
+          acc.totalIVA += service.ivaAmount;
+          return acc;
         },
-        error: "Error al validar los datos. Por favor, intente de nuevo.",
+        { netTotalServices: 0, totalServices: 0, totalIVA: 0 }
+      );
+
+      const totalParking = response.data.total || 0;
+      const totalCost = recalculatedTotals.totalServices + totalParking;
+
+      const selectedService = services.find(
+        (item) => item.name === response.data.customType
+      );
+
+      setPaymentData({
+        ...response.data,
+        extraServices: updatedExtraServices,
+        netTotalServices: recalculatedTotals.netTotalServices,
+        totalServices: recalculatedTotals.totalServices,
+        totalParking,
+        totalCost,
+      });
+      if (type) {
+        const found = response.data.optionalFields.find(
+          (field: any) => type in field
+        );
+
+        if (found) {
+          if (!found.status) {
+            toast.error(found[type], {
+              id: toastId,
+            });
+            return;
+          }
+        }
       }
-    );
+      toast.success("Datos validados correctamente", { id: toastId });
+    } catch (error) {
+      console.error(error);
+      toast.error("Error al validar los datos. Por favor, intente de nuevo.", {
+        id: toastId,
+      });
+    }
   };
+
 
   return (
     <article className="flex flex-col gap-2">
@@ -289,7 +406,7 @@ export default function VisitanteQr() {
           >
             Código de descuento
           </label>
-          <Input className="w-1/2" variant="bordered" />
+          <Input className="w-1/2" variant="bordered" value={paymentData.discountCode} onChange={(e) => handleDiscountChange(e.target.value)} />
         </div>
         <div className="flex gap-4 justify-between w-full">
           <label

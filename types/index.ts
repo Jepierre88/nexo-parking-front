@@ -12,7 +12,7 @@ export interface Plate {
 	plate: string;
 }
 export interface IdentificationCode {
-	identificationCode:string;
+	identificationCode: string;
 }
 export interface enterExit {
 	identificationType: "QR";
@@ -56,8 +56,8 @@ export interface PaymentData {
 	extraServices: any[];
 	customType: string;
 	selectedServiceChanged?: boolean;
-	validTo?:string; 
-	numberMonths?:number,
+	validTo?: string;
+	numberMonths?: number,
 	monthsForPay?: number;
 	apportionmentStartDatetime?: string;  // <-- Esta es la clave faltante
 	apportionmentEndDatetime?: string;
@@ -74,34 +74,35 @@ export interface ValidationDetail {
 	paidDatetime: string;
 	expectedOutcomeDatetime: string;
 	requestedMonthlySubscriptionStartDatetime?: string;
-	requestedMonthlySubscriptionEndDatetime?: 	string;
+	requestedMonthlySubscriptionEndDatetime?: string;
 	lastMonthlySubscriptionEndDatetime?: string;
 }
 
 export interface UserData {
-    username: string;
-    password: string;
-    email: string;
-    name: string;
-    lastName: string;
-    cellPhoneNumber: string;
-    realm: string;
-	confirmPassword: string;
-  }
-
-  export interface LoginData{
+	username: string;
 	password: string;
-    email: string;
-  }
+	email: string;
+	name: string;
+	lastName: string;
+	cellPhoneNumber: string;
+	realm: string;
+	confirmPassword: string;
+}
 
-  export interface data{
+export interface LoginData {
+	password: string;
+	email: string;
+}
+
+export interface data {
 	identificationType: string;
 	identificationCode: string;
 	plate: string;
-   customType: string;
-  }
+	customType: string;
+	discountCode: string;
+}
 
-  export interface MonthlySubscriptionPaymentData {
+export interface MonthlySubscriptionPaymentData {
 	identificationType: string;
 	identificationCode: string;
 	vehicleKind: string;
@@ -116,9 +117,8 @@ export interface UserData {
 	monthlySubscriptionStartDatetime: Date;
 	monthlySubscriptionEndDatetime: Date;
 	generationDetail: {
-	  paymentType: number;
-	  cashValue: number;
-	  returnValue: number;
+		paymentType: number;
+		cashValue: number;
+		returnValue: number;
 	};
-  }
-  
+}
