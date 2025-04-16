@@ -22,14 +22,14 @@ export default function VisitanteQr() {
   const router = useRouter();
   const { state, dispatch, paymentData, setPaymentData } = usePaymentContext();
   const [hasValidated, setHasValidated] = useState(false);
-  
+
   // Refs for managing timers
   const qrTimerRef = useRef<NodeJS.Timeout | null>(null);
   const plateTimerRef = useRef<NodeJS.Timeout | null>(null);
-  
+
   // State to track if we're ready to validate
   const [shouldValidate, setShouldValidate] = useState(false);
-  
+
   const getCompanyCode = (value: string) => {
     if (!value.includes("http")) return value;
     const url = new URL(value);
@@ -42,13 +42,13 @@ export default function VisitanteQr() {
     if (qrInputRef.current) {
       qrInputRef.current.focus();
     }
-    
+
     // Cleanup on unmount
     return () => {
       setPaymentData(initialPaymentData);
       dispatch({ type: "CLEAR_PAYMENTS" });
       setHasValidated(false);
-      
+
       // Clear any pending timers
       if (qrTimerRef.current) clearTimeout(qrTimerRef.current);
       if (plateTimerRef.current) clearTimeout(plateTimerRef.current);
@@ -66,7 +66,7 @@ export default function VisitanteQr() {
   useEffect(() => {
     if (shouldValidate && paymentData.identificationCode.length >= 15 && !hasValidated) {
       const companyId = getCompanyCode(paymentData.identificationCode);
-      
+
       const newData = {
         ...initialPaymentData,
         identificationType: paymentData.identificationType,
@@ -80,7 +80,7 @@ export default function VisitanteQr() {
       setHasValidated(true);
       dispatch({ type: "CLEAR_PAYMENTS" });
       searchDataValidate(newData);
-      
+
       // Reset the validation flag
       setShouldValidate(false);
     }
@@ -90,7 +90,7 @@ export default function VisitanteQr() {
   const handleQRChange = (value: string) => {
     // Clear any existing timer
     if (qrTimerRef.current) clearTimeout(qrTimerRef.current);
-    
+
     if (!value) {
       // If QR is cleared, reset everything
       setPaymentData(initialPaymentData);
@@ -102,7 +102,7 @@ export default function VisitanteQr() {
         identificationCode: value,
       });
       setHasValidated(false);
-      
+
       // Set a new timer for validation
       qrTimerRef.current = setTimeout(() => {
         setShouldValidate(true);
@@ -113,14 +113,14 @@ export default function VisitanteQr() {
   const handlePlateChange = (value: string) => {
     // Clear any existing timer
     if (plateTimerRef.current) clearTimeout(plateTimerRef.current);
-    
+
     // Update paymentData immediately for UI feedback
     setPaymentData({
       ...paymentData,
       plate: value,
     });
     setHasValidated(false);
-    
+
     // Set a new timer for validation
     plateTimerRef.current = setTimeout(() => {
       setShouldValidate(true);
@@ -276,10 +276,10 @@ export default function VisitanteQr() {
             Placa
           </label>
           <Input
-            className="w-1/2"
+            className="w-1/2 uppercase"
             value={paymentData.plate}
             variant="bordered"
-            onChange={(e) => handlePlateChange(e.target.value)}
+            onChange={(e) => handlePlateChange(e.target.value.toUpperCase())}
           />
         </div>
         <div className="flex gap-4 justify-between">
