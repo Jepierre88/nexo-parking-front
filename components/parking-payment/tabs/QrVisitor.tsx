@@ -1,7 +1,7 @@
 import { Input } from "@nextui-org/input";
 import { Select, SelectItem } from "@nextui-org/select";
 import axios from "axios";
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { Checkbox } from "@nextui-org/checkbox";
 
 import UseServices from "../../../app/hooks/parking-payment/UseServices";
@@ -19,103 +19,113 @@ import Cookies from "js-cookie";
 
 export default function VisitanteQr() {
   const qrInputRef = useRef<HTMLInputElement>(null);
-
-  const router = useRouter()
-
+  const router = useRouter();
   const { state, dispatch, paymentData, setPaymentData } = usePaymentContext();
   const [hasValidated, setHasValidated] = useState(false);
-  const [debouncedIdentificationCode, setDebouncedIdentificationCode] =
-    useState(paymentData.identificationCode);
+  
+  // Refs for managing timers
+  const qrTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const plateTimerRef = useRef<NodeJS.Timeout | null>(null);
+  
+  // State to track if we're ready to validate
+  const [shouldValidate, setShouldValidate] = useState(false);
+  
   const getCompanyCode = (value: string) => {
     if (!value.includes("http")) return value;
     const url = new URL(value);
     return url.searchParams.get("companyCode") || "";
   };
 
-  // Solo limpiamos el estado cuando el componente se desmonta
+  // Cleanup function
   useEffect(() => {
-    // Enfocar el input de QR cuando el componente se monta
+    // Focus QR input on mount
     if (qrInputRef.current) {
       qrInputRef.current.focus();
     }
+    
+    // Cleanup on unmount
     return () => {
       setPaymentData(initialPaymentData);
       dispatch({ type: "CLEAR_PAYMENTS" });
       setHasValidated(false);
-      setDebouncedIdentificationCode("");
+      
+      // Clear any pending timers
+      if (qrTimerRef.current) clearTimeout(qrTimerRef.current);
+      if (plateTimerRef.current) clearTimeout(plateTimerRef.current);
     };
-  }, []); // Cleanup al desmontar el componente
+  }, []);
 
-  // Enfocar el input cuando se limpia el estado después de una transacción
+  // Focus QR input when cleared
   useEffect(() => {
     if (paymentData.identificationCode === "" && qrInputRef.current) {
       qrInputRef.current.focus();
     }
   }, [paymentData.identificationCode]);
 
-
-  // Debounce: Espera 2 segundos después del último cambio antes de procesar el QR
+  // Execute validation when shouldValidate is true
   useEffect(() => {
-    const handler = setTimeout(() => {
+    if (shouldValidate && paymentData.identificationCode.length >= 15 && !hasValidated) {
       const companyId = getCompanyCode(paymentData.identificationCode);
-      setDebouncedIdentificationCode(companyId);
-    }, 500);
-
-    return () => clearTimeout(handler);
-  }, [paymentData.identificationCode]);
-
-
-
-
-  useEffect(() => {
-    if (debouncedIdentificationCode && debouncedIdentificationCode.length >= 15 && !hasValidated) {
+      
       const newData = {
         ...initialPaymentData,
         identificationType: paymentData.identificationType,
-        identificationCode: debouncedIdentificationCode,
+        identificationCode: companyId,
         plate: paymentData.plate,
         customType: paymentData.customType,
         vehicleKind: paymentData.vehicleKind,
       };
 
-      setPaymentData(newData);
-      dispatch({ type: "CLEAR_PAYMENTS" });
+      console.log("Datos que se enviarán:", newData);
       setHasValidated(true);
+      dispatch({ type: "CLEAR_PAYMENTS" });
       searchDataValidate(newData);
+      
+      // Reset the validation flag
+      setShouldValidate(false);
     }
-  }, [debouncedIdentificationCode, hasValidated]);
+  }, [shouldValidate, paymentData, hasValidated]);
 
-  // Validación después del debounce
-  //? EL debounce es un hook que permite realizar una peticion despues de un tiempo de espera
-  //? para evitar que se realicen demasiadas peticiones al servidor
-  useEffect(() => {
+  // Debounced functions for QR and plate changes
+  const handleQRChange = (value: string) => {
+    // Clear any existing timer
+    if (qrTimerRef.current) clearTimeout(qrTimerRef.current);
+    
+    if (!value) {
+      // If QR is cleared, reset everything
+      setPaymentData(initialPaymentData);
+      setHasValidated(false);
+    } else {
+      // Update paymentData immediately for UI feedback
+      setPaymentData({
+        ...paymentData,
+        identificationCode: value,
+      });
+      setHasValidated(false);
+      
+      // Set a new timer for validation
+      qrTimerRef.current = setTimeout(() => {
+        setShouldValidate(true);
+      }, 500);
+    }
+  };
+
+  const handlePlateChange = (value: string) => {
+    // Clear any existing timer
+    if (plateTimerRef.current) clearTimeout(plateTimerRef.current);
+    
+    // Update paymentData immediately for UI feedback
     setPaymentData({
       ...paymentData,
-      identificationCode: debouncedIdentificationCode,
+      plate: value,
     });
-    if (debouncedIdentificationCode.length >= 15 && !hasValidated) {
-      const newData = {
-        ...initialPaymentData,
-        identificationType: paymentData.identificationType,
-        identificationCode: debouncedIdentificationCode, // Usar el valor procesado
-        plate: paymentData.plate,
-        customType: paymentData.customType,
-        vehicleKind: paymentData.vehicleKind,
-      };
-
-      setPaymentData(newData);
-      dispatch({ type: "CLEAR_PAYMENTS" });
-      setHasValidated(true);
-      console.log("Datos que se enviarán:", newData);
-
-      searchDataValidate(newData); // Solo se ejecuta después del debounce
-    }
-  }, [
-    debouncedIdentificationCode,
-    hasValidated,
-    paymentData.customType,
-    paymentData.plate,
-  ]);
+    setHasValidated(false);
+    
+    // Set a new timer for validation
+    plateTimerRef.current = setTimeout(() => {
+      setShouldValidate(true);
+    }, 1000);
+  };
 
   const { services } = UseServices("Visitante");
 
@@ -195,7 +205,7 @@ export default function VisitanteQr() {
 
   return (
     <article className="flex flex-col gap-2">
-      <h2 className="font-bold text-2xl text-center ">Datos de visitante</h2>
+      <h2 className="font-bold text-2xl text-center">Datos de visitante</h2>
       <form className="flex flex-col gap-2">
         <div className="flex gap-4 justify-between">
           <label
@@ -208,7 +218,6 @@ export default function VisitanteQr() {
             className="w-1/2"
             value={paymentData.selectedService?.id}
             selectedKeys={[`${paymentData.selectedService?.id || 1}`]}
-            // paymentData.selectedService?.id ? [paymentData.selectedService.id] : []
             variant="bordered"
             label="Seleccionar"
             radius="lg"
@@ -218,7 +227,7 @@ export default function VisitanteQr() {
                 (item) => e.target.value == item.id
               );
               if (!service) {
-                toast.error("Selecciona  el tipo de visitante");
+                toast.error("Selecciona el tipo de visitante");
                 return;
               }
               console.log("Servicio seleccionado ", service);
@@ -231,7 +240,7 @@ export default function VisitanteQr() {
             classNames={{
               popoverContent: "min-w-[230px] ", // Expande el menú desplegable
               listboxWrapper: "min-w-[230px] ", // Asegura que el contenedor también tenga suficiente espacio
-              trigger: "whitespace-normal  text-left",
+              trigger: "whitespace-normal text-left",
             }}
           >
             {services &&
@@ -249,20 +258,6 @@ export default function VisitanteQr() {
           >
             QR
           </label>
-          {/* <Input
-            className="w-1/2"
-            variant="bordered"
-            required
-            value={paymentData.identificationCode}
-            // isDisabled={!paymentData.selectedService}
-            onChange={(e) => {
-              setPaymentData({
-                ...paymentData,
-                identificationCode: e.target.value,
-              });
-              setHasValidated(false); // Permitir nueva validación si cambia el QR
-            }}
-          /> */}
           <Input
             ref={qrInputRef}
             className="w-1/2"
@@ -270,28 +265,12 @@ export default function VisitanteQr() {
             required
             autoFocus
             value={paymentData.identificationCode}
-            onChange={(e) => {
-              const value = e.target.value;
-
-              if (!value) {
-                // Si el usuario borra el QR, limpiar completamente el estado
-                setPaymentData(initialPaymentData);
-                setDebouncedIdentificationCode(""); // Evita que el useEffect vuelva a escribirlo
-                setHasValidated(false); // Permitir nueva validación
-              } else {
-                // Si el usuario está escribiendo, actualizar normalmente
-                setPaymentData({
-                  ...paymentData,
-                  identificationCode: value,
-                });
-                setHasValidated(false);
-              }
-            }}
+            onChange={(e) => handleQRChange(e.target.value)}
           />
         </div>
         <div className="flex gap-4 justify-between">
           <label
-            className="text-base  font-bold text-nowrap my-auto w-1/2 text-end"
+            className="text-base font-bold text-nowrap my-auto w-1/2 text-end"
             htmlFor="plate"
           >
             Placa
@@ -300,23 +279,9 @@ export default function VisitanteQr() {
             className="w-1/2"
             value={paymentData.plate}
             variant="bordered"
-            // isDisabled
-            onChange={(e) => {
-              setPaymentData({
-                ...paymentData,
-                plate: e.target.value,
-              });
-              setHasValidated(false);
-            }}
+            onChange={(e) => handlePlateChange(e.target.value)}
           />
         </div>
-        {/* <div className="flex flex-col place-items-end mb-1 my-2">
-          <Checkbox color="primary">
-            <p className="text-gray-600  text-base my-1 mr-2">
-              Pagar día completo
-            </p>
-          </Checkbox>
-        </div> */}
         <div className="flex gap-4 justify-between">
           <label
             className="text-base font-bold text-nowrap my-auto w-1/2 text-end"

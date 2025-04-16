@@ -512,7 +512,7 @@ function ParkingPayment({ }) {
             <div className="text-3xl mb-1 mt-2 flex gap-4 justify-between px-4">
               <strong>TOTAL:</strong>
               <p className="font-light tracking-tight">
-                ${paymentData.totalCost ?? 0}
+                ${paymentData.totalCost?.toLocaleString("de-DE") ?? 0}
               </p>
             </div>
             {/* <div className="flex mt-2 justify-center items-center font-light">
@@ -596,10 +596,11 @@ function ParkingPayment({ }) {
                     setMoneyReceived(value);
                   }}
                 />
+
               </div>
               <div className="flex gap-4 justify-between px-4">
                 <label className="text-lg font-bold my-auto">
-                  Devolución: ${cashBack}
+                  Devolución: ${cashBack.toLocaleString("de-DE")}
                 </label>
               </div>
             </div>
