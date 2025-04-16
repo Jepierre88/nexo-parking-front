@@ -43,6 +43,14 @@ import { useMemo } from "react";
 import UsePermissions from "../hooks/UsePermissions";
 import { CONSTANTS } from "@/config/constants";
 import Factura from "@/types/Invoice";
+import { set } from "react-hook-form";
+
+
+
+const EXACTS_VALUES_KEYS = [
+  "Transferencia",
+  "Pasarela"
+]
 
 function ParkingPayment({ }) {
   const { user } = UseAuthContext();
@@ -50,6 +58,7 @@ function ParkingPayment({ }) {
   const { namePaymentType } = UseListsPaymentMethods("namePaymentType");
   const { getTransactionForPrint } = UseTransactions();
   const [vehicleType, setVehicleType] = useState<string>("");
+  const [disableMoneyReceived, setDisableMoneyReceived] = useState<boolean>(false);
   // Estados principales del componente
   const [subHeaderTitle, setSubHeaderTitle] = useState("Visitante (QR)");
   const [cardSize, setCard] = useState();
@@ -86,11 +95,16 @@ function ParkingPayment({ }) {
   } = useDisclosure();
 
   useEffect(() => {
+    if (!paymentData.identificationCode || paymentData.identificationCode === "") {
+      setMoneyReceived(0);
+    }
+
     if (paymentData?.totalCost) {
-      const totalCost = paymentData?.totalCost ?? 0;
+      const totalCost = paymentData.totalCost ?? 0;
       setCashBack(Math.max(0, moneyReceived - totalCost));
     }
-  }, [moneyReceived, paymentData?.totalCost]);
+  }, [paymentData.identificationCode, paymentData?.totalCost, moneyReceived]);
+
   useEffect(() => {
     if (paymentData?.status === 110) {
       onOpenStatusModal();
@@ -543,14 +557,18 @@ function ParkingPayment({ }) {
                       (item) => String(item.id) === e.target.value
                     );
 
-                    console.log(
-                      "Método de pago seleccionado:",
-                      selectedPaymentMethod
-                    );
-
                     if (selectedPaymentMethod) {
                       setPaymentMethod(selectedPaymentMethod.namePaymentType);
+                      // Set received money equal to total when "Transferencia" is selected
+                      if (EXACTS_VALUES_KEYS.includes(selectedPaymentMethod.namePaymentType)) {
+                        setMoneyReceived(paymentData.totalCost || 0);
+                        setDisableMoneyReceived(true)
+                      } else {
+                        setMoneyReceived(0);
+                        setDisableMoneyReceived(false)
+                      }
                     } else {
+                      setDisableMoneyReceived(false)
                       setPaymentMethod("");
                     }
                   }}
@@ -572,6 +590,7 @@ function ParkingPayment({ }) {
                   variant="bordered"
                   startContent={<>$</>}
                   type="text"
+                  isDisabled={disableMoneyReceived}
                   onChange={(e) => {
                     const value = parseInt(e.target.value) || 0;
                     setMoneyReceived(value);
