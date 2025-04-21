@@ -52,7 +52,9 @@ function TransactionsClient({
   const handlePageChange = (page: number) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", page.toString());
-    router.push(`/parking-payment/operations/transactions?${params.toString()}`);
+    startTransition(() => {
+      router.push(`/parking-payment/operations/transactions?${params.toString()}`);
+    });
   };
 
 

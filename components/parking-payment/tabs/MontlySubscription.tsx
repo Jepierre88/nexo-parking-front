@@ -385,7 +385,7 @@ export default function Mensualidad() {
             className="w-1/2"
             variant="bordered"
             value={firstName}
-            readOnly
+            isDisabled
           />
         </div>
 
@@ -395,7 +395,7 @@ export default function Mensualidad() {
             className="w-1/2"
             variant="bordered"
             value={lastName}
-            readOnly
+            isDisabled
           />
         </div>
 

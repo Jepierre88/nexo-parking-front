@@ -4,7 +4,7 @@ import { Button } from "@nextui-org/button";
 import { Modal, ModalBody, ModalContent, ModalHeader, useDisclosure } from "@nextui-org/modal";
 import { Input, Select, SelectItem, Switch, Table, TableBody, TableCell, TableColumn, TableHeader, TableRow } from "@nextui-org/react";
 import { GridColDef } from "@mui/x-data-grid";
-import { useState, useEffect, useMemo } from "react";
+import { useState, useEffect, useMemo, startTransition } from "react";
 import User, { initialUserEdit, Rol } from "@/types/User";
 import CustomDataGrid from "@/components/customDataGrid";
 import { PencilIcon, LargeEyeIcon } from "@/components/icons";
@@ -83,7 +83,9 @@ function UsersClient({ users, roles, existingUserEmails, existingUsernames, page
   const handlePageChange = (page: number) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", page.toString());
-    router.push(`/parking-payment/users?${params.toString()}`);
+    startTransition(() => {
+      router.push(`/parking-payment/users?${params.toString()}`);
+    });
   };
 
   const {
@@ -483,7 +485,7 @@ function UsersClient({ users, roles, existingUserEmails, existingUsernames, page
                       <label className="text-lg font-bold w-1/3">Nombre</label>
                       <div className="flex flex-col w-2/3">
                         <Input
-                          disabled={isView}
+                          isDisabled={isView}
                           placeholder="Digita el nombre"
                           type="text"
                           variant="bordered"
@@ -504,7 +506,7 @@ function UsersClient({ users, roles, existingUserEmails, existingUsernames, page
                       </label>
                       <div className="flex flex-col w-2/3">
                         <Input
-                          disabled={isView}
+                          isDisabled={isView}
                           placeholder="Digita el apellido"
                           type="text"
                           variant="bordered"
@@ -525,7 +527,7 @@ function UsersClient({ users, roles, existingUserEmails, existingUsernames, page
                       <label className="text-lg font-bold w-1/3">Usuario</label>
                       <div className="flex flex-col w-2/3">
                         <Input
-                          disabled={isView}
+                          isDisabled={isView}
                           placeholder="Digita el usuario"
                           type="text"
                           variant="bordered"
@@ -546,7 +548,7 @@ function UsersClient({ users, roles, existingUserEmails, existingUsernames, page
                       <label className="text-lg font-bold w-1/3">Email</label>
                       <div className="flex flex-col w-2/3">
                         <Input
-                          disabled={isView}
+                          isDisabled={isView}
                           placeholder="Digita el email"
                           type="email"
                           variant="bordered"

@@ -85,7 +85,9 @@ function PaymentClosureClient({ closures, pages }: {
   const handlePageChange = (page: number) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", page.toString());
-    router.push(`/parking-payment/operations/parkingClosure?${params.toString()}`);
+    startTransition(() => {
+      router.push(`/parking-payment/operations/parkingClosure?${params.toString()}`);
+    });
 
   };
   const [filterDateRange, setFilterDateRange] = useState<any>({

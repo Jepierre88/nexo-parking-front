@@ -81,7 +81,9 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
   const handlePageChange = (page: number) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", page.toString());
-    router.push(`/parking-payment/operations/incomes?${params.toString()}`);
+    startTransition(() => {
+      router.push(`/parking-payment/operations/incomes?${params.toString()}`);
+    });
   };
 
   const [filterDateRange, setFilterDateRange] = useState<any>({

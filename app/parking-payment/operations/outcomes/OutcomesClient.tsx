@@ -46,7 +46,9 @@ function OutcomesClient({ outcomes, pages }: OutcomesClientProps) {
   const handlePageChange = (page: number) => {
     const params = new URLSearchParams(searchParams.toString());
     params.set("page", page.toString());
-    router.push(`/parking-payment/operations/outcomes?${params.toString()}`);
+    startTransition(() => {
+      router.push(`/parking-payment/operations/outcomes?${params.toString()}`);
+    });
   };
 
   const [plate, setPlate] = useState(searchParams.get("plate") ?? "");
