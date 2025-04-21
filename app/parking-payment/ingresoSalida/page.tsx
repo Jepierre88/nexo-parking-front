@@ -7,6 +7,7 @@ import {
   RadioGroup,
   Radio,
   DateInput,
+  Checkbox,
 } from "@nextui-org/react";
 import { Button } from "@nextui-org/button";
 import Image from "next/image";
@@ -44,17 +45,27 @@ const enterExit = ({ }) => {
   const [vehicleType, setVehicleType] = useState("CARRO");
   const [vehicleTypeOut, setVehicleTypeOut] = useState("CARRO");
   const { outcomeManual, loading } = UseIngresoSalida();
-  const [currentDate, setCurrentDate] = useState<any>(
+  const [currentDateIn, setCurrentDateIn] = useState<any>(
     parseAbsoluteToLocal(new Date().toISOString())
   );
 
+  const hasPermisionToEditIncome = useMemo(() => hasPermission(40), [hasPermission]);
+
+  const [currentDateOut, setCurrentDateOut] = useState<any>(
+    parseAbsoluteToLocal(new Date().toISOString())
+  );
+
+  const [editIncomeDatetime, setEditIncomeDatetime] = useState(false);
+
   useEffect(() => {
     const interval = setInterval(() => {
-      setCurrentDate(parseAbsoluteToLocal(new Date().toISOString()));
+      setCurrentDateOut(parseAbsoluteToLocal(new Date().toISOString()));
+      if (editIncomeDatetime) return;
+      setCurrentDateIn(parseAbsoluteToLocal(new Date().toISOString()));
     }, 5000);
 
     return () => clearInterval(interval);
-  }, []);
+  }, [editIncomeDatetime]);
 
 
   useEffect(() => {
@@ -80,11 +91,19 @@ const enterExit = ({ }) => {
     return url.searchParams.get("companyCode") || "";
   };
 
-  const handleCurrentDateChange = (
+  const handleCurrentDateInChange = (
     value: CalendarDate | CalendarDateTime | ZonedDateTime | any
   ) => {
     if (value) {
-      setCurrentDate(value);
+      setCurrentDateIn(value);
+    }
+  };
+
+  const handleCurrentDateOutChange = (
+    value: CalendarDate | CalendarDateTime | ZonedDateTime | any
+  ) => {
+    if (value) {
+      setCurrentDateOut(value);
     }
   };
 
@@ -193,7 +212,7 @@ const enterExit = ({ }) => {
         {
           plate: placaIn,
           vehicleKind: vehicleType,
-          datetime: currentDate.toDate().toISOString(),
+          datetime: currentDateIn.toDate().toISOString(),
           identificationType: "QR",
           incomeConditionType: INCOME_CONDITION_TYPE.visitor,
         }, {
@@ -300,10 +319,19 @@ const enterExit = ({ }) => {
                   hideTimeZone
                   style={{ width: "280px" }}
                   granularity="second"
-                  value={currentDate}
-                  onChange={handleCurrentDateChange}
-                  isDisabled={!canViewDate}
+                  value={currentDateIn}
+                  onChange={handleCurrentDateInChange}
+                  // isDisabled={!canViewDate}
+                  isDisabled={!editIncomeDatetime}
                 />
+                <Checkbox
+                  className="mt-2 mx-auto"
+                  isSelected={editIncomeDatetime}
+                  isDisabled={!hasPermisionToEditIncome}
+                  onValueChange={setEditIncomeDatetime}
+                >
+                  Editar fecha y hora
+                </Checkbox>
               </div>
               <Button
                 color="primary"
@@ -400,9 +428,10 @@ const enterExit = ({ }) => {
                   hideTimeZone
                   size="md"
                   granularity="second"
-                  value={currentDate}
-                  onChange={handleCurrentDateChange}
+                  value={currentDateOut}
+                  onChange={handleCurrentDateOutChange}
                   isReadOnly
+                  isDisabled
 
                 // isDisabled={!canViewDateOutcome}
                 />

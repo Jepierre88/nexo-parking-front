@@ -137,11 +137,11 @@ function OutcomesClient({ outcomes, pages }: OutcomesClientProps) {
   return (
     <section className="h-full">
       <div className="flex justify-between items-center flex-col xl:flex-row overflow-hidden">
-        <h1 className="text-4xl font-bold my-3 h-20 text-center items-center content-center">
+        <h1 className="text-4xl font-bold text-center items-center content-center">
           Salidas
         </h1>
 
-        <div className="flex my-3 gap-4 items-center justify-center h-min flex-wrap md:flex-nowrap">
+        <div className="flex gap-4 items-center justify-center h-min flex-wrap md:flex-nowrap">
           <DateRangePicker
             lang="es-ES"
             hideTimeZone
@@ -174,30 +174,28 @@ function OutcomesClient({ outcomes, pages }: OutcomesClientProps) {
         </div>
       </div>
 
-      <Accordion className="px-0">
-        <AccordionItem key="1" aria-label="Generar informes" title="Generar informes">
-          <div className="flex flex-col gap-4">
-            <div className="flex gap-4 items-center justify-center h-min flex-wrap md:flex-nowrap">
-              <DateRangePicker
-                lang="es-ES"
-                hideTimeZone
-                label="Rango de Fechas"
-                size="md"
-                value={exportDateRange}
-                onChange={setExportDateRange}
-                classNames={{
-                  inputWrapper: "bg-white border border-primary",
-                }}
-              />
-              <Button
-                className="bg-primary text-white my-auto"
-                size="lg"
-                variant="shadow"
-                onPress={generateOutcomesReport}
-              >
-                Generar Reporte
-              </Button>
-            </div>
+      <Accordion className="px-4 py-2 mb-4">
+        <AccordionItem key="1" aria-label="Generar Informes" title="Generar Informes" variant="splitted" className="py-3">
+          <div className="flex gap-4 items-center justify-start flex-wrap md:flex-nowrap">
+            <DateRangePicker
+              lang="es-ES"
+              hideTimeZone
+              label="Rango de Fechas"
+              size="md"
+              value={exportDateRange}
+              onChange={setExportDateRange}
+              classNames={{
+                inputWrapper: "bg-white border border-primary",
+              }}
+            />
+            <Button
+              className="bg-primary text-white my-auto"
+              size="lg"
+              variant="shadow"
+              onPress={generateOutcomesReport}
+            >
+              Generar Reporte
+            </Button>
           </div>
         </AccordionItem>
       </Accordion>

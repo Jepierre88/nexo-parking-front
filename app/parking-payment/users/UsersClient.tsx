@@ -597,7 +597,7 @@ function UsersClient({ users, roles, existingUserEmails, existingUsernames, page
                         <label className="text-lg font-bold w-1/3">
                           Estado
                         </label>
-                        <div className="w-2/3 mb-6">
+                        <div className="w-2/3">
                           <Switch
                             className="w-full"
                             isDisabled={isView}

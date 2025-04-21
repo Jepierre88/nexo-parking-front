@@ -12,7 +12,7 @@
 		"build": "next build",
 		"start": "next start -p 3025",
 		"lint": "eslint . --ext .ts,.tsx -c .eslintrc.json --fix",
-  	"gen-prod": " rm -rf prod && mkdir -p prod && npm run build && cp -r .next/standalone/* prod/ && cp -r .next prod/ && cp -r public prod/ && cp package.json prod/ && echo 'Proceso completado'"
+		"gen-prod": " rm -rf prod && mkdir -p prod && npm run build && cp -r .next/standalone/* prod/ && cp -r .next prod/ && cp -r public prod/ && cp package.json prod/ && echo 'Proceso completado'"
 	},
 	"dependencies": {
 		"20": "^3.1.9",
@@ -26,11 +26,12 @@
 		"@mui/styled-engine-sc": "^7.0.1",
 		"@mui/x-data-grid": "^7.28.2",
 		"@nextui-org/alert": "^2.2.9",
+		"@nextui-org/checkbox": "^2.3.8",
 		"@nextui-org/react": "^2.6.11",
 		"@nextui-org/system": "^2.4.6",
 		"@nextui-org/theme": "^2.4.5",
 		"@react-aria/i18n": "^3.12.7",
-"@react-aria/ssr": "^3.9.7",
+		"@react-aria/ssr": "^3.9.7",
 		"@react-aria/visually-hidden": "3.8.21",
 		"axios": "^1.8.4",
 		"clsx": "2.1.1",

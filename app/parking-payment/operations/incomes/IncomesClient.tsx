@@ -277,7 +277,7 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
   return isLoading ? (
     <section className="h-full">
       <div className="flex justify-between items-center flex-col xl:flex-row overflow-hidden">
-        <h1 className="text-4xl font-bold my-3 h-20 text-center items-center content-center">
+        <h1 className="text-4xl font-bold h-20 text-center items-center content-center">
           Entradas
         </h1>
         <div className="flex my-3 gap-4 items-center justify-center h-min flex-wrap md:flex-nowrap">
@@ -291,7 +291,7 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
   ) : (
     <section className="h-full">
       <div className="flex justify-between items-center flex-col xl:flex-row overflow-hidden">
-        <h1 className="text-4xl font-bold my-3 h-20 text-center items-center content-center">
+        <h1 className="text-4xl font-bold h-20 text-center items-center content-center">
           Entradas
         </h1>
 
@@ -331,7 +331,7 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
 
 
       <Accordion className="px-4 py-2 mb-4">
-        <AccordionItem key="1" aria-label="Generar Informes" title="Generar Informes">
+        <AccordionItem key="1" aria-label="Generar Informes" title="Generar Informes" variant="splitted" className="py-3">
           <div className="flex gap-4 items-center justify-start flex-wrap md:flex-nowrap">
             <DateRangePicker
               lang="es-ES"

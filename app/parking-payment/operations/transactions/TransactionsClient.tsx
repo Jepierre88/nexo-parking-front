@@ -177,7 +177,7 @@ function TransactionsClient({
   return (
     <section className="h-full">
       <div className="flex justify-between items-center flex-col xl:flex-row overflow-hidden">
-        <h1 className="text-4xl font-bold my-3 h-20 text-center items-center content-center">
+        <h1 className="text-4xl font-bold h-20 text-center items-center content-center">
           Transacciones
         </h1>
 
