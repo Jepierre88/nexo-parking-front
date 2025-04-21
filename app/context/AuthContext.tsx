@@ -78,6 +78,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       Cookies.remove("user");
     }
   }, [token, user]);
+  // Restaurar última ruta visitada tras la autenticación
+  useEffect(() => {
+    // if (!window.location.pathname.includes("/parking-payment")) return;
+
+    if (isAuthenticated) {
+      const lastPath = localStorage.getItem("last_path") || "/parking-payment";
+
+      // Solo redirige si el lastPath es diferente al actual
+      if (lastPath !== window.location.pathname) {
+        router.replace(lastPath);
+      }
+    }
+  }, [isAuthenticated, router]);
+
 
   const logout = () => {
     setToken(null);

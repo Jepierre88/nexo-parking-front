@@ -50,7 +50,7 @@ export default function Mensualidad() {
   const [debouncedIdentificationCode, setDebouncedIdentificationCode] =
     useState(identificationCode);
   const [selectedServiceType, setSelectedServiceType] = useState("");
-
+  const [debouncedNumberMonths, setDebouncedNumberMonths] = useState<number>(numberMonths);
   const formatWithSlashes = (value: string): string => {
     const cleanedValue = value.replace(/\D/g, "");
     return cleanedValue
@@ -65,7 +65,7 @@ export default function Mensualidad() {
 
     const handler = setTimeout(() => {
       setDebouncedIdentificationCode(identificationCode);
-    }, 1000); // 1 second debounce
+    }, 1000); // 1 segundo de debounce
 
     return () => clearTimeout(handler);
   }, [identificationCode]);
@@ -79,7 +79,7 @@ export default function Mensualidad() {
   useEffect(() => {
     const handler = setTimeout(() => {
       setDebouncedPlate(plate);
-    }, 1000); // 1 segundo
+    }, 1000); // 1 segundo de debounce
 
     return () => {
       clearTimeout(handler);
@@ -90,7 +90,19 @@ export default function Mensualidad() {
     if (debouncedPlate) validatePlate();
   }, [debouncedPlate, selectedServiceType, identificationCode]);
 
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedNumberMonths(numberMonths);
+    }, 1000); // 1 segundo de debounce
 
+    return () => clearTimeout(handler);
+  }, [numberMonths]);
+
+  useEffect(() => {
+    if (debouncedIdentificationCode && debouncedPlate && debouncedNumberMonths > 0) {
+      validatePlate();
+    }
+  }, [debouncedIdentificationCode, debouncedPlate, debouncedNumberMonths]);
 
   const validatePlate = async () => {
     try {
@@ -175,6 +187,7 @@ export default function Mensualidad() {
       toast.error(error.message || "Error al consultar la información");
     }
   };
+
   const formatDate = (dateString?: string): string => {
     if (!dateString) return "";
     const date = new Date(dateString);
@@ -196,6 +209,7 @@ export default function Mensualidad() {
       }
     }
   };
+
   const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const formattedValue = formatWithSlashes(e.target.value);
     setStartDate(formattedValue);
@@ -220,6 +234,11 @@ export default function Mensualidad() {
   }, [identificationCode]);
 
   const handleNumberMonthsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.value) {
+      setNumberMonths(0);
+      return;
+    }
+
     const value = Math.max(0, Number(e.target.value));
     setNumberMonths(value);
 
@@ -271,6 +290,7 @@ export default function Mensualidad() {
       setLoading(false);
     }
   };
+
   const handleProrrateoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsProrrateoChecked(e.target.checked);
   };
@@ -360,7 +380,7 @@ export default function Mensualidad() {
 
         <div className="flex flex-col gap-0">
           <div className="flex items-center justify-between mb-2 ">
-            <label className="text-base font-bold ">Cédula</label>
+            <label className="text-base font-bold">Cédula</label>
             <div className="flex items-center w-1/2">
               <Input
                 className="w-full"

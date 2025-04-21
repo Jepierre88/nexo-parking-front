@@ -94,6 +94,20 @@ function ParkingPayment({ }) {
     onClose: onCloseStatusModal,
   } = useDisclosure();
 
+  // useEffect para actualizar 'moneyReceived' cuando 'totalCost' se actualice
+  useEffect(() => {
+    // Si el método de pago seleccionado está en los valores exactos, establecer el dinero recibido igual al total
+    if (EXACTS_VALUES_KEYS.includes(paymentMethod)) {
+      setMoneyReceived(paymentData.totalCost || 0);
+      setDisableMoneyReceived(true); // Deshabilitar el campo para que no se pueda modificar
+    } else {
+      setMoneyReceived(0); // Reiniciar el dinero recibido si el método de pago no está en los valores exactos
+      setDisableMoneyReceived(false); // Habilitar el campo para que se pueda modificar
+    }
+  }, [paymentMethod, paymentData.totalCost]); // Este useEffect se ejecutará cuando paymentMethod o totalCost cambien
+
+
+
   useEffect(() => {
     if (!paymentData.identificationCode || paymentData.identificationCode === "") {
       setMoneyReceived(0);
@@ -121,7 +135,7 @@ function ParkingPayment({ }) {
     toast.promise(
       axios
         .post(
-          `${CONSTANTS.APIURL}/access-control/monthly-subscription-serviceNewPP/generate`,
+          `${CONSTANTS.APIURL}/MonthlySubscription/Generate`,
           data
         )
         .then(async (response: any) => {
@@ -158,6 +172,7 @@ function ParkingPayment({ }) {
         success: "Pago mensual registrado correctamente",
         error: (error) => {
           setPaymentData(initialPaymentData);
+          setPaymentMethod("");
           console.error("Error al registrar el pago mensual:", error);
           return "Error al registrar el pago mensual. Intenta de nuevo.";
         },
@@ -559,16 +574,17 @@ function ParkingPayment({ }) {
 
                     if (selectedPaymentMethod) {
                       setPaymentMethod(selectedPaymentMethod.namePaymentType);
-                      // Set received money equal to total when "Transferencia" is selected
+
+                      // Establecer el dinero recibido igual al total cuando "Transferencia" es seleccionado
                       if (EXACTS_VALUES_KEYS.includes(selectedPaymentMethod.namePaymentType)) {
-                        setMoneyReceived(paymentData.totalCost || 0);
-                        setDisableMoneyReceived(true)
+                        setMoneyReceived(paymentData.totalCost || 0); // Esto asegura que el dinero recibido sea igual al total
+                        setDisableMoneyReceived(true); // Deshabilitar el campo de ingreso de dinero
                       } else {
-                        setMoneyReceived(0);
-                        setDisableMoneyReceived(false)
+                        setMoneyReceived(0); // Reiniciar el dinero recibido
+                        setDisableMoneyReceived(false); // Habilitar el campo para editarlo
                       }
                     } else {
-                      setDisableMoneyReceived(false)
+                      setDisableMoneyReceived(false);
                       setPaymentMethod("");
                     }
                   }}
@@ -593,7 +609,7 @@ function ParkingPayment({ }) {
                   isDisabled={disableMoneyReceived}
                   onChange={(e) => {
                     const value = parseInt(e.target.value) || 0;
-                    setMoneyReceived(value);
+                    setMoneyReceived(value); // Actualiza el valor de dinero recibido cuando se cambia
                   }}
                 />
 
