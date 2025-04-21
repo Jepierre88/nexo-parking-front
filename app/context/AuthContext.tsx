@@ -60,13 +60,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   }, []);
 
-  // Restaurar última ruta visitada tras la autenticación
-  useEffect(() => {
-    if (isAuthenticated) {
-      const lastPath = localStorage.getItem("last_path") || "/parking-payment";
-      router.replace(lastPath);
-    }
-  }, [isAuthenticated, router]);
 
   useEffect(() => {
     if (token) {
