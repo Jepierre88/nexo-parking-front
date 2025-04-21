@@ -11,17 +11,16 @@ import UseServices from "@/app/hooks/parking-payment/UseServices";
 import UseInformationList from "@/app/hooks/parking-payment/UseInformationList";
 import { initialPaymentData } from "@/app/libs/initialStates";
 import { toast } from "sonner";
-import UseValidate from "@/app/hooks/parking-payment/UseValidate";
+import UseValidateMonthlySubscription from "@/app/hooks/parking-payment/UseValidateMonthlySubscription";
 
 export default function Mensualidad() {
   const { paymentData, setPaymentData } = usePaymentContext();
-  const [plateError, setPlateError] = useState<string | null>(null);
-  const { services, isLoading } = UseServices("Mensualidad");
+  const [plateError] = useState<string | null>(null);
+  const { services } = UseServices("Mensualidad");
   const { listInformation } = UseInformationList();
   const [plate, setPlate] = useState("");
   const [debouncedPlate, setDebouncedPlate] = useState("");
-  const [vehicleType, setVehicleType] = useState<string>("");
-  const { validate, loadingValidate } = UseValidate();
+  const { validate, loadingValidate } = UseValidateMonthlySubscription();
   const [isProrrateoChecked, setIsProrrateoChecked] = useState(false);
   const [selectedService, setSelectedService] = useState<string | null>(null);
   const [firstName, setFirstName] = useState<string>("");
@@ -39,7 +38,6 @@ export default function Mensualidad() {
   const [startDateTime, setStartDatetime] = useState<string>("");
   const [moneyReceived, setMoneyReceived] = useState<number>(0);
   const [startDateError, setStartDateError] = useState<string | null>(null);
-  const [endDateError, setEndDateError] = useState<string | null>(null);
   const [numberMonths, setNumberMonths] = useState<number>(1);
   const [loading, setLoading] = useState(false);
   const [identificationCodeError, setIdentificationCodeError] = useState<
@@ -51,7 +49,6 @@ export default function Mensualidad() {
   const canEditEndDate = useMemo(() => hasPermission(35), [hasPermission]);
   const [debouncedIdentificationCode, setDebouncedIdentificationCode] =
     useState(identificationCode);
-  const [localPlate, setLocalPlate] = useState("");
   const [selectedServiceType, setSelectedServiceType] = useState("");
 
   const formatWithSlashes = (value: string): string => {
@@ -80,24 +77,20 @@ export default function Mensualidad() {
   }, [debouncedIdentificationCode]);
 
   useEffect(() => {
-    if (!plate) return;
-    const loadingToastPlate = toast.loading("Validando placa...");
     const handler = setTimeout(() => {
       setDebouncedPlate(plate);
-      toast.dismiss(loadingToastPlate);
-    }, 3000);
+    }, 1000); // 1 segundo
 
     return () => {
       clearTimeout(handler);
-      toast.dismiss(loadingToastPlate);
     };
   }, [plate]);
 
   useEffect(() => {
-    if (debouncedPlate) {
-      validatePlate();
-    }
-  }, [debouncedPlate]);
+    if (debouncedPlate) validatePlate();
+  }, [debouncedPlate, selectedServiceType, identificationCode]);
+
+
 
   const validatePlate = async () => {
     try {

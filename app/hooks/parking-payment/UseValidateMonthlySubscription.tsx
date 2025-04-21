@@ -4,7 +4,7 @@ import Cookies from "js-cookie";
 import { useState } from "react";
 import { number } from "zod";
 
-export default function UseValidate() {
+export default function UseValidateMonthlySubscription() {
   const [loadingValidate, setLoadingValidate] = useState(false);
 
   const validate = async (
@@ -21,7 +21,7 @@ export default function UseValidate() {
     setLoadingValidate(true);
     try {
       const response = await axios.post(
-        `${CONSTANTS.APIURL}/validatePaymentVisitorService`,
+        `${CONSTANTS.APIURL}/MonthlySubscription/Validate`,
         {
           identificationType,
           identificationCode,
