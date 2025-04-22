@@ -54,7 +54,7 @@ const EXACTS_VALUES_KEYS = [
 
 function ParkingPayment({ }) {
   const { user } = UseAuthContext();
-
+  const [selectedTab, setSelectedTab] = useState<string>("Visitante");
   const { namePaymentType } = UseListsPaymentMethods("namePaymentType");
   const { getTransactionForPrint } = UseTransactions();
   const [vehicleType, setVehicleType] = useState<string>("");
@@ -374,9 +374,13 @@ function ParkingPayment({ }) {
         <CardBody className="my-auto">
           {/* Tabs para diferentes tipos de procesos */}
           <Tabs
-            className="mx-auto"
+            selectedKey={selectedTab}
+            onSelectionChange={(key) => {
+              setSelectedTab(key.toString());
+              setSubHeaderTitle(key.toString());
+            }}
             color="primary"
-            onSelectionChange={(key) => setSubHeaderTitle(key.toString())}
+            className="mx-auto"
           >
             <Tab key="Visitante" title={"Visitante"}>
               <VisitanteQr />
@@ -388,6 +392,7 @@ function ParkingPayment({ }) {
               <QrPerdido />
             </Tab>
           </Tabs>
+
         </CardBody>
       </CardPropierties>
       <CardPropierties>

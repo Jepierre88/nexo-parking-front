@@ -1,6 +1,6 @@
 import { Input } from "@nextui-org/input";
 import { Select, SelectItem } from "@nextui-org/select";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { usePaymentContext } from "@/app/context/PaymentContext";
 import UsePermissions from "@/app/hooks/UsePermissions";
 import { montleSubscription } from "@/app/schemas/validationSchemas";
@@ -12,6 +12,9 @@ import UseInformationList from "@/app/hooks/parking-payment/UseInformationList";
 import { initialPaymentData } from "@/app/libs/initialStates";
 import { toast } from "sonner";
 import UseValidateMonthlySubscription from "@/app/hooks/parking-payment/UseValidateMonthlySubscription";
+import { Checkbox } from "@nextui-org/checkbox";
+import { DateInput, DatePicker } from "@nextui-org/react";
+import { CalendarDate, DateValue, parseDate } from "@internationalized/date";
 
 export default function Mensualidad() {
   const { paymentData, setPaymentData } = usePaymentContext();
@@ -29,8 +32,14 @@ export default function Mensualidad() {
   const [identificationCode, setIdentificationCode] = useState<string>("");
   const [startDate, setStartDate] = useState<string>("");
   const [endDate, setEndDate] = useState<string>("");
-  const [validFrom, setValidFrom] = useState<string>(""); // Válido Desde
-  const [validTo, setValidTo] = useState<string>(""); // Válido Hasta
+  // const [validFrom, setValidFrom] = useState<Date | undefined>(undefined); // Válido Desde
+  // const [validTo, setValidTo] = useState<Date | undefined>(undefined); // Válido Hasta
+  const [validFrom, setValidFrom] = useState<DateValue | null | undefined>(null); // Válido Desde
+  const [validTo, setValidTo] = useState<DateValue | null | undefined>(null); // Válido Hasta
+
+
+  const dateChangeTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
   const [
     lastMonthlySubscriptionEndDatetime,
     setLastMonthlySubscriptionEndDatetime,
@@ -51,6 +60,11 @@ export default function Mensualidad() {
     useState(identificationCode);
   const [selectedServiceType, setSelectedServiceType] = useState("");
   const [debouncedNumberMonths, setDebouncedNumberMonths] = useState<number>(numberMonths);
+
+  const userChangedDatesRef = useRef(false);
+
+
+
   const formatWithSlashes = (value: string): string => {
     const cleanedValue = value.replace(/\D/g, "");
     return cleanedValue
@@ -85,6 +99,27 @@ export default function Mensualidad() {
       clearTimeout(handler);
     };
   }, [plate]);
+  useEffect(() => {
+    if (
+      isProrrateoChecked &&
+      validFrom &&
+      validTo &&
+      userChangedDatesRef.current
+    ) {
+      // Limpiar timeout anterior si existe
+      if (dateChangeTimeoutRef.current) {
+        clearTimeout(dateChangeTimeoutRef.current);
+      }
+
+      // Iniciar nuevo debounce
+      dateChangeTimeoutRef.current = setTimeout(() => {
+        userChangedDatesRef.current = false; // Reset bandera
+        validatePlate(); // Ejecuta validación con los nuevos valores
+      }, 1500); // Puedes ajustar el tiempo si lo prefieres
+    }
+  }, [validFrom, validTo]);
+
+
 
   useEffect(() => {
     if (debouncedPlate) validatePlate();
@@ -128,13 +163,27 @@ export default function Mensualidad() {
         identificationCode,
         debouncedPlate,
         "",
-        false,
-        numberMonths
+        isProrrateoChecked,
+        numberMonths,
+        validFrom?.toDate("America/Bogota").toISOString() ?? undefined,
+        validTo?.toDate("America/Bogota").toISOString() ?? undefined,
       );
 
       console.log("Respuesta de validación:", response);
 
       if (response.isSuccess) {
+        console.log("Datos de validación:", response.validationDetail);
+        // Actualizar las fechas directamente con el formato para input type="date"
+        const startIso = response.validationDetail?.requestedMonthlySubscriptionStartDatetime?.split("T")[0];
+        const endIso = response.validationDetail?.requestedMonthlySubscriptionEndDatetime?.split("T")[0];
+
+        if (startIso && endIso) {
+          setValidFrom(parseDate(startIso)); // YYYY-MM-DD ✅
+          setValidTo(parseDate(endIso));     // YYYY-MM-DD ✅
+        }
+
+
+
         setPaymentData({
           ...paymentData,
           plate: response.plate,
@@ -147,43 +196,41 @@ export default function Mensualidad() {
           totalCost: response.total,
           identificationCode: response.identificationCode,
           concept: response.concept,
-          lastMonthlySubscriptionEndDatetime:
-            response.lastMonthlySubscriptionEndDatetime,
+          lastMonthlySubscriptionEndDatetime: response.lastMonthlySubscriptionEndDatetime,
+          validFrom: startDate,
+          validTo: endDate,
         });
 
-        const startDateFormatted = formatDate(
-          response.validationDetail?.requestedMonthlySubscriptionStartDatetime
-        );
-        const endDateFormatted = formatDate(
-          response.validationDetail?.requestedMonthlySubscriptionEndDatetime
-        );
-        const endDateLast = formatDate(
-          response.validationDetail?.lastMonthlySubscriptionEndDatetime
-        );
-        setLastMonthlySubscriptionEndDatetime(endDateLast);
+        const startDateIso = response.validationDetail?.requestedMonthlySubscriptionStartDatetime?.split("T")[0];
+        const endDateIso = response.validationDetail?.requestedMonthlySubscriptionEndDatetime?.split("T")[0];
+        const endDateLastIso = response.validationDetail?.lastMonthlySubscriptionEndDatetime?.split("T")[0];
 
-        setValidFrom(startDateFormatted);
-        setValidTo(endDateFormatted);
+        if (startDateIso && endDateIso) {
+          setValidFrom(parseDate(startDateIso));
+          setValidTo(parseDate(endDateIso));
+        }
+
+        if (endDateLastIso) {
+          setLastMonthlySubscriptionEndDatetime(formatDate(endDateLastIso)); // solo para mostrar
+        }
 
         const tipo = `${response.concept} - ${response.validationDetail?.lastMonthlySubscriptionVehicleKind || ""}`;
 
         setPaymentData((prev: any) => ({
           ...prev,
           vehicleKind: tipo,
-          validFrom: formatDate(
-            response.validationDetail?.requestedMonthlySubscriptionStartDatetime
-          ),
-          validTo: formatDate(
-            response.validationDetail?.requestedMonthlySubscriptionEndDatetime
-          ),
-          lastMonthlySubscriptionEndDatetime: endDateLast,
+          validFrom: startDateIso,
+          validTo: endDateIso,
+          lastMonthlySubscriptionEndDatetime: endDateLastIso,
         }));
+
 
         toast.success(response.messageTitle || "Validación exitosa");
       } else {
         toast.error(response.messageBody || "Error en la validación");
       }
     } catch (error: any) {
+      console.log("Error al validar la placa:", error);
       toast.error(error.message || "Error al consultar la información");
     }
   };
@@ -210,16 +257,18 @@ export default function Mensualidad() {
     }
   };
 
+  // Eliminar la función formatWithSlashes ya que no la necesitaremos
+
   const handleStartDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formattedValue = formatWithSlashes(e.target.value);
-    setStartDate(formattedValue);
-    validateDate(formattedValue);
+    const selectedDate = e.target.value;
+    // setValidFrom(parseDate(new Date(selectedDate).toISOString()));
+    validateDate(selectedDate);
   };
 
   const handleEndDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const formattedValue = formatWithSlashes(e.target.value);
-    setEndDate(formattedValue);
-    validateDate(formattedValue);
+    const selectedDate = e.target.value;
+    setValidTo(parseDate(new Date(selectedDate).toISOString()));
+    validateDate(selectedDate);
   };
 
   useEffect(() => {
@@ -360,8 +409,7 @@ export default function Mensualidad() {
             <div className="flex flex-col gap-0">
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
+                  <Checkbox
                     id="prorrateo"
                     checked={isProrrateoChecked}
                     onChange={handleProrrateoChange}
@@ -438,13 +486,15 @@ export default function Mensualidad() {
         <div className="flex flex-col gap-0">
           <div className="flex items-center justify-between mb-2">
             <label className="text-base font-bold">Nuevo Válido Desde</label>
-            <Input
+            <DatePicker
               className="w-1/2"
               variant="bordered"
-              readOnly={!canEditStartDate}
-              value={validFrom}
-              placeholder="dd/mm/yyyy"
-              onChange={handleStartDateChange}
+              isDisabled={!isProrrateoChecked}
+              value={validFrom as any}
+              onChange={(value) => {
+                userChangedDatesRef.current = true;
+                setValidFrom(value);
+              }}
             />
           </div>
           <div className="min-h-[0.2rem] text-red-500 text-xs ">
@@ -453,14 +503,16 @@ export default function Mensualidad() {
         </div>
 
         <div className="flex items-center justify-between mb-2">
-          <label className="text-base font-bold ">Nuevo Válido Hasta</label>
-          <Input
+          <label className="text-base font-bold">Nuevo Válido Hasta</label>
+          <DatePicker
             className="w-1/2"
             variant="bordered"
-            readOnly={!canEditEndDate}
-            value={validTo}
-            placeholder="dd/mm/yyyy"
-            onChange={handleEndDateChange}
+            isDisabled={!isProrrateoChecked}
+            value={validTo as any}
+            onChange={(value) => {
+              userChangedDatesRef.current = true;
+              setValidTo(value);
+            }}
           />
         </div>
 
