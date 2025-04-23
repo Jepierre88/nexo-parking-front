@@ -294,7 +294,12 @@ function ParkingPayment({ }) {
   };
 
   const savePayment = async (data: any, shouldPrint: boolean) => {
+    if (!paymentData.plate || paymentData.plate === "" || paymentData.plate.length < 5) {
+      toast.error("El campo placa es obligatorio.");
+      return;
+    }
     setLoadingPayment(true);
+
 
     toast.promise(
       axios
