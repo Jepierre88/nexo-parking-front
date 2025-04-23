@@ -192,7 +192,7 @@ function TransactionsClient({
             value={dateRange}
             onChange={setDateRange}
             classNames={{
-              inputWrapper: "bg-white border border-primary",
+              inputWrapper: "border border-primary",
             }}
           />
           <Input
@@ -202,7 +202,7 @@ function TransactionsClient({
             variant="flat"
             // color="primary"
             classNames={{
-              inputWrapper: "bg-white border border-primary",
+              inputWrapper: "border border-primary",
             }}
             value={plate}
             onChange={(e) => setPlate(e.target.value.toUpperCase())}
@@ -256,8 +256,8 @@ function TransactionsClient({
           </TableHeader>
           <TableBody items={transactions} emptyContent="No hay registros disponibles" isLoading={isPending}
             loadingContent={
-              <div className="w-full h-full bg-white/90 py-6 flex justify-center items-center">
-                <Spinner color="primary" size="lg" label="Cargando salidas..." />
+              <div className="w-full h-full bg-transparent/10 py-6 flex justify-center items-center">
+                <Spinner color="primary" size="lg" label="Cargando transacciones..." />
               </div>
             }>
             {(item: Transaction) => (

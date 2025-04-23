@@ -1,6 +1,6 @@
 import { Input } from "@nextui-org/input";
 import { Select, SelectItem } from "@nextui-org/select";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { useEffect, useState, useRef, useCallback } from "react";
 import { Checkbox } from "@nextui-org/checkbox";
 
@@ -313,6 +313,15 @@ export default function VisitanteQr() {
       toast.success("Datos validados correctamente", { id: toastId });
     } catch (error) {
       console.error(error);
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 401) {
+          toast.error("Su sesión ha expirado. Por favor, inicie sesión nuevamente.", {
+            id: toastId,
+          });
+          router.push("/auth/login");
+          return;
+        }
+      }
       toast.error("Error al validar los datos. Por favor, intente de nuevo.", {
         id: toastId,
       });

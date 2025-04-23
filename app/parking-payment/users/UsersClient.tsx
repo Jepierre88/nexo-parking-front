@@ -621,11 +621,15 @@ function UsersClient({ users, roles, existingUserEmails, existingUsernames, page
                   </div>
 
                   {/* Botón de guardar */}
-                  <div className="flex justify-center">
-                    <Button variant="ghost" color="primary" type="submit">
-                      Guardar datos
-                    </Button>
-                  </div>
+                  {
+                    !isView && (
+                      <div className="flex justify-center">
+                        <Button variant="ghost" color="primary" type="submit">
+                          Guardar datos
+                        </Button>
+                      </div>
+                    )
+                  }
                 </form>
               </ModalBody>
             </div>

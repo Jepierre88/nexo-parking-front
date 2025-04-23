@@ -21,7 +21,7 @@ export const updateUserAction = async (user: User) => {
   const token = (await cookieStore).get('auth_token')?.value;
 
   try {
-    const response = await axios.patch(
+    const response = await axios.put(
       `${CONSTANTS.APIURL}/users/${user.id}`,
       {
         name: user.name,
@@ -165,7 +165,7 @@ export const getUsersAction = async ({ page, eliminated }: {
       count: meta.count,
     }
   } catch (error) {
-    if(error instanceof AxiosError) console.log(error.response?.data)
+    if (error instanceof AxiosError) console.log(error.response?.data)
     throw error;
   }
 };

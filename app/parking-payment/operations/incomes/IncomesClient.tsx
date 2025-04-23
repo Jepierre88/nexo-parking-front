@@ -307,7 +307,7 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
             value={filterDateRange}
             onChange={setFilterDateRange}
             classNames={{
-              inputWrapper: "bg-white border border-primary",
+              inputWrapper: "border border-primary",
             }}
           />
           <Input
@@ -316,7 +316,7 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
             size="md"
             value={plate}
             classNames={{
-              inputWrapper: "bg-white border border-primary",
+              inputWrapper: "border border-primary",
             }}
             onChange={(e) => setPlate(e.target.value.toUpperCase())}
           />
@@ -343,7 +343,7 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
               value={exportDateRange}
               onChange={setExportDateRange}
               classNames={{
-                inputWrapper: "bg-white border border-primary",
+                inputWrapper: "border border-primary",
               }}
             />
             <Button
@@ -386,7 +386,7 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
             emptyContent="No hay registros disponibles"
             isLoading={isPending}
             loadingContent={
-              <div className="w-full h-full bg-white/90 py-6 flex justify-center items-center">
+              <div className="w-full h-full bg-transparent/10 py-6 flex justify-center items-center">
                 <Spinner color="primary" size="lg" label="Cargando ingresos..." />
               </div>
             }

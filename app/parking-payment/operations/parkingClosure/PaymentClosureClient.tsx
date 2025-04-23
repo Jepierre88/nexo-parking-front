@@ -312,7 +312,7 @@ function PaymentClosureClient({ closures, pages }: {
             size="md"
             value={filterDateRange}
             classNames={{
-              inputWrapper: "bg-white border border-primary",
+              inputWrapper: "border border-primary",
             }}
             onChange={setFilterDateRange}
           />
@@ -337,6 +337,15 @@ function PaymentClosureClient({ closures, pages }: {
           >
             Realizar cierre
           </Button>
+          <Button
+            className="relative z-10"
+            color="primary"
+            variant="bordered"
+            isDisabled={loading}
+            onPress={onOpenClose}
+          >
+            Realizar cierre parcial
+          </Button>
         </div>
         <Table
           aria-label="Tabla de ingresos"
@@ -360,8 +369,8 @@ function PaymentClosureClient({ closures, pages }: {
           </TableHeader>
           <TableBody items={closures} emptyContent="No hay registros disponibles" isLoading={isPending}
             loadingContent={
-              <div className="w-full h-full bg-white/90 py-6 flex justify-center items-center">
-                <Spinner color="primary" size="lg" label="Cargando salidas..." />
+              <div className="w-full h-full bg-transparent/10 py-6 flex justify-center items-center">
+                <Spinner color="primary" size="lg" label="Cargando cierres..." />
               </div>
             }>
             {(item) => (

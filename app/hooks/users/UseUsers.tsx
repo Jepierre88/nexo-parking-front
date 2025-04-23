@@ -51,7 +51,7 @@ export default function UseUsers() {
   const updateUser = async (user: User) => {
     setLoading(true);
     try {
-      const response = await axios.patch(
+      const response = await axios.put(
         `${CONSTANTS.APIURL}/users/${user.id}`,
         {
           name: user.name,
