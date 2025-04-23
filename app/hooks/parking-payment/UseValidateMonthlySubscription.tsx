@@ -1,10 +1,14 @@
 import { CONSTANTS } from "@/config/constants";
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import Cookies from "js-cookie";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { toast } from "sonner";
 import { number } from "zod";
 
 export default function UseValidateMonthlySubscription() {
+
+  const router = useRouter()
   const [loadingValidate, setLoadingValidate] = useState(false);
 
   const validate = async (
@@ -42,6 +46,10 @@ export default function UseValidateMonthlySubscription() {
       );
       return response.data;
     } catch (error: any) {
+      if (error instanceof AxiosError) {
+        toast.error("Inicie sesión de nuevo para continuar")
+        router.push("/auth/login")
+      }
       throw new Error(
         error.response?.data?.message || "Error al consultar la información"
       );

@@ -70,6 +70,27 @@ export const useClosures = () => {
       throw error;
     }
   };
+  const postPartialClosure = async (cashier: string) => {
+    const token = Cookies.get('auth_token');
+
+    try {
+      const response = await axios.post(
+        `${CONSTANTS.APIURL}/generatePartialClosure/${cashier}`,
+        {},
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      if (error instanceof AxiosError) console.log(error.response?.data);
+      console.error("Error al realizar el cierre:", error);
+      throw error;
+    }
+  };
 
   const getClosureDetails = async (id: number) => {
     const token = Cookies.get('auth_token');
@@ -135,6 +156,7 @@ export const useClosures = () => {
     postClosure,
     getClosureDetails,
     sendEmail,
-    generateReport
+    generateReport,
+    postPartialClosure
   };
 };

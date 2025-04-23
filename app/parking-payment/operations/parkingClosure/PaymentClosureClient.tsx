@@ -20,6 +20,7 @@ import { SubmitHandler, useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { Connector } from "@/app/libs/Printer";
 import { CONSTANTS } from "@/config/constants";
+import { AxiosError } from "axios";
 
 
 const initialIncomeEdit: Income = {
@@ -121,12 +122,6 @@ function PaymentClosureClient({ closures, pages }: {
 
   const { isOpen, onOpen, onOpenChange, onClose } = useDisclosure();
   const {
-    isOpen: isOpenEdit,
-    onOpen: onOpenEdit,
-    onOpenChange: onOpenChangeEdit,
-    onClose: onCloseEdit,
-  } = useDisclosure();
-  const {
     isOpen: isOpenModal,
     onOpen: onOpenModal,
     onOpenChange: onOpenChangeModal,
@@ -138,6 +133,13 @@ function PaymentClosureClient({ closures, pages }: {
     onOpenChange: onOpenChangeClose,
     onClose: onCloseClose,
   } = useDisclosure();
+
+  const {
+    isOpen: isOpenPartialClosure,
+    onOpen: onOpenPartialClosure,
+    onOpenChange: onOpenChangePartialClosure,
+    onClose: onClosePartialClosure
+  } = useDisclosure()
 
 
   const {
@@ -188,7 +190,7 @@ function PaymentClosureClient({ closures, pages }: {
       router.push(`/parking-payment/operations/parkingClosure?${params.toString()}`);
     })
   };
-  const { postClosure, getClosureDetails, sendEmail } = useClosures();
+  const { postClosure, getClosureDetails, sendEmail, postPartialClosure } = useClosures();
 
   const handleClose = async () => {
     const cashier = getCashier();
@@ -206,6 +208,32 @@ function PaymentClosureClient({ closures, pages }: {
       toast.error("Error al realizar el cierre");
     } finally {
       setLoadingClose(false);
+    }
+  };
+  const handlePartialClosure = async () => {
+    const cashier = getCashier();
+    setLoadingClose(true);
+    try {
+      const result = await postPartialClosure(cashier);
+      if (result) {
+        const impresora = new Connector(CONSTANTS.PRINTER_NAME);
+        await impresora.imprimirCierre(result);
+        toast.success("Cierre realizado con éxito");
+        onClosePartialClosure();
+      } else {
+        toast.error("Error al realizar el cierre");
+      }
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 401) {
+          toast.error("Por favo inicie sesión de nuevo");
+          router.push("/auth/login")
+        }
+      }
+      toast.error("Error al realizar el cierre");
+    } finally {
+      setLoadingClose(false);
+      handleFilter();
     }
   };
   const handleViewDetails = async (id: number) => {
@@ -342,7 +370,7 @@ function PaymentClosureClient({ closures, pages }: {
             color="primary"
             variant="bordered"
             isDisabled={loading}
-            onPress={onOpenClose}
+            onPress={onOpenPartialClosure}
           >
             Realizar cierre parcial
           </Button>
@@ -712,6 +740,38 @@ function PaymentClosureClient({ closures, pages }: {
           </ModalBody>
         </ModalContent>
       </Modal>
+
+
+      <Modal isOpen={isOpenPartialClosure} onOpenChange={onOpenChangePartialClosure}>
+        <ModalContent>
+          <ModalHeader className="flex justify-center items-center">
+            Confirmación del cierre parcial
+          </ModalHeader>
+          <hr className="separator" />
+
+          <ModalBody className="my-2">
+            <div className="flex items-center gap-2 w-full">
+              <span className=" text-base">{getCashier()}</span>
+              <span className=" text-base">
+                ¿Desea realizar el cierre parcial?
+              </span>
+            </div>
+            <div className="flex justify-end gap-4 w-full mt-6">
+              <Button
+                color="primary"
+                disabled={loadingClose}
+                onPress={handlePartialClosure}
+              >
+                {loadingClose ? "Cargando..." : "Generar cierre parcial"}
+              </Button>
+              <Button color="primary" variant="ghost" onPress={onClosePartialClosure}>
+                Cancelar
+              </Button>
+            </div>
+          </ModalBody>
+        </ModalContent>
+      </Modal>
+
     </section>
   );
 }
