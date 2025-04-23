@@ -446,6 +446,13 @@ function ParkingPayment({ }) {
                     </span>
                     <span className="w-full">{formatDate(new Date())}</span>
                   </div>
+                  <div className="text-base text-start mb-1 flex gap-4 justify-between">
+                    <span className="w-full">
+                      <strong>Tiempo de parqueo:</strong>
+                    </span>
+                    <span className="w-full">{paymentData.validationDetail.timeInParking}</span>
+                  </div>
+
                   <hr className="border-t-1 border-neutral-300 my-3" />
                   <div className="text-base text-start mb-1 flex gap-4 justify-between">
                     <span className="w-full">
