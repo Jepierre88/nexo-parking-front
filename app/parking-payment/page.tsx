@@ -44,6 +44,7 @@ import UsePermissions from "../hooks/UsePermissions";
 import { CONSTANTS } from "@/config/constants";
 import Factura from "@/types/Invoice";
 import { set } from "react-hook-form";
+import ElectronicBillDialog from "@/components/parking-payment/ElectronicBillDialog";
 
 
 
@@ -738,12 +739,13 @@ function ParkingPayment({ }) {
               closeDelay={100}
             >
               <Button
+                isIconOnly
                 radius="full"
                 color="primary"
-                className="min-w-1 flex justify-center items-center right-4 h-14 mx-auto"
+                className="flex justify-center items-center mx-auto"
                 onPress={() => setShowCart(true)}
               >
-                <CartIcon fill="#fff" stroke="#000" width={24} height={24} />
+                <CartIcon fill="#fff" stroke="#000" />
               </Button>
             </Tooltip>
           )}
@@ -767,6 +769,8 @@ function ParkingPayment({ }) {
           )}
         </div>
       </div>
+      <ElectronicBillDialog />
+
       <ExtraServices showCart={showCart} setShowCart={setShowCart} />
     </section>
   );
