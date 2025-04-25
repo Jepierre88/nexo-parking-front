@@ -542,12 +542,20 @@ function ParkingPayment({ }) {
         </CardHeader>
         <CardBody className="flex justify-center items-center overflow-x-hidden">
           <Form className="flex flex-col items-center justify-center w-full">
-            <div className="text-3xl mb-1 mt-2 flex gap-4 justify-between px-4">
-              <strong>TOTAL:</strong>
-              <p className="font-light tracking-tight">
-                ${paymentData.totalCost?.toLocaleString("de-DE") ?? 0}
-              </p>
-            </div>
+            <article className="text-3xl mb-1 mt-2 flex flex-col gap-4 justify-between px-2 w-full">
+              <div className="flex gap-4 mx-auto">
+                <strong>TOTAL:</strong>
+                <p className="font-light tracking-tight">
+                  ${paymentData.totalCost?.toLocaleString("de-DE") ?? 0}
+                </p>
+              </div>
+
+              <div className="flex justify-between gap-4">
+                <Checkbox className="flex-[0.4] text-xs">Facturación electrónica?</Checkbox>
+                <Input className="flex-[0.6]" label={"Documento"} variant="bordered" size="sm" radius="md" />
+              </div>
+
+            </article>
             {/* <div className="flex mt-2 justify-center items-center font-light">
               <p className="text-gray-600 my-auto px-4 mb-2">
                 ¿Facturación electrónica?

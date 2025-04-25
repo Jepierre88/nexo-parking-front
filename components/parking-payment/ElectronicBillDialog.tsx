@@ -103,15 +103,16 @@ export default function ElectronicBillDialog() {
 
   const searchForInformation = (identificationNumber: string) => {
     setLoadingDocument(true);
+    setSuggestedData(null);
     fetch(`${CONSTANTS.APIURL}/searchInfoCustomer/${identificationNumber}`)
       .then(response => {
         if (!response.ok) {
           setError("identification", {
             message: "No se encontró información para este número de documento",
           });
-          setSuggestedData(null);
           return;
         }
+        setSuggestedData(null);
         return response.json();
       })
       .then((data) => {
@@ -121,6 +122,7 @@ export default function ElectronicBillDialog() {
           return;
         }
         if (data?.data) {
+          window.scrollTo({ top: 0, behavior: "smooth" });
           setSuggestedData(data.data); // GUARDAMOS los datos sugeridos
         }
       })
