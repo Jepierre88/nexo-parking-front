@@ -325,7 +325,7 @@ function ParkingPayment({ }) {
       );
 
       const customerData = response.data;
-      if (!customerData && !customerData.exist) {
+      if (!customerData || !customerData.exist) {
         toast.error("El cliente no está registrado en el sistema.");
         return;
       }
@@ -884,7 +884,7 @@ function ParkingPayment({ }) {
           )}
         </div>
       </div>
-      {canDoElectronicBill && <ElectronicBillDialog/>}
+      {canDoElectronicBill && <ElectronicBillDialog />}
 
 
       <ExtraServices showCart={showCart} setShowCart={setShowCart} />
