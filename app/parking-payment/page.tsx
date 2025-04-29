@@ -27,9 +27,9 @@ import { ModalConfirmation } from "@/components/modales";
 import CardPropierties from "@/components/parking-payment/cardPropierties";
 import ExtraServices from "@/components/parking-payment/ExtraServicesCard";
 
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import { formatDate } from "../libs/utils";
-import { Form, Tooltip } from "@nextui-org/react";
+import { Form, Spinner, Tooltip } from "@nextui-org/react";
 import { CartIcon } from "@/components/icons";
 import withPermission from "../withPermission";
 import PaymentGenerate from "@/types/PaymentGenerate";
@@ -45,6 +45,7 @@ import { CONSTANTS } from "@/config/constants";
 import Factura from "@/types/Invoice";
 import { set } from "react-hook-form";
 import ElectronicBillDialog from "@/components/parking-payment/ElectronicBillDialog";
+import { useDebounce } from "use-debounce";
 
 
 
@@ -56,6 +57,10 @@ const EXACTS_VALUES_KEYS = [
 function ParkingPayment({ }) {
   const { user } = UseAuthContext();
   const [selectedTab, setSelectedTab] = useState<string>("Visitante");
+
+  const [isElectronicBill, setIsElectronicBill] = useState(false);
+  const [loadingCustomer, setLoadingCustomer] = useState(false);
+
   const { namePaymentType } = UseListsPaymentMethods("namePaymentType");
   const { getTransactionForPrint } = UseTransactions();
   const [vehicleType, setVehicleType] = useState<string>("");
@@ -71,6 +76,11 @@ function ParkingPayment({ }) {
   const [loadingPayment, setLoadingPayment] = useState(false);
   const { hasPermission } = UsePermissions();
   const canViewCart = useMemo(() => hasPermission(37), [hasPermission]);
+  const canDoElectronicBill = useMemo(() => hasPermission(43), [hasPermission]);
+
+  const [customer, setCustomer] = useState<Customer | undefined>(undefined)
+
+
   const [resetKey, setResetKey] = useState(0);
 
   const { state, dispatch, paymentData, setPaymentData } = usePaymentContext();
@@ -127,9 +137,15 @@ function ParkingPayment({ }) {
     }
   }, [paymentData?.status]);
 
-  const clearCart = () => {
-    dispatch({ type: "CLEAR_PAYMENTS" });
-  };
+  const [debouncedCustomerIdentificationNumber] = useDebounce(paymentData.customerIdentificationNumber, 1500)
+  useEffect(() => {
+    if (debouncedCustomerIdentificationNumber && debouncedCustomerIdentificationNumber.length > 6) {
+      getCustomerInformationFE(debouncedCustomerIdentificationNumber)
+    } else {
+      setCustomer(undefined)
+    }
+  }, [debouncedCustomerIdentificationNumber]);
+
   const saveMonthlyPayment = async (data: any, shouldPrint: boolean) => {
     setLoadingPayment(true);
 
@@ -142,7 +158,8 @@ function ParkingPayment({ }) {
         .then(async (response: any) => {
           console.log("Pago mensual registrado:", response.data);
           setPaymentData(initialPaymentData);
-
+          setCustomer(undefined)
+          setIsElectronicBill(false)
           if (shouldPrint && response.data.isSuccess) {
             const printInvoice = async () => {
               try {
@@ -173,6 +190,8 @@ function ParkingPayment({ }) {
         success: "Pago mensual registrado correctamente",
         error: (error) => {
           setPaymentData(initialPaymentData);
+          setCustomer(undefined)
+          setIsElectronicBill(false)
           setPaymentMethod("");
           console.error("Error al registrar el pago mensual:", error);
           return "Error al registrar el pago mensual. Intenta de nuevo.";
@@ -210,6 +229,7 @@ function ParkingPayment({ }) {
           cashValue: moneyReceived,
           returnValue: cashBack,
         },
+        customerIdentificationNumber: paymentData.customerIdentificationNumber || undefined,
       };
       console.log("Datos enviados al backend:", monthlyPaymentData);
       await saveMonthlyPayment(monthlyPaymentData, shouldPrint);
@@ -262,6 +282,7 @@ function ParkingPayment({ }) {
       total: paymentData.totalCost || 0,
       vehicleKind: paymentData.vehicleKind || "Desconocido",
       vehicleParkingTime: paymentData.validationDetail?.timeInParking || "0",
+      customerIdentificationNumber: paymentData.customerIdentificationNumber || undefined,
     };
 
     if (paymentData.concept !== "Servicios varios") {
@@ -288,6 +309,42 @@ function ParkingPayment({ }) {
   const onConfirmAction = async () => {
     handlePayment(true); // Con impresión
   };
+
+  const getCustomerInformationFE = async (customerIdentificationNumber: string) => {
+    setCustomer(undefined);
+    setLoadingCustomer(true)
+    try {
+      const response = await axios.get(
+        `${CONSTANTS.APIURL}/searchInfoCustomer/${customerIdentificationNumber}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${Cookies.get("auth_token")}`,
+          },
+        }
+      );
+
+      const customerData = response.data;
+      if (!customerData && !customerData.exist) {
+        toast.error("El cliente no está registrado en el sistema.");
+        return;
+      }
+      setCustomer(customer);
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        if (error.response?.status === 404) {
+          toast.error("El cliente no está registrado en el sistema.");
+          setPaymentData({ ...paymentData, customerIdentificationNumber: "" })
+          return;
+        }
+      }
+      console.error("Error al obtener la información del cliente:", error);
+      toast.error("Error al obtener la información del cliente.");
+      setPaymentData({ ...paymentData, customerIdentificationNumber: "" })
+    } finally {
+      setLoadingCustomer(false)
+    }
+  }
 
   // Pagar SIN imprimir factura
   const onCancelAction = async () => {
@@ -317,6 +374,8 @@ function ParkingPayment({ }) {
         .then(async (response: any) => {
           console.log("Pago registrado:", response.data);
           setPaymentData(initialPaymentData);
+          setCustomer(undefined)
+          setIsElectronicBill(false)
 
           const printInvoice = async (transactionId: any) => {
             try {
@@ -351,6 +410,8 @@ function ParkingPayment({ }) {
         success: "Pago registrado correctamente",
         error: (error) => {
           setPaymentData(initialPaymentData);
+          setCustomer(undefined)
+          setIsElectronicBill(false)
           console.error("Error al registrar el pago:", error);
           return "Error al registrar el pago. Intenta de nuevo.";
         },
@@ -550,10 +611,45 @@ function ParkingPayment({ }) {
                 </p>
               </div>
 
-              <div className="flex justify-between gap-4">
-                <Checkbox className="flex-[0.4] text-xs">Facturación electrónica?</Checkbox>
-                <Input className="flex-[0.6]" label={"Documento"} variant="bordered" size="sm" radius="md" />
-              </div>
+              {
+                canDoElectronicBill && (
+                  <>
+                    <div className="flex justify-between gap-4">
+                      <Checkbox
+                        className="flex-[0.4] text-xs"
+                        isSelected={isElectronicBill}
+                        onValueChange={setIsElectronicBill}>
+                        Facturación electrónica?
+                      </Checkbox>
+                      <Input
+                        className="flex-[0.6]"
+                        label={"Documento"}
+                        variant="bordered"
+                        size="sm"
+                        radius="md"
+                        isDisabled={!isElectronicBill || loadingCustomer}
+                        endContent={loadingCustomer ? (
+                          <Spinner
+                            size="sm"
+                            color="primary"
+                            className="my-auto"
+                            onClick={() => {
+                              getCustomerInformationFE(paymentData.customerIdentificationNumber || "")
+                            }}
+                          />
+                        ) : ""}
+                        value={isElectronicBill ? paymentData.customerIdentificationNumber ?? "" : ""}
+                        onChange={(e) => setPaymentData({ ...paymentData, customerIdentificationNumber: e.target.value })}
+                      />
+                    </div>
+                    <div className="h-3">
+                      {customer && customer.exist && (
+                        <p className="h-3 text-sm text-center">Factura a nombre de <strong>{(customer.data as ExistingCustomer).first_name} {(customer.data as ExistingCustomer).last_name}</strong></p>
+                      )}
+                    </div>
+                  </>
+                )
+              }
 
             </article>
             {/* <div className="flex mt-2 justify-center items-center font-light">
@@ -662,11 +758,18 @@ function ParkingPayment({ }) {
                 toast.error(
                   "Porfavor, ingrese el dinero para realizar el pago"
                 );
-              } else {
+              }
+              else if (isElectronicBill && !customer?.exist) {
+                toast.error("Tercero no registrado en el sistema");
+              }
+
+              else {
                 console.log(state.payments);
                 onOpenModalConfirmation();
               }
             }}
+            // si es factura electrónica y no existe el tercero, deshabilitar el botón
+            isDisabled={loadingCustomer || (isElectronicBill && !customer?.exist) || loadingPayment}
             isLoading={loadingPayment}
           >
             Realizar pago
@@ -682,6 +785,8 @@ function ParkingPayment({ }) {
               ...initialPaymentData,
               identificationCode: "",
             });
+            setCustomer(undefined);
+            setIsElectronicBill(false);
             onCloseStatusModal();
           }
         }}
@@ -699,6 +804,8 @@ function ParkingPayment({ }) {
               color="primary"
               onPress={() => {
                 setPaymentData(initialPaymentData);
+                setCustomer(undefined);
+                setIsElectronicBill(false);
                 onCloseStatusModal();
               }}
             >

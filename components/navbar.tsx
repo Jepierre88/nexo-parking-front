@@ -74,17 +74,23 @@ export const Navbar = () => {
     {
       label: (
         <>
-          <Arrow size={20} /> Ingreso y salida de vehículos
+          <Arrow size={20} /> Control de acceso
         </>
       ),
       key: "vehicle", // Changed from 3 to "vehicle"
       items: [
         {
-          label: "Ingreso Manual Por Placa",
+          label: "Ingreso y Salida Manual Por Placa",
           key: 7,
           href: "/parking-payment/ingresoSalida",
           permission: 7,
         },
+        {
+          label: "WIP Cortesia y eventos",
+          key: 8,
+          href: "/parking-payment/special-tickets",
+          permission: 45,
+        }
       ],
     },
     {

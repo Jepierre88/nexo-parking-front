@@ -64,6 +64,7 @@ export interface PaymentData {
 	isApportionment?: boolean;
 	cashier: string;
 	startDateTime?: string;
+	customerIdentificationNumber?: string;
 }
 
 export interface ValidationDetail {

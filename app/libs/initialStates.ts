@@ -21,7 +21,7 @@ export const initialPaymentData: PaymentData = {
 	status: 0,
 	subtotal: 0,
 	total: 0,
-	customType:"",
+	customType: "",
 	validationDetail: {
 		expectedOutcomeDatetime: "",
 		validationDatetime: "",
@@ -33,6 +33,7 @@ export const initialPaymentData: PaymentData = {
 	vehicleKind: "",
 	selectedService: undefined, // Si es opcional
 	extraServices: [],
-	cashier:"",
-	
+	cashier: "",
+	customerIdentificationNumber: "",
+
 };

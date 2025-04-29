@@ -101,8 +101,6 @@ export default function Login() {
         data
       );
 
-      console.log(response.data);
-
       const oneHourFromNow = new Date(new Date().getTime() + 60 * 60 * 1000);
 
       Cookies.set("auth_token", response.data.token, {
@@ -474,7 +472,6 @@ const RecoveryInputs = ({
 
       setMessage("Contraseña actualizada con éxito");
       toast.success("Contraseña actualizada con éxito");
-      console.log(response.data);
       onClose(); // Cierra el modal actual
     } catch (error) {
       console.error(error);
