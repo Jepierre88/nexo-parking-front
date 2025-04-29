@@ -329,7 +329,7 @@ function ParkingPayment({ }) {
         toast.error("El cliente no está registrado en el sistema.");
         return;
       }
-      setCustomer(customer);
+      setCustomer(customerData);
     } catch (error) {
       if (error instanceof AxiosError) {
         if (error.response?.status === 404) {
@@ -884,7 +884,8 @@ function ParkingPayment({ }) {
           )}
         </div>
       </div>
-      <ElectronicBillDialog />
+      {canDoElectronicBill && <ElectronicBillDialog/>}
+
 
       <ExtraServices showCart={showCart} setShowCart={setShowCart} />
     </section>
