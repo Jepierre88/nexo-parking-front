@@ -85,12 +85,12 @@ export const Navbar = () => {
           href: "/parking-payment/ingresoSalida",
           permission: 7,
         },
-        {
-          label: "WIP Cortesia y eventos",
-          key: 8,
-          href: "/parking-payment/special-tickets",
-          permission: 45,
-        }
+        // {
+        //   label: "WIP Cortesia y eventos",
+        //   key: 8,
+        //   href: "/parking-payment/special-tickets",
+        //   permission: 44,
+        // }
       ],
     },
     {
