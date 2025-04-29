@@ -326,6 +326,7 @@ function ParkingPayment({ }) {
 
       const customerData = response.data;
       if (!customerData || !customerData.exist) {
+        setPaymentData({ ...paymentData, customerIdentificationNumber: "" })
         toast.error("El cliente no está registrado en el sistema.");
         return;
       }
