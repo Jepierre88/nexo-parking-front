@@ -52,14 +52,17 @@ export class Connector {
 					operaciones: [...this.operaciones, { accion: "cut", datos: "" }],
 				})
 				.then((response) => {
-					resolve(response); // Resuelve la promesa si la petición es exitosa
+					this.operaciones = []; // ← Limpiar operaciones luego de imprimir
+					resolve(response);
 				})
 				.catch((error) => {
 					console.log("Error al imprimir", error);
-					reject(error); // Rechaza la promesa en caso de error
+					this.operaciones = []; // ← También limpiar si hay error
+					reject(error);
 				});
 		});
 	}
+
 
 
 	async imprimirFacturaTransaccion(factura: Invoice): Promise<void> {
@@ -492,6 +495,42 @@ export class Connector {
 
 
 
+		await this.imprimir();
+	}
+
+	async imprimirTicketEspecial({ data: ingreso, printInformation }: PrintIncome) {
+		const fechaIngreso = new Date(ingreso.datetime);
+		//Encabezado
+		this.operaciones.push({
+			accion: "textalign",
+			datos: "center",
+		});
+		this.operaciones.push({
+			accion: "text",
+			datos: `Fecha de ingreso: ${fechaIngreso.toLocaleString()}`,
+		});
+		this.operaciones.push({
+			accion: "text",
+			datos: `Tipo de vehiculo: ${ingreso.vehicleKind}`,
+		});
+		//QR
+		this.operaciones.push({
+			accion: `qr`,
+			// datos: `https://pay.coins-colombia.com/validate-data?companyId=2&serviceId=1&companyCode=${ingreso.identificationId}`,
+			datos: `${ingreso.identificationId}`,
+		});
+		this.operaciones.push({
+			accion: "text",
+			datos: `${printInformation.privacyPolicyInfo}`
+		})
+		this.operaciones.push({
+			accion: "text",
+			datos: `${printInformation.endDatePolicy}`,
+		})
+		this.operaciones.push({
+			accion: "text",
+			datos: `${printInformation.paymentPointInfo}`,
+		})
 		await this.imprimir();
 	}
 
