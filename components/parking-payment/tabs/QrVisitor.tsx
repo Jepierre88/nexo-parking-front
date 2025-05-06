@@ -16,6 +16,7 @@ import { custom } from "zod";
 import { CONSTANTS } from "@/config/constants";
 import { usePathname, useRouter } from "next/navigation";
 import Cookies from "js-cookie";
+import { updatePaymentData } from "@/app/libs/utils";
 
 type TYPES_VALIDATIONS = "responseDiscountCode" | "responseIdentificationCode" | "responsePlate"
 
@@ -252,50 +253,8 @@ export default function VisitanteQr() {
         }
       );
 
-      const updatedExtraServices =
-        response.data.extraServices?.map((service: any) => ({
-          code: service.code,
-          name: service.name,
-          quantity: service.quantity || 1,
-          unitPrice: service.unitPrice,
-          totalPrice:
-            service.unitPrice *
-            (service.quantity || 1) *
-            (1 + service.iva / 100),
-          iva: service.iva,
-          ivaAmount:
-            service.unitPrice *
-            (service.quantity || 1) *
-            (service.iva / 100),
-          netTotal: service.unitPrice * (service.quantity || 1),
-          isLocked: true,
-        })) || [];
+      updatePaymentData(response.data, setPaymentData);
 
-      const recalculatedTotals = updatedExtraServices.reduce(
-        (acc: any, service: any) => {
-          acc.netTotalServices += service.netTotal;
-          acc.totalServices += service.totalPrice;
-          acc.totalIVA += service.ivaAmount;
-          return acc;
-        },
-        { netTotalServices: 0, totalServices: 0, totalIVA: 0 }
-      );
-
-      const totalParking = response.data.total || 0;
-      const totalCost = recalculatedTotals.totalServices + totalParking;
-
-      const selectedService = services.find(
-        (item) => item.name === response.data.customType
-      );
-
-      setPaymentData({
-        ...response.data,
-        extraServices: updatedExtraServices,
-        netTotalServices: recalculatedTotals.netTotalServices,
-        totalServices: recalculatedTotals.totalServices,
-        totalParking,
-        totalCost,
-      });
       if (type) {
         const found = response.data.optionalFields.find(
           (field: any) => type in field

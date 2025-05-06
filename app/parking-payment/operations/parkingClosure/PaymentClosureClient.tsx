@@ -23,20 +23,6 @@ import { CONSTANTS } from "@/config/constants";
 import { AxiosError } from "axios";
 
 
-const initialIncomeEdit: Income = {
-  id: 0,
-  identificationId: "",
-  identificationMethod: "",
-  incomePointId: 0,
-  peopleAmount: 0,
-  plate: "",
-  plateImage: "",
-  processId: 0,
-  state: 0,
-  vehicle: "",
-  vehicleKind: "",
-};
-
 function PaymentClosureClient({ closures, pages }: {
   closures: Closure[],
   pages: number,

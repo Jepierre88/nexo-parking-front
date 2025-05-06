@@ -41,7 +41,7 @@ export async function getIncomesAction({
       page: page ?? 1,
     }
 
-
+    console.log(searchParams)
 
     const incomes = await axios.get(
       `${CONSTANTS.APIURL}/incomes/pp`,

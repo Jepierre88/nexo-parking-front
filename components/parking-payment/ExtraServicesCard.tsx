@@ -6,8 +6,6 @@ import UseExtraServices from "@/app/hooks/parking-payment/UseExtraServices";
 import { CancelIcon, MinusIcon, PlusIcon } from "../icons";
 import { toast } from "sonner";
 import { PaymentData } from "@/types";
-import UsePermissions from "@/app/hooks/UsePermissions";
-import { useMemo } from "react";
 export default function ExtraServices(props: {
   showCart: boolean;
   setShowCart: (show: boolean) => void;
@@ -212,7 +210,6 @@ export default function ExtraServices(props: {
 
   const ivaAmount = netCost * 0.19;
 
-  const totalCost = netCost + ivaAmount;
 
   return (
     <article
@@ -245,7 +242,8 @@ export default function ExtraServices(props: {
                 <thead className="sticky top-0 z-10">
                   <tr className="border-b">
                     <th className="text-left p-2">Servicio</th>
-                    <th className="text-right p-2">Valor</th>
+                    <th className="text-right p-2">Valor neto</th>
+                    <th className="p-2">% IVA</th>
                     <th className="text-center p-2">Cantidad</th>
                   </tr>
                 </thead>
@@ -255,6 +253,10 @@ export default function ExtraServices(props: {
                       <td className="p-2">{service.name}</td>
                       <td className="text-right p-2">
                         ${service.value.toLocaleString("es-CO")}
+                      </td>
+                      <td className="text-right p-2">
+
+                        {service.IVAPercentage}%
                       </td>
                       <td className="flex justify-center items-center gap-2 p-2">
                         <Button

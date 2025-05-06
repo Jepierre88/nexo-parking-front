@@ -78,6 +78,9 @@ function ParkingPayment({ }) {
   const canViewCart = useMemo(() => hasPermission(37), [hasPermission]);
   const canDoElectronicBill = useMemo(() => hasPermission(43), [hasPermission]);
 
+
+  const canSeeLostQr = useMemo(() => hasPermission(45), [hasPermission]);
+
   const [customer, setCustomer] = useState<Customer | undefined>(undefined)
 
 
@@ -456,9 +459,11 @@ function ParkingPayment({ }) {
             <Tab key="Mensualidad" title={"Mensualidad"}>
               <Mensualidad />
             </Tab>
-            <Tab key="QR perdido" title={"QR perdido"}>
-              <QrPerdido />
-            </Tab>
+            {canSeeLostQr && (
+              <Tab key="QR Perdido" title={"QR Perdido"}>
+                <QrPerdido />
+              </Tab>
+            )}
           </Tabs>
 
         </CardBody>
@@ -518,7 +523,7 @@ function ParkingPayment({ }) {
                     <span className="w-full">
                       <strong>Tiempo de parqueo:</strong>
                     </span>
-                    <span className="w-full">{paymentData.validationDetail.timeInParking}</span>
+                    <span className="w-full">{paymentData?.validationDetail?.timeInParking || ""}</span>
                   </div>
 
                   <hr className="border-t-1 border-neutral-300 my-3" />

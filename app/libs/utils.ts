@@ -88,3 +88,62 @@ export const exportToExcel = <T>(data: T[], fileName: string) => {
 	XLSX.writeFile(workbook, `${fileName}.xlsx`);
 
 }
+
+//THIS FUNCTION IS USED TO UPDATE THE PAYMENT DATA AFTER VALIDATING THE PLATE
+
+export const updatePaymentData = (data: any, fn: Function) => {
+	const updatedExtraServices =
+		data.extraServices?.map((service: any) => ({
+			code: service.code,
+			name: service.name,
+			quantity: service.quantity || 1,
+			unitPrice: service.unitPrice,
+			totalPrice: service.totalPrice,
+			iva: service.iva,
+			ivaAmount: service.ivaAmount,
+			netTotal: service.netTotal,
+			isLocked: true,
+		})) || [];
+
+	const recalculatedTotals = updatedExtraServices.reduce(
+		(acc: any, service: any) => {
+			acc.netTotalServices += service.netTotal;
+			acc.totalServices += service.totalPrice;
+			acc.totalIVA += service.ivaAmount;
+			return acc;
+		},
+		{ netTotalServices: 0, totalServices: 0, totalIVA: 0 }
+	);
+
+	const totalParking = data.total || 0;
+	const totalCost = recalculatedTotals.totalServices + totalParking;
+
+	fn({
+		...data,
+		plate: data.plate,
+		extraServices: updatedExtraServices,
+		netTotalServices: recalculatedTotals.netTotalServices,
+		totalServices: recalculatedTotals.totalServices,
+		totalParking,
+		totalCost,
+	});
+}
+
+
+export const clasifyPlate = (plate: string) => {
+	const normalized = plate.toUpperCase().trim();
+
+	// Carros: 3 letras + 3 números
+	const carRegex = /^[A-Z]{3}\d{3}$/;
+
+	// Motos: 3 letras + 2 números
+	const motoRegex1 = /^[A-Z]{3}\d{2}$/;
+
+	// Motos: 3 letras + 2 números + 1 letra
+	const motoRegex2 = /^[A-Z]{3}\d{2}[A-Z]$/;
+
+	if (carRegex.test(normalized)) return "CARRO";
+	if (motoRegex1.test(normalized) || motoRegex2.test(normalized)) return "MOTO";
+
+	return "UNKNOWN";
+};
