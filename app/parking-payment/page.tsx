@@ -139,7 +139,7 @@ function ParkingPayment({ }) {
 
   const [debouncedCustomerIdentificationNumber] = useDebounce(paymentData.customerIdentificationNumber, 1500)
   useEffect(() => {
-    if (debouncedCustomerIdentificationNumber && debouncedCustomerIdentificationNumber.length > 6) {
+    if (debouncedCustomerIdentificationNumber && debouncedCustomerIdentificationNumber.length >= 6) {
       getCustomerInformationFE(debouncedCustomerIdentificationNumber)
     } else {
       setCustomer(undefined)
