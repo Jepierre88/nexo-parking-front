@@ -8,6 +8,7 @@ import Income, { PrintIncome } from "@/types/Income";
 import { Closure, Transaction, ClosureDetails } from "@/types/Closure";
 import Cookies from "js-cookie";
 import { ConstructionOutlined } from '@mui/icons-material';
+import { CONSTANTS } from '@/config/constants';
 
 const getDeviceName = () => {
 	const userCookie = Cookies.get("user");
@@ -51,8 +52,9 @@ export class Connector {
 					nombre_impresora: this.nombre_impresora,
 					operaciones: [...this.operaciones, { accion: "cut", datos: "" }],
 				})
-				.then((response) => {
+				.then(async (response) => {
 					this.operaciones = []; // ← Limpiar operaciones luego de imprimir
+					await fetch(`${process.env.NEXT_PUBLIC_PRINTER_APIURL}/abrir-monedero?printer=${CONSTANTS.PRINTER_NAME}`,).catch(e => console.log(e))
 					resolve(response);
 				})
 				.catch((error) => {
