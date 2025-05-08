@@ -360,7 +360,39 @@ export class Connector {
 		};
 
 
-		const formatTableRow = (item: string, quantity: number, total: number, col1: number, col2: number, col3: number) => {
+		// const formatTableRow = (item: string, quantity: number, total: number, col1: number, col2: number, col3: number) => {
+		// 	const itemLines = wrapText(item, col1);
+		// 	let outputLines: string[] = [];
+
+		// 	itemLines.forEach((line, index) => {
+		// 		if (index === itemLines.length - 1) {
+		// 			const row = `${line.padEnd(col1)}${quantity.toString().padEnd(col2)}${total.toLocaleString().padStart(col3)}`;
+		// 			outputLines.push(row);
+		// 		} else {
+		// 			const row = `${line.padEnd(col1)} ${" ".repeat(col2)} ${" ".repeat(col3)}`;
+		// 			outputLines.push(row);
+		// 		}
+		// 	});
+		// 	return outputLines;
+		// };
+
+
+		const formatTableRow = (
+			item: string,
+			quantity: number,
+			total: number,
+			col1: number,
+			col2: number,
+			col3: number
+		) => {
+			// Si el item tiene 3 o más palabras, acorta las dos primeras
+			const words = item.trim().split(/\s+/);
+			if (words.length >= 3) {
+				words[0] = words[0].substring(0, 4);
+				words[1] = words[1].substring(0, 4);
+				item = words.join(" ");
+			}
+
 			const itemLines = wrapText(item, col1);
 			let outputLines: string[] = [];
 
@@ -373,9 +405,9 @@ export class Connector {
 					outputLines.push(row);
 				}
 			});
+
 			return outputLines;
 		};
-
 
 		const lineWidth = 40;
 		const col1Width = 20; // Item
