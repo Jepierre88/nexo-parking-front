@@ -54,7 +54,7 @@ export class Connector {
 				})
 				.then(async (response) => {
 					this.operaciones = []; // ← Limpiar operaciones luego de imprimir
-					await fetch(`${process.env.NEXT_PUBLIC_PRINTER_APIURL}/abrir-monedero?printer=${CONSTANTS.PRINTER_NAME}`,).catch(e => console.log(e))
+					await fetch(`${process.env.NEXT_PUBLIC_PRINTER_APIURL}/abrir-monedero?printer=${CONSTANTS.PRINTER_NAME}`).catch(e => console.log(e))
 					resolve(response);
 				})
 				.catch((error) => {
