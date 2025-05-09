@@ -37,6 +37,9 @@ export default function VisitanteQr() {
   // State to track if we're ready to validate
   const [shouldValidate, setShouldValidate] = useState(false);
 
+
+  const [payDay, setPayDay] = useState(false)
+
   const getCompanyCode = (value: string) => {
     if (!value.includes("http")) return value;
     const url = new URL(value);
@@ -72,6 +75,7 @@ export default function VisitanteQr() {
 
   // Execute validation when shouldValidate is true
   useEffect(() => {
+
     if (shouldValidate && paymentData.identificationCode.length >= 15 && !hasValidated) {
       const companyId = getCompanyCode(paymentData.identificationCode);
 
@@ -82,6 +86,7 @@ export default function VisitanteQr() {
         plate: paymentData.plate,
         customType: paymentData.customType,
         vehicleKind: paymentData.vehicleKind,
+        payDay: payDay,
         discountCode: paymentData.discountCode,
       };
 
@@ -244,6 +249,7 @@ export default function VisitanteQr() {
           plate: data.plate,
           customType: data.customType,
           discountCode: data.discountCode.trim(),
+          payDay: data.payDay,
         },
         {
           headers: {
@@ -336,6 +342,19 @@ export default function VisitanteQr() {
               ))}
           </Select>
         </div>
+        <div className="flex gap-4 justify-end mr-6">
+          <Checkbox
+            checked={payDay}
+            onChange={(e) => {
+              setPayDay(e.target.checked)
+              setShouldValidate(true)
+              setHasValidated(false)
+            }}
+            className="ml-0"
+          >
+            Dia pago
+          </Checkbox>
+        </div>
         <div className="flex gap-4 justify-between">
           <label
             className="text-base font-bold text-nowrap my-auto w-1/2 text-end"
@@ -386,6 +405,6 @@ export default function VisitanteQr() {
           <span>{paymentData?.validationDetail?.incomeDatetime}</span>
         </div>
       </form>
-    </article>
+    </article >
   );
 }

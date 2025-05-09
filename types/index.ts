@@ -101,6 +101,7 @@ export interface data {
 	plate: string;
 	customType: string;
 	discountCode: string;
+	payDay: boolean
 }
 
 export interface MonthlySubscriptionPaymentData {
