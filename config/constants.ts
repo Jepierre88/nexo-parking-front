@@ -3,6 +3,7 @@ export const CONSTANTS = {
   PRINTER_URL: process.env.NEXT_PUBLIC_PRINTER_APIURL,
   NODE_ENV: process.env.NODE_ENV,
   PRINTER_NAME: process.env.NEXT_PUBLIC_PRINTER_NAME || "",
+  IMAGE_URL: process.env.NEXT_PUBLIC_IMAGE_URL,
 }
 
 export const ITEMS_PER_PAGE = 8;

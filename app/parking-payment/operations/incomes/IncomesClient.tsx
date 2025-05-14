@@ -3,7 +3,7 @@
 import React, { useMemo, useState, useEffect } from "react";
 import { useSearchParams, useRouter, redirect } from "next/navigation";
 import { Button } from "@nextui-org/button";
-import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Accordion, AccordionItem, Spinner } from "@nextui-org/react";
+import { Table, TableHeader, TableColumn, TableBody, TableRow, TableCell, Accordion, AccordionItem, Spinner, select } from "@nextui-org/react";
 import { DateInput, DateRangePicker, Input } from "@nextui-org/react";
 import { useTheme } from "next-themes";
 import { getLocalTimeZone, parseAbsoluteToLocal } from "@internationalized/date";
@@ -28,6 +28,10 @@ import TableSkeleton from "@/components/TableSkeleton";
 import { CONSTANTS, ITEMS_PER_PAGE } from "@/config/constants";
 import { exportToExcel } from "@/app/libs/utils";
 import { generateReport, getIncomeForPrint, updateIncome } from "@/actions/incomes";
+import { Image as ImageIcon } from "@mui/icons-material";
+import Image from "next/image";
+import axios from "axios";
+import Cookies from "js-cookie";
 
 const initialIncomeEdit: Income = {
   id: 0,
@@ -86,6 +90,20 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
     });
   };
 
+  const [selectedImage, setSelectedImage] = useState<Income>({
+    id: 0,
+    identificationId: "",
+    identificationMethod: "",
+    incomePointId: 0,
+    peopleAmount: 0,
+    plate: "",
+    plateImage: "",
+    processId: 0,
+    state: 0,
+    vehicle: "",
+    vehicleKind: "",
+  });
+
   const [filterDateRange, setFilterDateRange] = useState<any>({
     start: fromParam
       ? parseAbsoluteToLocal(new Date(fromParam).toISOString())
@@ -93,7 +111,6 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
     end: toParam
       ? parseAbsoluteToLocal(new Date(toParam).toISOString())
       : parseAbsoluteToLocal(new Date().toISOString()),
-
   });
 
   const [tryDate, setTryDate] = useState<any>(
@@ -101,32 +118,6 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
       ? parseAbsoluteToLocal(new Date(fromParam).toISOString())
       : parseAbsoluteToLocal(new Date().toISOString())
   );
-
-  // useEffect(() => {
-  //   if (!fromParam || !toParam) {
-  //     setFilterDateRange({
-  //       start: parseAbsoluteToLocal(new Date(new Date().setDate(new Date().getDate() - 1)).toISOString()),
-  //       end: parseAbsoluteToLocal(new Date().toISOString()),
-  //     });
-  //     handleFilter()
-  //   }
-  // }, [])
-  // useEffect(() => {
-  //   const start = fromParam
-  //     ? parseAbsoluteToLocal(new Date(fromParam).toISOString())
-  //     : parseAbsoluteToLocal(new Date(new Date().setDate(new Date().getDate() - 1)).toISOString());
-
-  //   const end = toParam
-  //     ? parseAbsoluteToLocal(new Date(toParam).toISOString())
-  //     : parseAbsoluteToLocal(new Date().toISOString());
-
-  //   setFilterDateRange({ start, end });
-
-  //   if (fromParam && toParam) {
-  //     handleFilter(); // Ejecuta si vienen de la URL
-  //   }
-  // }, []);
-
   useEffect(() => {
     handleFilter(); return () => {
       console.log("Cleaning");
@@ -178,7 +169,6 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
     });
   };
 
-
   const handleEditIncome = (data: Income) => {
     setIncomeEdit(data);
     const parsedDate = parseAbsoluteToLocal(
@@ -214,6 +204,13 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
   } = useForm<Income>({});
 
   const {
+    isOpen: isOpenImage,
+    onOpen: openImageModal,
+    onOpenChange: onOpenChangeImage,
+    onClose: closeImageModal,
+  } = useDisclosure();
+
+  const {
     isOpen: isOpenEdit,
     onOpen: onOpenEdit,
     onOpenChange: onOpenChangeEdit,
@@ -238,6 +235,16 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
       console.error("Error al imprimir la factura", e);
     }
   };
+
+  const selectImage = (item: Income) => {
+    if (!item.plateImage) return;
+    const cleanedText = item.plateImage.replace("C:/COINS/img", `${CONSTANTS.APIURL}/images`)
+    setSelectedImage({
+      ...item,
+      plateImage: cleanedText,
+    })
+    openImageModal()
+  }
 
   // Formato de fecha para mostrar en la tabla
   const formatDate = (dateString: string) => {
@@ -274,6 +281,32 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
         id: toastId,
       });
     }
+  }
+
+  const savePlate = async () => {
+    const toastId = toast.loading("Guardando placa...");
+
+    axios.put(`${CONSTANTS.APIURL}/income/${selectedImage.id}`, {
+      plate: selectedImage.plate
+    }, {
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${Cookies.get("auth_token")}`
+      },
+    })
+      .then((response) => {
+        toast.success("Placa guardada correctamente.", {
+          id: toastId,
+        });
+        closeImageModal()
+        handleFilter()
+      })
+      .catch((error) => {
+        toast.error("Error al guardar la placa.", {
+          id: toastId,
+        });
+      })
+
   }
 
   return isLoading ? (
@@ -380,6 +413,7 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
             <TableColumn key="vehicleKind" align="center">Tipo Vehículo</TableColumn>
             <TableColumn key="plate" align="center">Placa</TableColumn>
             <TableColumn key="actions" align="center">Acciones</TableColumn>
+            <TableColumn key={"plateImage"} align="center">Imágen</TableColumn>
           </TableHeader>
           <TableBody
             items={incomes}
@@ -430,6 +464,11 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
                       </Button>
                     </CustomTooltip>
                   </div>
+                </TableCell>
+                <TableCell>
+                  <Button onPress={() => selectImage(item)}>
+                    <ImageIcon />
+                  </Button>
                 </TableCell>
               </TableRow>
             )}
@@ -509,6 +548,43 @@ function IncomesClient({ incomes, pages }: IncomesClientProps) {
                     </div>
                   </div>
                 </form>
+              </ModalBody>
+            </div>
+          )}
+        </ModalContent>
+      </Modal>
+
+      <Modal isOpen={isOpenImage} onOpenChange={onOpenChangeImage}>
+        <ModalContent>
+          {() => (
+            <div className="flex flex-col items-start w-full p-4">
+              <ModalHeader className="flex justify-between w-full p-0">
+                <h1 className="text-center text-2xl font-bold mb-2">Imagen</h1>
+              </ModalHeader>
+              <ModalBody className="flex w-full p-0">
+                <hr className="separator mt-0 mb-6 w-full" />
+                <div className="flex flex-col space-y-6">
+                  <div className="flex items-center w-full">
+                    <div className="flex flex-col w-full gap-4 justify-center items-center">
+                      <Image
+                        src={selectedImage?.plateImage || ""}
+                        width={400}
+                        height={400}
+                        alt="Imagen de placa"
+                      />
+                      <div className="flex items-center justify-around gap-4">
+                        <Input label="Placa" value={selectedImage?.plate} maxLength={6} onChange={(e) => {
+                          setSelectedImage((prev) => ({
+                            ...prev,
+                            plate: e.target.value.toUpperCase()
+                          }));
+
+                        }} />
+                        <Button size="lg" color="primary" onPress={savePlate}>Guardar</Button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </ModalBody>
             </div>
           )}

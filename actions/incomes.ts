@@ -41,8 +41,6 @@ export async function getIncomesAction({
       page: page ?? 1,
     }
 
-    console.log(searchParams)
-
     const incomes = await axios.get(
       `${CONSTANTS.APIURL}/incomes/pp`,
       {
@@ -54,6 +52,8 @@ export async function getIncomesAction({
         }
       },
     )
+
+    console.log(incomes.data.data)
 
     // await new Promise(resolve => setTimeout(resolve, 2000)); // Simulate a 2-second delay for the respons
 
