@@ -12,7 +12,7 @@ export default function ParkingLayout({ children }: { children: ReactNode }) {
       <main className="container relative mx-auto max-w-7xl px-2 flex-grow">
         <ProtectedRoute>
           <Toaster richColors duration={3000} />
-          <OcupationCounter />
+          {/* <OcupationCounter /> */}
           {children}
         </ProtectedRoute>
       </main>
