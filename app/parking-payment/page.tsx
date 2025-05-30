@@ -355,13 +355,39 @@ function ParkingPayment({ }) {
     handlePayment(false); // Sin impresión
   };
 
+  //Validar si una placa es valida segun su tipo de vehiculo
+  const isPlateValidForVehicle = (plate: string, vehicleKind: string): boolean => {
+    const formattedPlate = plate.trim().toUpperCase();
+
+    if (vehicleKind === "CARRO") {
+      return /^[A-Z]{3}\d{3}$/.test(formattedPlate);
+    }
+
+    if (vehicleKind === "MOTO") {
+      return /^[A-Z]{3}\d{2}[A-Z]$/.test(formattedPlate);
+    }
+
+    return false;
+  };
+
+
+
   const savePayment = async (data: any, shouldPrint: boolean) => {
-    if (!paymentData.plate || paymentData.plate === "" || paymentData.plate.length < 5) {
+    const { plate, vehicleKind } = paymentData;
+
+    if (!plate || plate.length < 5) {
       toast.error("El campo placa es obligatorio.");
+      onCloseModalConfirmationDos()
       return;
     }
-    setLoadingPayment(true);
 
+    if (!isPlateValidForVehicle(plate, vehicleKind)) {
+      toast.error(`La placa no coincide con el tipo de vehículo "${vehicleKind}".`);
+      onCloseModalConfirmationDos()
+      return;
+    }
+
+    setLoadingPayment(true);
 
     toast.promise(
       axios
@@ -378,13 +404,12 @@ function ParkingPayment({ }) {
         .then(async (response: any) => {
           console.log("Pago registrado:", response.data);
           setPaymentData(initialPaymentData);
-          setCustomer(undefined)
-          setIsElectronicBill(false)
+          setCustomer(undefined);
+          setIsElectronicBill(false);
 
           const printInvoice = async (transactionId: any) => {
             try {
-              const factura: Factura | null =
-                await getTransactionForPrint(transactionId);
+              const factura: Factura | null = await getTransactionForPrint(transactionId);
               console.log("FACTURA", factura);
 
               if (!factura) {
@@ -414,8 +439,8 @@ function ParkingPayment({ }) {
         success: "Pago registrado correctamente",
         error: (error) => {
           setPaymentData(initialPaymentData);
-          setCustomer(undefined)
-          setIsElectronicBill(false)
+          setCustomer(undefined);
+          setIsElectronicBill(false);
           console.error("Error al registrar el pago:", error);
           return "Error al registrar el pago. Intenta de nuevo.";
         },
@@ -426,6 +451,7 @@ function ParkingPayment({ }) {
       }
     );
   };
+
 
   return (
     <section
