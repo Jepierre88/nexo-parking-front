@@ -132,6 +132,7 @@ Esta guía te ayudará a instalar y desplegar el Frontend de Nexo Parking de man
 4. **Preparar para Despliegue**
    - Elimina todos los archivos y carpetas excepto la carpeta `prod`
    - Ingresa a la carpeta prod:
+   Esta carpta tiene que ser movida a `C://COINS/NEXO_PARKING` y renombrarla por: **FRONTEND**
    ```bash
    cd prod
    ```

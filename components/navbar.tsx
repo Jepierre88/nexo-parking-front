@@ -85,12 +85,12 @@ export const Navbar = () => {
           href: "/parking-payment/ingresoSalida",
           permission: 7,
         },
-        {
-          label: "Cortesia y eventos",
-          key: 8,
-          href: "/parking-payment/special-tickets",
-          permission: 43,
-        }
+        // {
+        //   label: "Cortesia y eventos",
+        //   key: 8,
+        //   href: "/parking-payment/special-tickets",
+        //   permission: 43,
+        // }
       ],
     },
     {
@@ -101,6 +101,12 @@ export const Navbar = () => {
       ),
       key: "reports", // Changed from 2 to "reports"
       items: [
+        {
+          label: "Dashboard",
+          key: 43,
+          href: "/parking-payment/operations/dashboard",
+          permission: 43,
+        },
         {
           label: "Ingresos",
           key: 2,
@@ -127,7 +133,6 @@ export const Navbar = () => {
         },
       ],
     },
-
     {
       label: (
         <>

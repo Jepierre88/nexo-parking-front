@@ -32,6 +32,12 @@ class Operation {
 
 
 export class Connector {
+	private getCompanyCode = (value: string) => {
+		if (!value.includes("http")) return value;
+		const url = new URL(value);
+		return url.searchParams.get("companyCode") || "";
+	};
+
 	nombre_impresora: string;
 	operaciones: Operation[];
 	constructor(nombre_impresora: string) {
@@ -311,8 +317,8 @@ export class Connector {
 		//QR
 		this.operaciones.push({
 			accion: `qr`,
-			// datos: `https://pay.coins-colombia.com/validate-data?companyId=2&serviceId=1&companyCode=${ingreso.identificationId}`,
-			datos: `${ingreso.identificationId}`,
+			// datos : {ingreso.identificationId},
+			datos: this.getCompanyCode(`https://pay.coins-colombia.com/validate-data?companyId=2&serviceId=1&companyCode=${ingreso.identificationId}`),
 		});
 		this.operaciones.push({
 			accion: "text",
@@ -550,8 +556,7 @@ export class Connector {
 		//QR
 		this.operaciones.push({
 			accion: `qr`,
-			// datos: `https://pay.coins-colombia.com/validate-data?companyId=2&serviceId=1&companyCode=${ingreso.identificationId}`,
-			datos: `${ingreso.identificationId}`,
+			datos: this.getCompanyCode(`https://pay.coins-colombia.com/validate-data?companyId=2&serviceId=1&companyCode=${ingreso.identificationId}`),
 		});
 		this.operaciones.push({
 			accion: "text",
