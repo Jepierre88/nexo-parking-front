@@ -1,4 +1,4 @@
-import { Encabezado } from './../../types/Closure';
+import { Encabezado } from '@/types/Closure';
 
 // Printer.js
 import axios from "axios";
