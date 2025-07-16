@@ -90,7 +90,6 @@ Esta guía te ayudará a instalar y desplegar el Frontend de Nexo Parking de man
 
 1. **Clonar el Proyecto**
    ```bash
-   git clone https://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@github.com/Jepierre89/new-ppa.git
    cd new-ppa
    ```
 

@@ -108,6 +108,42 @@ function ParkingPayment({ }) {
     onClose: onCloseStatusModal,
   } = useDisclosure();
 
+  // const {
+  //   isOpen: isOpenUpdateModal,
+  //   onOpen: onOpenUpdateModal,
+  //   onClose: onCloseUpdateModal,
+  //   onOpenChange: onOpenChangeUpdateModal,
+  // } = useDisclosure();
+  // const [isBooleanToUpdate, setIsBooleanToUpdate] = useState(true);
+
+  // const updateBooleanInTable = async () => {
+  //   console.log("🚀 Ejecutando updateBooleanInTable...");
+  //   try {
+  //     const response = await axios.get(`${CONSTANTS.APIURL}/enableOpenBarrier`, {
+  //       headers: {
+  //         Authorization: `Bearer ${Cookies.get("auth_token")}`,
+  //       },
+  //     });
+
+  //     console.log("✅ Respuesta completa:", response);
+  //     console.log("➡️ Booleano actual:", response?.data ?? "Sin data");
+
+  //     if (response.status === 200) {
+  //       setIsBooleanToUpdate(false);
+  //       console.log("🔄 Booleano actualizado correctamente:", response.data);
+  //       toast.success("Talanquera abierta correctamente");
+  //     } else {
+  //       console.warn("⚠️ Respuesta no 200:", response.status);
+  //       toast.error("No se pudo abrir la talanquera.");
+  //     }
+  //   } catch (error: any) {
+  //     console.error("❌ Error actualizando talanquera:", error);
+  //     if (error.response) {
+  //       console.log("🔍 Detalle del error:", error.response.data);
+  //     }
+  //     toast.error("Error al abrir la talanquera");
+  //   }
+  // };
   // useEffect para actualizar 'moneyReceived' cuando 'totalCost' se actualice
   useEffect(() => {
     // Si el método de pago seleccionado está en los valores exactos, establecer el dinero recibido igual al total
@@ -184,7 +220,7 @@ function ParkingPayment({ }) {
             };
             await printInvoice();
           }
-
+          // onOpenUpdateModal();
           setResetKey(resetKey + 1);
           return "Pago mensual registrado correctamente";
         }),
@@ -430,7 +466,7 @@ function ParkingPayment({ }) {
           if (shouldPrint) {
             await printInvoice(response.data.transactionId);
           }
-
+          // onOpenUpdateModal();
           setResetKey(resetKey + 1);
           return "Pago registrado correctamente";
         }),
@@ -877,6 +913,17 @@ function ParkingPayment({ }) {
           onCloseModalConfirmation();
         }}
       />
+      {/* <ModalConfirmation
+        message={"¿Abrir talanquera?"}
+        modalControl={{
+          isOpen: isOpenUpdateModal,
+          onOpen: onOpenUpdateModal,
+          onClose: onCloseUpdateModal,
+          onOpenChange: onOpenChangeUpdateModal,
+        }}
+        title={"Actualización de estado"}
+        onConfirm={updateBooleanInTable}
+      /> */}
       <div className="fixed right-4 top-20 z-30 flex flex-col">
         <div className="relative inline-block">
           {canViewCart && (

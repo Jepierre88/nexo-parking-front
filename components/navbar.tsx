@@ -53,103 +53,156 @@ export const Navbar = () => {
   const hasPermission = (permissionId: number): boolean =>
     permissions.includes(permissionId);
 
-  const navbarOptions = [
-    {
-      label: (
-        <>
-          <Money size={20} /> Pagar
-        </>
-      ),
-      key: "payment", // Changed from 1 to "payment"
-      items: [
-        {
-          label: "Procesos De Pago",
-          key: 4,
-          href: "/parking-payment",
-          permission: 4,
-        },
-      ],
-      background: "bg-secondary bg-opacity-100",
-    },
-    {
-      label: (
-        <>
-          <Arrow size={20} /> Control de acceso
-        </>
-      ),
-      key: "vehicle", // Changed from 3 to "vehicle"
-      items: [
-        {
-          label: "Ingreso y Salida Manual Por Placa",
-          key: 7,
-          href: "/parking-payment/ingresoSalida",
-          permission: 7,
-        },
-        // {
-        //   label: "Cortesia y eventos",
-        //   key: 8,
-        //   href: "/parking-payment/special-tickets",
-        //   permission: 43,
-        // }
-      ],
-    },
-    {
-      label: (
-        <>
-          <Data size={20} /> Informes
-        </>
-      ),
-      key: "reports", // Changed from 2 to "reports"
-      items: [
-        {
-          label: "Dashboard",
-          key: 43,
-          href: "/parking-payment/operations/dashboard",
-          permission: 43,
-        },
-        {
-          label: "Ingresos",
-          key: 2,
-          href: "/parking-payment/operations/incomes",
-          permission: 2,
-        },
-        {
-          label: "Salidas",
-          key: 3,
-          href: "/parking-payment/operations/outcomes",
-          permission: 3,
-        },
-        {
-          label: "Transacciones",
-          key: 5,
-          href: "/parking-payment/operations/transactions",
-          permission: 5,
-        },
-        {
-          label: "Cierres",
-          key: 6,
-          href: "/parking-payment/operations/parkingClosure",
-          permission: 6,
-        },
-      ],
-    },
-    {
-      label: (
-        <>
-          <Key size={20} /> Administrador
-        </>
-      ),
-      key: "admin", // Changed from 1 to "admin"
-      items: [
-        {
-          label: "Usuarios",
-          key: 1,
-          href: "/parking-payment/users",
-          permission: 1,
-        },
-      ],
-    },
-  ];
+const navbarOptions = [
+  {
+    label: (
+      <>
+        <Money size={20} /> Pagar
+      </>
+    ),
+    key: "payment", // ✅ Este se queda como está
+    items: [
+      {
+        label: "Procesos De Pago",
+        key: 4,
+        href: "/parking-payment",
+        permission: 4,
+      },
+    ],
+    background: "bg-secondary bg-opacity-100",
+  },
+  {
+    label: (
+      <>
+        <Arrow size={20} /> Control de acceso
+      </>
+    ),
+    key: "vehicle",
+    items: [
+      {
+        label: "Ingreso y Salida Manual Por Placa",
+        key: 7,
+        href: "/parking-payment/ingresoSalida",
+        permission: 7,
+      },
+      {
+        label: "Cortesia y eventos",
+        key: 8,
+        href: "/parking-payment/special-tickets",
+        permission: 43,
+      },
+    ],
+  },
+  {
+    label: (
+      <>
+        <Data size={20} /> Informes
+      </>
+    ),
+    key: "reports",
+    items: [
+      {
+        label: "Dashboard",
+        key: 43,
+        href: "/parking-payment/operations/dashboard",
+        permission: 43,
+      },
+      {
+        label: "Ingresos",
+        key: 2,
+        href: "/parking-payment/operations/incomes",
+        permission: 2,
+      },
+      {
+        label: "Salidas",
+        key: 3,
+        href: "/parking-payment/operations/outcomes",
+        permission: 3,
+      },
+      {
+        label: "Transacciones",
+        key: 5,
+        href: "/parking-payment/operations/transactions",
+        permission: 5,
+      },
+      {
+        label: "Cierres",
+        key: 6,
+        href: "/parking-payment/operations/parkingClosure",
+        permission: 6,
+      },
+    ],
+  },
+  {
+    label: (
+      <>
+        <Key size={20} /> Administración
+      </>
+    ),
+    key: "admin-config", // ✅ Aquí está el cambio
+    items: [
+      {
+        label: "Cortesia",
+        key: "admin-1",
+        href: "/parking-payment/cortesias",
+        permission: 43,
+      },
+      {
+        label: "Tarifa Especial",
+        key: "admin-2",
+        href: "/parking-payment/especial",
+        permission: 43,
+      },
+      {
+        label: "Registro Mes Moto",
+        key: "admin-3",
+        href: "/parking-payment/registroMesMoto",
+        permission: 44,
+      },
+      {
+        label: "Eventos",
+        key: "admin-4",
+        href: "/parking-payment/eventos",
+        permission: 44,
+      },
+      {
+        label: "Asignación de descuentos",
+        key: "admin-5",
+        href: "/parking-payment/descuentos/asignacion",
+        permission: 44,
+      },
+      {
+        label: "Histórico de descuentos",
+        key: "admin-6",
+        href: "/parking-payment/descuentos/historico",
+        permission: 45,
+      },
+      {
+        label: "Descuentos por usuario",
+        key: "admin-7",
+        href: "/parking-payment/descuentos/discountsUsers",
+        permission: 46,
+      },
+    ],
+  },
+  {
+    label: (
+      <>
+        <Key size={20} /> Administrador
+      </>
+    ),
+    key: "admin",
+    items: [
+      {
+        label: "Usuarios",
+        key: 1,
+        href: "/parking-payment/users",
+        permission: 1,
+      },
+    ],
+  },
+];
+
 
   // Filtrar opciones de menú según los permisos del usuario
   const filteredNavbarOptions = navbarOptions
